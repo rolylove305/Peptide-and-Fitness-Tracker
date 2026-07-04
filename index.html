@@ -113,6 +113,24 @@
         </div>
 
         <div class="card">
+          <div class="section-title">
+            <h2>Notifications</h2>
+            <button id="enableNotifications" class="small-btn">Enable</button>
+          </div>
+          <p class="muted" id="notifStatus">Notifications are off. Enable them to get a daily reminder for today's peptides, water, protein, and workout.</p>
+          <div class="form-grid">
+            <label>Daily reminder time<input id="setReminderTime" type="time" value="09:00"></label>
+            <label>Remind me
+              <select id="setNotifEnabled">
+                <option value="false">Off</option>
+                <option value="true">On</option>
+              </select>
+            </label>
+          </div>
+          <button id="testNotification" class="small-btn">Send test notification</button>
+        </div>
+
+        <div class="card">
           <h2>Danger zone</h2>
           <button id="resetAll" class="danger-btn">Reset all app data</button>
         </div>

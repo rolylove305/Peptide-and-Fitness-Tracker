@@ -17,6 +17,8 @@ const defaults = {
   water:4,
   sleep:7.5,
   vialDays:30,
+  notifEnabled:false,
+  reminderTime:"09:00",
   mealTemplate:"Breakfast: Eggs, oats, berries\nSnack: Greek yogurt, almonds\nLunch: Chicken, rice, vegetables\nSnack: Protein shake\nDinner: Fish or lean beef, salad, avocado",
   workouts:{
     Sunday:"Rest",
@@ -167,7 +169,10 @@ function renderSettings(){
   $("setWater").value=p.water||"";
   $("setSleep").value=p.sleep||"";
   $("setVialDays").value=p.vialDays||30;
+  $("setReminderTime").value=p.reminderTime||"09:00";
+  $("setNotifEnabled").value=String(!!p.notifEnabled);
   $("mealTemplate").value=p.mealTemplate || "";
+  updateNotifStatus();
   const box=$("peptideSettingsList"); box.innerHTML="";
   p.peptides.forEach((item,idx)=>{
     const div=document.createElement("div");
@@ -206,6 +211,8 @@ function readSettings(){
   p.water=Number($("setWater").value)||0;
   p.sleep=Number($("setSleep").value)||0;
   p.vialDays=Number($("setVialDays").value)||30;
+  p.reminderTime=$("setReminderTime").value || "09:00";
+  p.notifEnabled=$("setNotifEnabled").value==="true";
   p.mealTemplate=$("mealTemplate").value || "";
   document.querySelectorAll(".setting-item").forEach((div,idx)=>{
     const item=p.peptides[idx];
@@ -279,6 +286,52 @@ function calcDose(){
   $("unitsOut").textContent=units.toFixed(1)+" units";
   $("syringeOut").textContent=units<=syringe ? "Fits" : `Needs > ${syringe} units`;
 }
+function notifSupported(){ return "Notification" in window; }
+function updateNotifStatus(){
+  const el=$("notifStatus");
+  if(!el) return;
+  const p=profile();
+  if(!notifSupported()){ el.textContent="This browser doesn't support notifications."; return; }
+  if(Notification.permission==="denied"){ el.textContent="Notifications are blocked in your browser settings. Allow them for this site to receive reminders."; return; }
+  if(Notification.permission!=="granted"){ el.textContent="Notifications aren't enabled yet. Tap Enable to allow them."; return; }
+  el.textContent = p.notifEnabled
+    ? `Daily reminder is on for ${p.reminderTime||"09:00"} with today's peptides, water, protein, and workout.`
+    : "Notifications are allowed but the daily reminder is switched Off above.";
+}
+async function showAppNotification(title, body){
+  if(!notifSupported() || Notification.permission!=="granted") return;
+  if("serviceWorker" in navigator){
+    try{
+      const reg=await navigator.serviceWorker.ready;
+      reg.showNotification(title,{body, icon:undefined, badge:undefined, tag:"tracker-reminder"});
+      return;
+    }catch{}
+  }
+  new Notification(title,{body});
+}
+function reminderKeyForToday(){ return "reminderSent_"+new Date().toDateString(); }
+function checkReminder(){
+  const p=profile();
+  if(!p.notifEnabled || !notifSupported() || Notification.permission!=="granted") return;
+  const [h,m]=(p.reminderTime||"09:00").split(":").map(Number);
+  const now=new Date();
+  const target=new Date(); target.setHours(h||9,m||0,0,0);
+  if(now<target) return;
+  if(store.get(reminderKeyForToday(),false)) return;
+  const dn=dayName();
+  const tasks=tasksForDay(dn);
+  store.set(reminderKeyForToday(),true);
+  showAppNotification(`${p.name||"Tracker"}: today's plan`, tasks.join(" • ") || "No tasks scheduled today.");
+}
+async function enableNotifications(){
+  if(!notifSupported()){ updateNotifStatus(); return; }
+  const perm = await Notification.requestPermission();
+  if(perm==="granted"){
+    const p=profile(); p.notifEnabled=true; saveProfile(p);
+    $("setNotifEnabled").value="true";
+  }
+  updateNotifStatus();
+}
 function refreshAll(){
   renderSettings(); updateDashboard(); renderDaily(); renderItems(); renderWorkouts(); renderInventory(); renderProgress(); calcDose();
 }
@@ -304,6 +357,14 @@ $("addVial").onclick=()=>{
   store.set("inventory",list); renderInventory();
 };
 $("saveWorkout").onclick=saveWorkouts;
+$("enableNotifications").onclick=enableNotifications;
+$("testNotification").onclick=async ()=>{
+  if(!notifSupported()){ alert("This browser doesn't support notifications."); return; }
+  if(Notification.permission!=="granted"){ await enableNotifications(); }
+  if(Notification.permission==="granted"){
+    showAppNotification(`${profile().name||"Tracker"}: test notification`, tasksForDay(dayName()).join(" • ") || "No tasks scheduled today.");
+  }
+};
 $("saveMeals").onclick=()=>{const p=profile(); p.mealTemplate=$("mealTemplate").value; saveProfile(p); refreshAll(); alert("Meal template saved.")};
 $("addProgress").onclick=()=>{
   const p=profile();
@@ -317,3 +378,5 @@ if(!store.get("profile",null)) saveProfile(defaults);
 if(store.get("light",false)) document.body.classList.add("light");
 refreshAll();
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("service-worker.js").catch(()=>{}); }
+checkReminder();
+setInterval(checkReminder, 60000);
