@@ -1,0 +1,9 @@
+{
+  "name": "Peptide & Fitness Tracker V2",
+  "short_name": "FitTracker V2",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#07111f",
+  "theme_color": "#07111f",
+  "icons": []
+}
