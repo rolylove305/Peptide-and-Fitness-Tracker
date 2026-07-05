@@ -10,22 +10,22 @@
         #daily > .bar h2{font-size:0}
         #daily > .bar h2:after{content:'Daily 2.0';font-size:26px}
         #daily > .bar{align-items:center;margin-bottom:10px}
-        #days{display:block!important;width:100%;margin-top:12px}
+        #days{display:block!important;width:100%;margin-top:12px;overflow:hidden}
         .daily2-wrap{display:grid!important;grid-template-columns:minmax(520px,1.15fr) minmax(340px,.85fr);gap:18px;align-items:start;width:100%}
-        .daily2-list{display:block!important;margin-top:0!important;width:100%}
-        .daily2-hero{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:0!important;width:100%;min-width:0}
+        .daily2-list{display:block!important;margin-top:0!important;width:100%;min-width:0}
+        .daily2-hero{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:0!important;width:100%;min-width:0;overflow:hidden}
         .daily2-hero .bar{align-items:start;gap:10px}
-        .daily2-date{width:100%;max-width:100%;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:16px;box-sizing:border-box;text-align:left;min-height:54px}
-        .daily2-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+        .daily2-date{display:block;width:100%!important;min-width:0!important;max-width:100%!important;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:16px;box-sizing:border-box;text-align:left;min-height:54px;-webkit-appearance:none;appearance:none}
+        .daily2-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;min-width:0}
         .daily2-summary .metric{min-width:0;padding:14px!important}
         .daily2-summary .metric h3{font-size:21px;word-break:normal;overflow-wrap:normal}
-        .daily2-card{border:1px solid var(--line);border-radius:18px;padding:16px;background:var(--card);margin:0 0 12px;box-sizing:border-box;max-width:100%;width:100%}
+        .daily2-card{border:1px solid var(--line);border-radius:18px;padding:16px;background:var(--card);margin:0 0 12px;box-sizing:border-box;max-width:100%;width:100%;min-width:0;overflow:hidden}
         .daily2-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
         .daily2-top h3{margin:0 0 4px}
         .daily2-check{min-width:54px;height:54px;border-radius:18px;border:1px solid var(--line);font-size:24px;background:var(--soft);color:var(--text)}
         .daily2-check.done{background:linear-gradient(135deg,#14b8a6,#22c55e);color:white;border:0}
         .daily2-grid{display:grid;grid-template-columns:1fr 120px;gap:10px;margin-top:12px}
-        .daily2-grid input,.daily2-grid select,.daily2-notes input{width:100%;box-sizing:border-box}
+        .daily2-grid input,.daily2-grid select,.daily2-notes input{width:100%;box-sizing:border-box;min-width:0}
         .daily2-notes{margin-top:10px;display:block}
         .daily2-actions{display:flex;gap:10px;margin-top:12px}
         .daily2-actions button{flex:1;min-width:0}
@@ -36,28 +36,30 @@
         }
         @media(max-width:760px){
           #daily > .bar h2:after{font-size:28px}
-          #days{padding-bottom:90px}
-          .daily2-list{display:block!important}
-          .daily2-hero{padding:16px!important;border-radius:22px}
+          #days{padding-bottom:90px;overflow:visible}
+          .daily2-wrap{display:block!important;width:100%;max-width:100%;overflow:visible}
+          .daily2-list{display:block!important;width:100%;max-width:100%;overflow:visible}
+          .daily2-hero{padding:14px!important;border-radius:22px;width:100%;max-width:100%;overflow:hidden}
           .daily2-hero .bar{display:grid;grid-template-columns:1fr auto;align-items:start}
-          .daily2-hero .bar h2{font-size:28px;line-height:1.05;margin:0 0 8px}
+          .daily2-hero .bar h2{font-size:26px;line-height:1.05;margin:0 0 8px}
           .daily2-hero .bar p.muted{font-size:15px;line-height:1.35}
-          .daily2-date{font-size:17px;text-align:center;padding:16px;min-height:60px}
+          .daily2-date{font-size:16px;text-align:center;padding:14px;min-height:56px;width:100%!important;max-width:100%!important}
           .daily2-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
           .daily2-summary .metric{padding:12px!important;border-radius:18px}
           .daily2-summary .metric p{font-size:12px}
           .daily2-summary .metric h3{font-size:18px}
           .dailygrid{grid-template-columns:1fr 1fr!important;gap:8px!important}
           .dailygrid label.full{grid-column:1/-1}
-          .daily2-card{padding:16px;border-radius:22px;margin-bottom:12px}
+          .daily2-card{padding:14px;border-radius:22px;margin-bottom:12px;width:100%;max-width:100%;overflow:hidden}
         }
         @media(max-width:430px){
-          .daily2-hero .bar{grid-template-columns:1fr}
-          #dailyGoToday{width:100%}
-          .daily2-summary{grid-template-columns:1fr}
-          .dailygrid{grid-template-columns:1fr!important}
+          .daily2-hero .bar{grid-template-columns:1fr auto}
+          #dailyGoToday{width:auto;min-width:76px}
+          .daily2-summary{grid-template-columns:1fr 1fr 1fr}
+          .daily2-summary .metric h3{font-size:16px}
+          .dailygrid{grid-template-columns:1fr 1fr!important}
           .daily2-grid{grid-template-columns:1fr 96px}
-          .daily2-actions{flex-direction:column}
+          .daily2-actions{flex-direction:row}
         }
       `;
       document.head.appendChild(style);
