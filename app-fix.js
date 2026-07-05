@@ -16,6 +16,14 @@
     return window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
   }
 
+  function loadDailyV2() {
+    if (document.getElementById('dailyV2Script')) return;
+    const s = document.createElement('script');
+    s.id = 'dailyV2Script';
+    s.src = 'daily-v2.js?v=44';
+    document.body.appendChild(s);
+  }
+
   function addAuthFields() {
     const signupPass = $('signupPass');
     if (signupPass && !$('signupPass2')) {
@@ -63,6 +71,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
+    loadDailyV2();
     const sb = client();
     if (!sb) return;
     addAuthFields();
