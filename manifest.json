@@ -1,7 +1,7 @@
 {
-  "name": "Peptide Fitness Tracker V3.2 Cloud",
-  "short_name": "FitTracker V3.2",
-  "start_url": "index.html",
+  "name": "Peptide Fitness Tracker V4.1",
+  "short_name": "FitTracker V4.1",
+  "start_url": "index.html?v=41",
   "display": "standalone",
   "background_color": "#07111f",
   "theme_color": "#07111f",
