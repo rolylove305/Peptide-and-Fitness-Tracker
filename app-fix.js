@@ -53,12 +53,24 @@
     return text;
   }
 
-  function openTrackerNow() {
+  async function bootTracker(sb) {
+    const { data } = await sb.auth.getSession();
+    if (!data?.session?.user) return false;
     msg('Login success. Opening tracker...');
-    setTimeout(() => {
-      const fresh = Date.now();
-      location.href = location.origin + location.pathname + '?fresh=' + fresh;
-    }, 350);
+    if (typeof window.boot === 'function') {
+      try {
+        await window.boot();
+        return true;
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    hide('auth');
+    show('app');
+    const status = $('status');
+    if (status) status.textContent = 'Logged in. Loading app...';
+    setTimeout(() => location.reload(), 600);
+    return true;
   }
 
   function showResetMode() {
@@ -72,13 +84,16 @@
     msg('Enter a new password for your account.');
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     const sb = client();
     if (!sb) return;
     addAuthFields();
 
     if (location.hash.includes('type=recovery') || location.search.includes('resetPassword=1')) {
       showResetMode();
+    } else {
+      const { data } = await sb.auth.getSession();
+      if (data?.session?.user) setTimeout(() => bootTracker(sb), 250);
     }
 
     $('tabSignup')?.addEventListener('click', () => {
@@ -114,7 +129,7 @@
       try {
         const { data, error } = await sb.auth.signUp({ email, password, options: { data: { name } } });
         if (error) return msg(friendlyError(error));
-        if (data.session) return openTrackerNow();
+        if (data.session) return bootTracker(sb);
         msg('Account created. If email confirmation is ON, confirm it, then login.');
         $('tabLogin')?.click();
         if ($('loginEmail')) $('loginEmail').value = email;
@@ -137,7 +152,7 @@
         const { data, error } = await sb.auth.signInWithPassword({ email, password });
         if (error) return msg(friendlyError(error));
         if (!data?.session) return msg('Login did not return a session. Try again or create a new account.');
-        openTrackerNow();
+        await bootTracker(sb);
       } catch (error) {
         msg(friendlyError(error));
       } finally {
@@ -174,7 +189,7 @@
         const { error } = await sb.auth.updateUser({ password: p1 });
         if (error) return msg(friendlyError(error));
         msg('Password updated. Opening tracker...');
-        setTimeout(openTrackerNow, 500);
+        setTimeout(() => bootTracker(sb), 500);
       } catch (error) {
         msg(friendlyError(error));
       } finally {
