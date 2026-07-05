@@ -23,7 +23,6 @@
       label.innerHTML = 'Confirm password<input id="signupPass2" type="password">';
       signupPass.closest('label')?.after(label);
     }
-
     const loginBtn = $('loginBtn');
     if (loginBtn && !$('forgotBtn')) {
       const btn = document.createElement('button');
@@ -35,7 +34,6 @@
       btn.textContent = 'Forgot password?';
       loginBtn.after(btn);
     }
-
     const authCard = document.querySelector('.authcard');
     if (authCard && !$('resetBox')) {
       const box = document.createElement('div');
@@ -51,30 +49,6 @@
     if (/confirm|confirmed|verification/i.test(text)) return 'This account still needs email confirmation. Check your email, or create a new user after email confirmation was turned off.';
     if (/invalid login credentials/i.test(text)) return 'Invalid email or password. Check the email/password, or use Forgot password.';
     return text;
-  }
-
-  async function bootTracker(sb) {
-    const { data } = await sb.auth.getSession();
-    if (!data?.session?.user) return false;
-    msg('Login success. Opening tracker...');
-
-    if (typeof window.boot === 'function') {
-      try {
-        await window.boot();
-        return true;
-      } catch (error) {
-        console.error(error);
-        msg('Login worked, but the tracker had an app error: ' + friendlyError(error));
-      }
-    } else {
-      msg('Login worked, but the tracker script did not finish loading. Refresh once.');
-    }
-
-    hide('auth');
-    show('app');
-    const status = $('status');
-    if (status) status.textContent = 'Logged in, but tracker loading hit an error. Send this message to support.';
-    return true;
   }
 
   function showResetMode() {
@@ -93,11 +67,11 @@
     if (!sb) return;
     addAuthFields();
 
+    const originalLogin = $('loginBtn')?.onclick;
+    const originalSignup = $('signupBtn')?.onclick;
+
     if (location.hash.includes('type=recovery') || location.search.includes('resetPassword=1')) {
       showResetMode();
-    } else {
-      const { data } = await sb.auth.getSession();
-      if (data?.session?.user) setTimeout(() => bootTracker(sb), 250);
     }
 
     $('tabSignup')?.addEventListener('click', () => {
@@ -124,24 +98,10 @@
       const email = $('signupEmail')?.value.trim();
       const password = $('signupPass')?.value || '';
       const password2 = $('signupPass2')?.value || '';
-      const name = $('signupName')?.value.trim();
       if (!email || !password || !password2) return msg('Enter email, password, and confirm password.');
       if (password.length < 6) return msg('Password must be at least 6 characters.');
       if (password !== password2) return msg('Passwords do not match. Please type them again.');
-      $('signupBtn').disabled = true;
-      msg('Creating account...');
-      try {
-        const { data, error } = await sb.auth.signUp({ email, password, options: { data: { name } } });
-        if (error) return msg(friendlyError(error));
-        if (data.session) return bootTracker(sb);
-        msg('Account created. If email confirmation is ON, confirm it, then login.');
-        $('tabLogin')?.click();
-        if ($('loginEmail')) $('loginEmail').value = email;
-      } catch (error) {
-        msg(friendlyError(error));
-      } finally {
-        $('signupBtn').disabled = false;
-      }
+      if (typeof originalSignup === 'function') return originalSignup.call($('signupBtn'));
     }, true);
 
     $('loginBtn')?.addEventListener('click', async (event) => {
@@ -150,17 +110,22 @@
       const email = $('loginEmail')?.value.trim();
       const password = $('loginPass')?.value || '';
       if (!email || !password) return msg('Enter email and password.');
-      $('loginBtn').disabled = true;
       msg('Logging in...');
       try {
+        if (typeof originalLogin === 'function') {
+          await originalLogin.call($('loginBtn'));
+          setTimeout(() => {
+            if (!$('auth')?.classList.contains('hide')) msg('Login worked, but the app did not open. The main app script is hitting an error after login.');
+          }, 1200);
+          return;
+        }
         const { data, error } = await sb.auth.signInWithPassword({ email, password });
         if (error) return msg(friendlyError(error));
         if (!data?.session) return msg('Login did not return a session. Try again or create a new account.');
-        await bootTracker(sb);
+        hide('auth');
+        show('app');
       } catch (error) {
         msg(friendlyError(error));
-      } finally {
-        $('loginBtn').disabled = false;
       }
     }, true);
 
@@ -192,8 +157,8 @@
       try {
         const { error } = await sb.auth.updateUser({ password: p1 });
         if (error) return msg(friendlyError(error));
-        msg('Password updated. Opening tracker...');
-        setTimeout(() => bootTracker(sb), 500);
+        msg('Password updated. Go back to Login and sign in.');
+        $('tabLogin')?.click();
       } catch (error) {
         msg(friendlyError(error));
       } finally {
