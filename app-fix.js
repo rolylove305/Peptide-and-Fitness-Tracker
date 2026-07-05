@@ -57,19 +57,23 @@
     const { data } = await sb.auth.getSession();
     if (!data?.session?.user) return false;
     msg('Login success. Opening tracker...');
+
     if (typeof window.boot === 'function') {
       try {
         await window.boot();
         return true;
       } catch (error) {
         console.error(error);
+        msg('Login worked, but the tracker had an app error: ' + friendlyError(error));
       }
+    } else {
+      msg('Login worked, but the tracker script did not finish loading. Refresh once.');
     }
+
     hide('auth');
     show('app');
     const status = $('status');
-    if (status) status.textContent = 'Logged in. Loading app...';
-    setTimeout(() => location.reload(), 600);
+    if (status) status.textContent = 'Logged in, but tracker loading hit an error. Send this message to support.';
     return true;
   }
 
