@@ -1,242 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Peptide & Fitness Tracker V2</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#07111f">
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <title>Peptide Fitness Tracker V3 Cloud</title>
+  <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#07111f"><link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Universal Tracker • V2</p>
-        <h1 id="appTitle">Peptide & Fitness Tracker</h1>
-      </div>
-      <button id="themeToggle" class="icon-btn" title="Toggle theme">◐</button>
-    </header>
-
-    <main id="app">
-      <section class="screen active" id="dashboard">
-        <div class="hero-card">
-          <div>
-            <p class="eyebrow">Profile goal</p>
-            <h2><span id="startWeightDash">—</span> → <span id="goalWeightDash">—</span> <span class="unitWeight">lb</span></h2>
-            <p id="goalSummary" class="muted">Create your profile in Settings.</p>
-          </div>
-          <div class="ring" aria-label="Weight progress">
-            <span id="progressPercent">0%</span>
-          </div>
-        </div>
-
-        <div class="grid two">
-          <div class="metric-card">
-            <p>Current weight</p>
-            <h3><span id="currentWeight">—</span> <span class="unitWeight">lb</span></h3>
-            <input type="number" id="weightInput" step="0.1" placeholder="Update weight">
-          </div>
-          <div class="metric-card">
-            <p>Remaining</p>
-            <h3><span id="remainingWeight">—</span> <span class="unitWeight">lb</span></h3>
-            <p class="tag">Goal tracking</p>
-          </div>
-          <div class="metric-card">
-            <p>Today</p>
-            <h3 id="todayName">Day</h3>
-            <p id="todayTasks" class="muted"></p>
-          </div>
-          <div class="metric-card">
-            <p>Next scheduled shot</p>
-            <h3 id="nextShot">—</h3>
-            <p class="tag" id="nextShotName">Schedule</p>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="section-title">
-            <h2>Today's checklist</h2>
-            <button id="resetToday" class="small-btn">Reset today</button>
-          </div>
-          <div id="todayChecklist" class="checklist"></div>
-        </div>
-
-        <div class="card warning-card">
-          <h2>Medical safety note</h2>
-          <p>This app is an organization tracker only. It is not a prescription, diagnosis, or medical advice. Peptide use, labs, contraindications, and injection practices should be reviewed with a licensed clinician.</p>
-        </div>
-      </section>
-
-      <section class="screen" id="settings">
-        <div class="section-title">
-          <h2>Settings / Profile</h2>
-          <button id="saveSettings" class="primary-btn skinny">Save</button>
-        </div>
-
-        <div class="card">
-          <h2>Personal profile</h2>
-          <div class="form-grid">
-            <label>Name<input id="setName" type="text" placeholder="Your name"></label>
-            <label>Plan title<input id="setPlanTitle" type="text" placeholder="Transformation 2026"></label>
-            <label>Age<input id="setAge" type="number" placeholder="54"></label>
-            <label>Height<input id="setHeight" type="text" placeholder="5'9 or 175 cm"></label>
-            <label>Units
-              <select id="setUnits">
-                <option value="imperial">lb / inches</option>
-                <option value="metric">kg / cm</option>
-              </select>
-            </label>
-            <label>Start date<input id="setStartDate" type="date"></label>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>Goals</h2>
-          <div class="form-grid">
-            <label>Starting weight<input id="setStartWeight" type="number" step="0.1"></label>
-            <label>Goal weight<input id="setGoalWeight" type="number" step="0.1"></label>
-            <label>Protein goal / day<input id="setProtein" type="number"></label>
-            <label>Water goal / day<input id="setWater" type="number" step="0.1"></label>
-            <label>Sleep goal / night<input id="setSleep" type="number" step="0.1"></label>
-            <label>Vial use limit days<input id="setVialDays" type="number" value="30"></label>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="section-title">
-            <h2>Peptides / custom items</h2>
-            <button id="addPeptideSetting" class="small-btn">Add item</button>
-          </div>
-          <p class="muted">Turn items on/off, rename them, and choose schedule days. These can also be supplements, meds, or reminders.</p>
-          <div id="peptideSettingsList" class="peptide-settings-list"></div>
-        </div>
-
-        <div class="card">
-          <h2>Danger zone</h2>
-          <button id="resetAll" class="danger-btn">Reset all app data</button>
-        </div>
-      </section>
-
-      <section class="screen" id="daily">
-        <div class="section-title">
-          <h2>90-Day Daily Tracker</h2>
-          <button id="generateDays" class="small-btn">Rebuild</button>
-        </div>
-        <div class="card">
-          <div id="dayList" class="day-list"></div>
-        </div>
-      </section>
-
-      <section class="screen" id="items">
-        <div class="section-title">
-          <h2>Schedule</h2>
-        </div>
-        <div class="card">
-          <div id="itemCards" class="peptide-grid"></div>
-        </div>
-      </section>
-
-      <section class="screen" id="dose">
-        <div class="section-title">
-          <h2>Dose Calculator</h2>
-        </div>
-        <div class="card">
-          <p class="muted">Enter vial strength, BAC water, and the dose directed by your clinician. The calculator returns mL and U-100 syringe units.</p>
-          <div class="form-grid">
-            <label>Vial strength (mg)<input type="number" id="vialMg" value="10" step="0.1"></label>
-            <label>BAC water added (mL)<input type="number" id="waterMl" value="2" step="0.1"></label>
-            <label>Target dose (mg)<input type="number" id="doseMg" value="0.2" step="0.01"></label>
-            <label>Syringe type
-              <select id="syringeType">
-                <option value="30">U-100 30 units / 0.3 mL</option>
-                <option value="50">U-100 50 units / 0.5 mL</option>
-                <option value="100">U-100 100 units / 1 mL</option>
-              </select>
-            </label>
-          </div>
-          <button id="calcDose" class="primary-btn">Calculate</button>
-          <div class="result-grid">
-            <div class="metric-card"><p>Concentration</p><h3 id="concOut">—</h3></div>
-            <div class="metric-card"><p>Volume</p><h3 id="mlOut">—</h3></div>
-            <div class="metric-card"><p>U-100 units</p><h3 id="unitsOut">—</h3></div>
-            <div class="metric-card"><p>Selected syringe</p><h3 id="syringeOut">—</h3></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="screen" id="inventory">
-        <div class="section-title">
-          <h2>Vial Inventory</h2>
-          <button id="addVial" class="small-btn">Add vial</button>
-        </div>
-        <div class="card">
-          <div class="inventory-form">
-            <select id="vialName"></select>
-            <input type="date" id="reconDate">
-            <input type="number" id="vialQty" value="1" min="1">
-          </div>
-          <div id="inventoryList" class="inventory-list"></div>
-        </div>
-      </section>
-
-      <section class="screen" id="workout">
-        <div class="section-title">
-          <h2>Workout Plan</h2>
-          <button id="saveWorkout" class="small-btn">Save plan</button>
-        </div>
-        <div class="card">
-          <p class="muted">Edit your weekly plan. It will update the daily tracker.</p>
-          <div id="workoutEditor" class="workout-editor"></div>
-        </div>
-        <div id="workoutCards" class="workout-grid"></div>
-      </section>
-
-      <section class="screen" id="nutrition">
-        <div class="section-title">
-          <h2>Nutrition</h2>
-        </div>
-        <div class="grid two">
-          <div class="metric-card"><p>Protein goal</p><h3><span id="proteinDash">—</span> g/day</h3></div>
-          <div class="metric-card"><p>Water goal</p><h3><span id="waterDash">—</span> <span id="waterUnit">L</span>/day</h3></div>
-          <div class="metric-card"><p>Sleep target</p><h3><span id="sleepDash">—</span> hours</h3></div>
-          <div class="metric-card"><p>Plan</p><h3 id="planDash">Custom</h3></div>
-        </div>
-        <div class="card">
-          <h2>Meal template</h2>
-          <textarea id="mealTemplate" rows="8"></textarea>
-          <button id="saveMeals" class="primary-btn">Save meal template</button>
-        </div>
-      </section>
-
-      <section class="screen" id="progress">
-        <div class="section-title">
-          <h2>Progress Log</h2>
-          <button id="addProgress" class="small-btn">Add entry</button>
-        </div>
-        <div class="card progress-form">
-          <input type="date" id="progDate">
-          <input type="number" id="progWeight" placeholder="Weight">
-          <input type="number" id="progWaist" placeholder="Waist">
-          <input type="number" id="progSleep" placeholder="Sleep hours">
-          <input type="number" id="progEnergy" placeholder="Energy 1-10">
-        </div>
-        <div id="progressList" class="progress-list"></div>
-      </section>
-    </main>
-
-    <nav class="bottom-nav">
-      <button class="nav-btn active" data-screen="dashboard">🏠<span>Home</span></button>
-      <button class="nav-btn" data-screen="settings">⚙️<span>Settings</span></button>
-      <button class="nav-btn" data-screen="daily">📅<span>Daily</span></button>
-      <button class="nav-btn" data-screen="items">💉<span>Items</span></button>
-      <button class="nav-btn" data-screen="dose">🧮<span>Dose</span></button>
-      <button class="nav-btn" data-screen="inventory">📦<span>Vials</span></button>
-      <button class="nav-btn" data-screen="workout">🏋️<span>Gym</span></button>
-      <button class="nav-btn" data-screen="nutrition">🍽️<span>Food</span></button>
-      <button class="nav-btn" data-screen="progress">📈<span>Progress</span></button>
-    </nav>
-  </div>
-  <script src="app.js"></script>
-</body>
-</html>
+<div class="app-shell">
+  <header class="topbar"><div><p class="eyebrow">Supabase Cloud • V3</p><h1 id="appTitle">Peptide Fitness Tracker</h1><p id="cloudStatus" class="muted">Connecting...</p></div><button id="themeToggle" class="icon-btn">◐</button></header>
+  <main>
+    <section class="screen active" id="dashboard">
+      <div class="hero-card"><div><p class="eyebrow">Goal</p><h2><span id="startWeightDash">187</span> → <span id="goalWeightDash">150</span> <span id="weightUnit">lb</span></h2><p class="muted" id="goalSummary">Cloud tracker</p></div><div class="ring"><span id="progressPercent">0%</span></div></div>
+      <div class="grid two"><div class="metric-card"><p>Current weight</p><h3><span id="currentWeight">187</span> <span class="unitWeight">lb</span></h3></div><div class="metric-card"><p>Remaining</p><h3><span id="remainingWeight">37</span> <span class="unitWeight">lb</span></h3></div><div class="metric-card"><p>Cloud records</p><h3 id="recordCount">0</h3></div><div class="metric-card"><p>Active items</p><h3 id="activeItems">0</h3></div></div>
+      <div class="card"><div class="section-title"><h2>Today's checklist</h2><button id="refreshCloud" class="small-btn">Sync</button></div><div id="todayChecklist" class="checklist"></div></div>
+      <div class="card warning-card"><h2>Safety note</h2><p>This app is an organization tracker only. It is not medical advice, diagnosis, or a prescription.</p></div>
+    </section>
+    <section class="screen" id="settings">
+      <div class="section-title"><h2>Settings / Profile</h2><button id="saveProfile" class="small-btn">Save to cloud</button></div>
+      <div class="card"><div class="form-grid">
+        <label>Name<input id="setName"></label><label>Plan title<input id="setPlanTitle"></label><label>Age<input id="setAge" type="number"></label><label>Height<input id="setHeight"></label>
+        <label>Units<select id="setUnits"><option value="imperial">lb / inches</option><option value="metric">kg / cm</option></select></label><label>Start date<input id="setStartDate" type="date"></label>
+        <label>Starting weight<input id="setStartWeight" type="number" step="0.1"></label><label>Goal weight<input id="setGoalWeight" type="number" step="0.1"></label><label>Current weight<input id="setCurrentWeight" type="number" step="0.1"></label>
+        <label>Protein goal<input id="setProtein" type="number"></label><label>Water goal<input id="setWater" type="number" step="0.1"></label><label>Sleep goal<input id="setSleep" type="number" step="0.1"></label><label>Vial limit days<input id="setVialDays" type="number"></label>
+      </div></div>
+    </section>
+    <section class="screen" id="items">
+      <div class="section-title"><h2>Peptide / Reminder Items</h2><button id="addItem" class="small-btn">Add item</button></div>
+      <div class="card"><div class="form-grid"><label>Name<input id="itemName" placeholder="MOTS-c"></label><label>Purpose<input id="itemPurpose"></label><label>Active<select id="itemActive"><option value="true">Active</option><option value="false">Off</option></select></label><label>Color<select id="itemColor"><option>blue</option><option>green</option><option>orange</option><option>red</option><option>yellow</option><option>purple</option></select></label><label>Schedule days<input id="itemDays" placeholder="Monday,Thursday"></label></div></div><div id="itemsList" class="list"></div>
+    </section>
+    <section class="screen" id="inventory">
+      <div class="section-title"><h2>Vial Inventory</h2><button id="addVial" class="small-btn">Add vial</button></div>
+      <div class="card"><div class="form-grid"><label>Item name<input id="vialItem"></label><label>Quantity<input id="vialQty" type="number" value="1"></label><label>Reconstituted date<input id="vialRecon" type="date"></label><label>Notes<input id="vialNotes"></label></div></div><div id="inventoryList" class="list"></div>
+    </section>
+    <section class="screen" id="progress">
+      <div class="section-title"><h2>Progress</h2><button id="addProgress" class="small-btn">Add progress</button></div>
+      <div class="card"><div class="form-grid"><label>Date<input id="progDate" type="date"></label><label>Weight<input id="progWeight" type="number" step="0.1"></label><label>Waist<input id="progWaist" type="number" step="0.1"></label><label>Sleep hours<input id="progSleep" type="number" step="0.1"></label><label>Energy 1-10<input id="progEnergy" type="number"></label><label>Notes<input id="progNotes"></label></div></div><div id="progressList" class="list"></div>
+    </section>
+    <section class="screen" id="dose">
+      <div class="section-title"><h2>Dose Calculator</h2></div>
+      <div class="card"><p class="muted">Calculator only. Use dosing directions from your clinician.</p><div class="form-grid"><label>Vial strength mg<input id="vialMg" type="number" value="10" step="0.1"></label><label>BAC water mL<input id="waterMl" type="number" value="2" step="0.1"></label><label>Target dose mg<input id="doseMg" type="number" value="0.2" step="0.01"></label><label>Syringe<select id="syringeType"><option value="30">30 units</option><option value="50">50 units</option><option value="100">100 units</option></select></label></div><button id="calcDose" class="primary-btn">Calculate</button><div class="grid two"><div class="metric-card"><p>Concentration</p><h3 id="concOut">—</h3></div><div class="metric-card"><p>Volume</p><h3 id="mlOut">—</h3></div><div class="metric-card"><p>U-100 units</p><h3 id="unitsOut">—</h3></div><div class="metric-card"><p>Syringe fit</p><h3 id="syringeOut">—</h3></div></div></div>
+    </section>
+  </main>
+  <nav class="bottom-nav"><button class="nav-btn active" data-screen="dashboard">🏠<span>Home</span></button><button class="nav-btn" data-screen="settings">⚙️<span>Settings</span></button><button class="nav-btn" data-screen="items">💉<span>Items</span></button><button class="nav-btn" data-screen="inventory">📦<span>Vials</span></button><button class="nav-btn" data-screen="progress">📈<span>Progress</span></button><button class="nav-btn" data-screen="dose">🧮<span>Dose</span></button></nav>
+</div>
+<script src="config.js"></script><script src="app.js"></script>
+</body></html>
