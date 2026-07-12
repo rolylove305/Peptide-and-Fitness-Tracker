@@ -31,6 +31,8 @@ export type ActiveWorkoutExercise = {
   target_reps_min_snapshot: number | null;
   target_reps_max_snapshot: number | null;
   target_rest_seconds_snapshot: number;
+  target_weight_snapshot: number | null;
+  weight_unit_snapshot: 'lb' | 'kg';
   notes: string | null;
   sets: ActiveWorkoutSet[];
 };
