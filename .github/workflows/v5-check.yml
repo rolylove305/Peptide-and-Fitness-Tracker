@@ -58,7 +58,7 @@ jobs:
           grep -R -F -q 'sb_publishable_HJNw6TpNJ0YwTo4rEME6zg_Gbp1xtGU' dist/assets/*.js
 
       - name: Publish temporary preview build branch
-        if: github.event_name == 'pull_request' && github.event.pull_request.number == 10
+        if: github.event_name == 'pull_request' && github.event.pull_request.number == 8
         working-directory: .
         env:
           PREVIEW_BRANCH: temp/v5-built-preview
