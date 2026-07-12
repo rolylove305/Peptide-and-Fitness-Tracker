@@ -42,11 +42,20 @@ jobs:
       - name: Type-check V5
         run: npm run typecheck
 
+      - name: Write public preview configuration
+        run: |
+          cat > .env.production <<'EOF'
+          VITE_SUPABASE_URL=https://gfuazkuohrragkthtumz.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_HJNw6TpNJ0YwTo4rEME6zg_Gbp1xtGU
+          EOF
+
       - name: Build V5
-        env:
-          VITE_SUPABASE_URL: https://gfuazkuohrragkthtumz.supabase.co
-          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_HJNw6TpNJ0YwTo4rEME6zg_Gbp1xtGU
         run: npm run build
+
+      - name: Verify preview configuration
+        run: |
+          grep -R -F -q 'gfuazkuohrragkthtumz' dist/assets/*.js
+          grep -R -F -q 'sb_publishable_HJNw6TpNJ0YwTo4rEME6zg_Gbp1xtGU' dist/assets/*.js
 
       - name: Upload V5 preview artifact
         uses: actions/upload-artifact@v4
