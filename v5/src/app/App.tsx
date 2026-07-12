@@ -19,7 +19,7 @@ const foundationItems = [
   },
   {
     title: 'Progress intelligence',
-    description: 'Workout history, previous performance, exercise records and muscle-group volume.',
+    description: 'History, records, muscle volume and explainable load or repetition guidance.',
     status: 'Ready',
   },
 ] as const;
@@ -108,15 +108,15 @@ function FoundationDashboard() {
         <section className="hero-card">
           <div>
             <p className="eyebrow">Workout AI milestone</p>
-            <h2>Every completed set now becomes useful history</h2>
+            <h2>Recent sessions now produce explainable progression guidance</h2>
             <p>
-              BioTrack remembers your last weights and repetitions while you train, then turns completed
-              sessions into personal records, workout summaries and 90-day muscle-group progress without
-              changing your routine behind your back.
+              BioTrack compares completed working sets, programmed repetition ranges and recorded effort to
+              suggest when to add repetitions, consider a small load increase or hold steady. Every suggestion
+              shows its evidence, and nothing is changed without a separate approval step.
             </p>
           </div>
-          <div className="milestone-mark" aria-label="History and progress phase">
-            05
+          <div className="milestone-mark" aria-label="Explainable progression phase">
+            06
           </div>
         </section>
 
