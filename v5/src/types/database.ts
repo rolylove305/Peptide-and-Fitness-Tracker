@@ -266,6 +266,10 @@ export type Database = {
           exercise_order: number;
           exercise_name_snapshot: string;
           primary_muscle_group_snapshot: string | null;
+          target_sets_snapshot: number;
+          target_reps_min_snapshot: number | null;
+          target_reps_max_snapshot: number | null;
+          target_rest_seconds_snapshot: number;
           notes: string | null;
           created_at: string;
           updated_at: string;
@@ -277,6 +281,10 @@ export type Database = {
           exercise_order: number;
           exercise_name_snapshot: string;
           primary_muscle_group_snapshot?: string | null;
+          target_sets_snapshot?: number;
+          target_reps_min_snapshot?: number | null;
+          target_reps_max_snapshot?: number | null;
+          target_rest_seconds_snapshot?: number;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -288,6 +296,10 @@ export type Database = {
           exercise_order?: number;
           exercise_name_snapshot?: string;
           primary_muscle_group_snapshot?: string | null;
+          target_sets_snapshot?: number;
+          target_reps_min_snapshot?: number | null;
+          target_reps_max_snapshot?: number | null;
+          target_rest_seconds_snapshot?: number;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -375,8 +387,86 @@ export type Database = {
         ];
       };
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Views: {
+      workout_session_summaries: {
+        Row: {
+          id: string | null;
+          user_id: string | null;
+          routine_day_id: string | null;
+          name: string | null;
+          started_at: string | null;
+          completed_at: string | null;
+          duration_seconds: number | null;
+          exercise_count: number | null;
+          completed_set_count: number | null;
+          working_set_count: number | null;
+          total_reps: number | null;
+          total_volume: number | null;
+          weight_unit: string | null;
+        };
+        Relationships: [];
+      };
+      workout_exercise_records: {
+        Row: {
+          user_id: string | null;
+          exercise_id: string | null;
+          exercise_name: string | null;
+          primary_muscle_group: string | null;
+          weight_unit: string | null;
+          session_count: number | null;
+          completed_set_count: number | null;
+          total_reps: number | null;
+          heaviest_weight: number | null;
+          highest_reps: number | null;
+          best_set_volume: number | null;
+          last_performed_at: string | null;
+        };
+        Relationships: [];
+      };
+      workout_muscle_volume_daily: {
+        Row: {
+          user_id: string | null;
+          workout_date: string | null;
+          muscle_group: string | null;
+          weight_unit: string | null;
+          completed_set_count: number | null;
+          total_reps: number | null;
+          total_volume: number | null;
+        };
+        Relationships: [];
+      };
+    };
+    Functions: {
+      save_workout_routine_tree: {
+        Args: {
+          p_routine: Json;
+          p_routine_id?: string | null;
+        };
+        Returns: string;
+      };
+      start_workout_session_from_day: {
+        Args: { p_routine_day_id: string };
+        Returns: string;
+      };
+      complete_workout_session: {
+        Args: { p_session_id: string };
+        Returns: undefined;
+      };
+      cancel_workout_session: {
+        Args: { p_session_id: string };
+        Returns: undefined;
+      };
+      get_previous_exercise_performance: {
+        Args: { p_exercise_ids: string[] };
+        Returns: Array<{
+          exercise_id: string;
+          session_id: string;
+          performed_at: string;
+          weight_unit: string;
+          sets: Json;
+        }>;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
