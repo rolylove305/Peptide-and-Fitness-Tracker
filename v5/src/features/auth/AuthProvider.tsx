@@ -60,6 +60,15 @@ function writeRecoveryFlag(active: boolean): void {
   }
 }
 
+function currentAuthRedirectUrl(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+
+  const url = new URL(window.location.href);
+  url.hash = '';
+  url.search = '';
+  return url.toString();
+}
+
 export function AuthProvider({ children }: PropsWithChildren) {
   const [status, setStatus] = useState<AuthStatus>(supabase ? 'checking' : 'misconfigured');
   const [session, setSession] = useState<Session | null>(null);
@@ -167,6 +176,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
           email: email.trim().toLowerCase(),
           password,
           options: {
+            emailRedirectTo: currentAuthRedirectUrl(),
             data: {
               full_name: name.trim(),
             },
