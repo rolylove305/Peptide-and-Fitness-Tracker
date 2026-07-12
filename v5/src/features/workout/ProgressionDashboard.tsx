@@ -194,6 +194,12 @@ function ApprovalPanel({
   }
 
   async function submit() {
+    const target = selected;
+    if (!target) {
+      setError('Select a saved routine target before applying this change.');
+      return;
+    }
+
     setError(null);
     const parsedWeight = proposedWeight.trim() === '' ? null : Number(proposedWeight);
     const parsedMinimum = Number(proposedRepsMin);
@@ -224,20 +230,20 @@ function ApprovalPanel({
     const proposedUnit =
       recommendation.recommendation_type === 'increase_load'
         ? recommendation.weight_unit
-        : selected.weightUnit;
+        : target.weightUnit;
     const confirmed = window.confirm(
-      `Apply this change to ${selected.routineName} — ${selected.dayName}? Historical workouts will not change.`,
+      `Apply this change to ${target.routineName} — ${target.dayName}? Historical workouts will not change.`,
     );
     if (!confirmed) return;
 
     const success = await onApply({
-      routineExerciseId: selected.id,
+      routineExerciseId: target.id,
       recommendationType: recommendation.recommendation_type,
       recommendationWeightUnit: recommendation.weight_unit,
-      expectedTargetWeight: selected.targetWeight,
-      expectedWeightUnit: selected.weightUnit,
-      expectedRepsMin: selected.targetRepsMin,
-      expectedRepsMax: selected.targetRepsMax,
+      expectedTargetWeight: target.targetWeight,
+      expectedWeightUnit: target.weightUnit,
+      expectedRepsMin: target.targetRepsMin,
+      expectedRepsMax: target.targetRepsMax,
       proposedTargetWeight: parsedWeight,
       proposedWeightUnit: proposedUnit,
       proposedRepsMin: parsedMinimum,
