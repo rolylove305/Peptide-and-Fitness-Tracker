@@ -172,11 +172,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
         recoveryStarted.current = false;
         writeRecoveryFlag(false);
         setError(null);
+        const emailRedirectTo = currentAuthRedirectUrl();
         const { data, error: signUpError } = await supabase.auth.signUp({
           email: email.trim().toLowerCase(),
           password,
           options: {
-            emailRedirectTo: currentAuthRedirectUrl(),
+            ...(emailRedirectTo ? { emailRedirectTo } : {}),
             data: {
               full_name: name.trim(),
             },
