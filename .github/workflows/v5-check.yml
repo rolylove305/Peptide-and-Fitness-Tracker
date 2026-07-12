@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   verify-v5:
@@ -69,22 +69,3 @@ jobs:
           path: v5/dist
           if-no-files-found: error
           retention-days: 14
-
-      - name: Publish corrected V5 icon preview
-        if: github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'agent/v5-sync-foundation'
-        env:
-          PREVIEW_BRANCH: temp/v5-built-preview-icon-fixed
-        run: |
-          set -euo pipefail
-          preview_dir="$(mktemp -d)"
-          cp -R dist/. "$preview_dir/"
-          cd "$GITHUB_WORKSPACE"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout --orphan v5-preview-icon-fixed-publish
-          git rm -rf .
-          cp -R "$preview_dir"/. .
-          touch .nojekyll
-          git add --all
-          git commit -m "Publish corrected BioTrack V5 icon ${GITHUB_SHA}"
-          git push --force origin "HEAD:refs/heads/${PREVIEW_BRANCH}"
