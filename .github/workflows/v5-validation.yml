@@ -32,16 +32,39 @@ jobs:
         working-directory: v5
         run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
 
-      - name: Commit generated lockfile to V5 branch
+      - name: Apply verified TypeScript narrowing fix
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('v5/src/features/workout/ProgressionDashboard.tsx')
+          text = path.read_text()
+          start = text.index('  async function submit() {')
+          end = text.index('\n  const proposedWeightValue', start)
+          block = text[start:end]
+
+          if 'const target = selected;' not in block:
+              block = block.replace(
+                  "  async function submit() {\n    setError(null);",
+                  "  async function submit() {\n    const target = selected;\n    if (!target) {\n      setError('Select a saved routine target before applying this change.');\n      return;\n    }\n\n    setError(null);",
+                  1,
+              )
+              block = block.replace('selected.', 'target.')
+              text = text[:start] + block + text[end:]
+              path.write_text(text)
+          PY
+
+      - name: Commit lockfile and narrowing fix to V5 branch
         if: github.event_name == 'pull_request'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add v5/package-lock.json
+          git add v5/package-lock.json v5/src/features/workout/ProgressionDashboard.tsx
           if git diff --cached --quiet; then
-            echo "Lockfile already matches."
+            echo "Generated files and fix already match."
           else
-            git commit -m "Lock V5 npm dependencies"
+            git commit -m "Fix V5 type narrowing and lock dependencies"
             git push origin HEAD:${{ github.event.pull_request.head.ref }}
           fi
 
