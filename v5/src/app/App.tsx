@@ -13,13 +13,13 @@ const foundationItems = [
     status: 'Ready',
   },
   {
-    title: 'Workout planning',
-    description: 'Exercise library and cloud routine builder with atomic create and edit operations.',
+    title: 'Workout system',
+    description: 'Exercise library, routine builder, live set logging and programmed rest timers.',
     status: 'Ready',
   },
   {
-    title: 'Live workout',
-    description: 'Start routine days, record sets, track elapsed time and run programmed rest timers.',
+    title: 'Progress intelligence',
+    description: 'Workout history, previous performance, exercise records and muscle-group volume.',
     status: 'Ready',
   },
 ] as const;
@@ -76,7 +76,7 @@ function FoundationDashboard() {
         <div>
           <p className="eyebrow">BioTrack AI</p>
           <h1>Workout AI</h1>
-          <p className="subtitle">Plan your training, start a guided workout and save every completed set.</p>
+          <p className="subtitle">Plan, train, review every set and turn real sessions into measurable progress.</p>
         </div>
 
         <div className="topbar-actions">
@@ -108,15 +108,15 @@ function FoundationDashboard() {
         <section className="hero-card">
           <div>
             <p className="eyebrow">Workout AI milestone</p>
-            <h2>From routine to completed workout</h2>
+            <h2>Every completed set now becomes useful history</h2>
             <p>
-              Choose a saved training day, record weight, repetitions and effort for every set, and use
-              the automatic rest timer between sets. Completed workouts remain structured for history,
-              progress analytics and future AI coaching.
+              BioTrack remembers your last weights and repetitions while you train, then turns completed
+              sessions into personal records, workout summaries and 90-day muscle-group progress without
+              changing your routine behind your back.
             </p>
           </div>
-          <div className="milestone-mark" aria-label="Live workout phase">
-            04
+          <div className="milestone-mark" aria-label="History and progress phase">
+            05
           </div>
         </section>
 
