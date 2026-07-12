@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '../features/auth/AuthProvider';
 import { AuthScreen } from '../features/auth/AuthScreen';
-import { ExerciseLibrary } from '../features/workout/ExerciseLibrary';
+import { WorkoutWorkspace } from '../features/workout/WorkoutWorkspace';
 import { supabaseConfiguration } from '../lib/supabase/client';
 
 type ConnectionState = 'online' | 'offline';
@@ -19,7 +19,7 @@ const foundationItems = [
   },
   {
     title: 'Workout experience',
-    description: 'Exercise library is connected. Routine builder, live sets and rest timer come next.',
+    description: 'Exercise library and routine builder are connected. Live workout logging comes next.',
     status: 'In progress',
   },
 ] as const;
@@ -75,8 +75,8 @@ function FoundationDashboard() {
       <header className="topbar">
         <div>
           <p className="eyebrow">BioTrack AI</p>
-          <h1>Workout AI Foundation</h1>
-          <p className="subtitle">Secure workout data and a real exercise library, built beside the current app.</p>
+          <h1>Workout AI</h1>
+          <p className="subtitle">Build structured routines now and turn them into guided live workouts next.</p>
         </div>
 
         <div className="topbar-actions">
@@ -108,18 +108,19 @@ function FoundationDashboard() {
         <section className="hero-card">
           <div>
             <p className="eyebrow">Workout AI milestone</p>
-            <h2>Structured training starts here</h2>
+            <h2>Your training plan is becoming actionable</h2>
             <p>
-              BioTrack can now store routines, actual workout sessions and every completed set. The
-              first connected experience is the searchable exercise library below.
+              Create complete workout routines with days, exercises, sets, repetition ranges and rest
+              targets. BioTrack saves the entire plan atomically so incomplete routines never reach your
+              account.
             </p>
           </div>
-          <div className="milestone-mark" aria-label="Database and library phase">
-            02
+          <div className="milestone-mark" aria-label="Routine builder phase">
+            03
           </div>
         </section>
 
-        <ExerciseLibrary />
+        <WorkoutWorkspace />
 
         <section aria-labelledby="foundation-heading">
           <div className="section-heading">
