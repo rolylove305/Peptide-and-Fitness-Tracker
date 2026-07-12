@@ -24,6 +24,15 @@ export function PreviousPerformanceProvider({
   );
 }
 
+export function usePreviousPerformanceForExercise(exerciseId: string) {
+  const context = useContext(PreviousPerformanceContext);
+
+  return {
+    status: context?.previous.status ?? 'idle',
+    performance: context?.previous.byExerciseId[exerciseId] ?? null,
+  } as const;
+}
+
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat(undefined, {
     month: 'short',
