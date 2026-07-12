@@ -62,6 +62,7 @@ jobs:
           test -f dist/biotrack-icon.svg
           test -f dist/apple-touch-icon.png
           test ! -f dist/apple-touch-icon.png.base64
+          node scripts/verify-png.mjs dist/apple-touch-icon.png 180 180
           grep -F -q '"id": "/"' dist/manifest.json
           grep -F -q 'biotrack-v5-' dist/sw.js
           grep -F -q './apple-touch-icon.png' dist/index.html
