@@ -1,0 +1,423 @@
+.workout-workspace {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2.25rem;
+}
+
+.workspace-tabs {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(5, 15, 27, 0.72);
+}
+
+.workspace-tab {
+  min-height: 2.6rem;
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.workspace-tab--active {
+  background: var(--accent-soft);
+  color: #c7efff;
+  box-shadow: inset 0 0 0 1px rgba(69, 200, 255, 0.24);
+}
+
+.routine-builder {
+  display: grid;
+  gap: 1rem;
+}
+
+.routine-builder-heading {
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.routine-builder-heading p:last-child {
+  max-width: 48rem;
+  margin-bottom: 0;
+}
+
+.routine-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+.routine-editor-card,
+.saved-routines {
+  border: 1px solid var(--border);
+  border-radius: 1.35rem;
+  background: linear-gradient(145deg, rgba(16, 34, 55, 0.96), rgba(8, 21, 36, 0.95));
+  box-shadow: var(--shadow);
+}
+
+.routine-editor-card {
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.routine-editor-title,
+.routine-day-heading,
+.saved-routines-heading,
+.saved-routine-card-heading,
+.saved-routine-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.routine-editor-title {
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.routine-editor-title h3,
+.saved-routines-heading h3,
+.saved-routine-card h4,
+.routine-day-heading h3 {
+  margin-bottom: 0;
+}
+
+.primary-button,
+.secondary-button,
+.text-button,
+.icon-button {
+  font: inherit;
+}
+
+.primary-button {
+  min-height: 2.75rem;
+  padding: 0.72rem 1rem;
+  border: 1px solid rgba(69, 200, 255, 0.42);
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, #49caff, #3aa6ff);
+  color: #03111d;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(56, 174, 255, 0.2);
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.text-button:disabled,
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondary-button--wide {
+  width: 100%;
+}
+
+.text-button {
+  padding: 0.25rem;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.text-button--danger {
+  color: #ff9f9f;
+}
+
+.icon-button {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: rgba(6, 17, 30, 0.8);
+  color: #dbeeff;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.icon-button--danger {
+  color: #ffb4b4;
+}
+
+.builder-message {
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.builder-message--success {
+  border: 1px solid rgba(72, 214, 165, 0.3);
+  background: rgba(72, 214, 165, 0.08);
+  color: #a7f5d7;
+}
+
+.builder-message--error {
+  border: 1px solid rgba(255, 133, 133, 0.28);
+  background: rgba(255, 96, 96, 0.08);
+  color: #ffc2c2;
+}
+
+.routine-basics-grid,
+.day-fields,
+.exercise-target-grid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.routine-basics-grid {
+  margin-bottom: 1.25rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.42rem;
+  min-width: 0;
+}
+
+.field > span {
+  color: #bdd0e3;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  border-radius: 0.8rem;
+  outline: none;
+  background: rgba(4, 15, 27, 0.82);
+  color: #edf6ff;
+}
+
+.field textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: rgba(69, 200, 255, 0.68);
+  box-shadow: 0 0 0 0.2rem rgba(69, 200, 255, 0.08);
+}
+
+.routine-days {
+  display: grid;
+  gap: 1rem;
+}
+
+.routine-day-card {
+  padding: 1rem;
+  border: 1px solid rgba(147, 197, 253, 0.14);
+  border-radius: 1.1rem;
+  background: rgba(7, 20, 34, 0.72);
+}
+
+.routine-day-heading {
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.routine-day-heading p {
+  margin-bottom: 0.15rem;
+  font-size: 0.78rem;
+}
+
+.day-number,
+.exercise-row-number {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 0.8rem;
+  background: var(--accent-soft);
+  color: #bdeeff;
+  font-weight: 900;
+}
+
+.day-number {
+  width: 2.55rem;
+  height: 2.55rem;
+}
+
+.exercise-row-number {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.8rem;
+}
+
+.day-fields {
+  margin-bottom: 1rem;
+}
+
+.routine-exercise-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+
+.routine-exercise-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.85rem;
+  border: 1px solid rgba(147, 197, 253, 0.12);
+  border-radius: 0.95rem;
+  background: rgba(3, 13, 24, 0.66);
+}
+
+.exercise-row-main {
+  min-width: 0;
+}
+
+.selected-exercise-meta {
+  margin: 0.4rem 0 0.75rem;
+  font-size: 0.8rem;
+}
+
+.exercise-target-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.add-day-button {
+  margin-top: 1rem;
+}
+
+.saved-routines {
+  align-self: start;
+  padding: 1rem;
+}
+
+.saved-routines-heading {
+  align-items: flex-start;
+  margin-bottom: 0.9rem;
+}
+
+.saved-routine-state,
+.saved-routine-card {
+  padding: 0.95rem;
+  border: 1px solid rgba(147, 197, 253, 0.13);
+  border-radius: 1rem;
+  background: rgba(5, 16, 28, 0.7);
+}
+
+.saved-routine-state + .saved-routine-card,
+.saved-routine-card + .saved-routine-card {
+  margin-top: 0.75rem;
+}
+
+.saved-routine-card--active {
+  border-color: rgba(69, 200, 255, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(69, 200, 255, 0.08);
+}
+
+.saved-routine-card-heading {
+  align-items: flex-start;
+}
+
+.saved-routine-card h4 {
+  margin-top: 0.45rem;
+}
+
+.saved-routine-card p {
+  margin: 0.65rem 0;
+  font-size: 0.88rem;
+}
+
+.routine-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.routine-summary span {
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(69, 200, 255, 0.08);
+  color: #c9eaff;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+@media (min-width: 700px) {
+  .routine-basics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field--full {
+    grid-column: 1 / -1;
+  }
+
+  .day-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .exercise-target-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 980px) {
+  .routine-layout {
+    grid-template-columns: minmax(0, 1.7fr) minmax(18rem, 0.7fr);
+    align-items: start;
+  }
+
+  .saved-routines {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .routine-editor-title,
+  .routine-builder-heading {
+    flex-direction: column;
+  }
+
+  .routine-editor-title .primary-button,
+  .routine-builder-heading .secondary-button {
+    width: 100%;
+  }
+
+  .routine-day-heading {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .routine-day-heading .text-button {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .routine-exercise-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .routine-exercise-row .icon-button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
