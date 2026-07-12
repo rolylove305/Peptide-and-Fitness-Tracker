@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
+import { PreviousPerformance, PreviousPerformanceProvider } from './PreviousPerformance';
 import { useActiveWorkout } from './hooks/useActiveWorkout';
 import { useRoutines } from './hooks/useRoutines';
 import type {
@@ -349,40 +350,44 @@ export function ActiveWorkout() {
         </p>
       ) : null}
 
-      <div className="live-exercise-list">
-        {active.session.exercises.map((exercise) => (
-          <article className="live-exercise-card" key={exercise.id}>
-            <div className="live-exercise-heading">
-              <div>
-                <p>{exercise.primary_muscle_group_snapshot || 'Exercise'}</p>
-                <h3>{exercise.exercise_name_snapshot}</h3>
+      <PreviousPerformanceProvider exerciseIds={active.session.exercises.map((exercise) => exercise.exercise_id)}>
+        <div className="live-exercise-list">
+          {active.session.exercises.map((exercise) => (
+            <article className="live-exercise-card" key={exercise.id}>
+              <div className="live-exercise-heading">
+                <div>
+                  <p>{exercise.primary_muscle_group_snapshot || 'Exercise'}</p>
+                  <h3>{exercise.exercise_name_snapshot}</h3>
+                </div>
+                <span className="rest-target">Rest {formatClock(exercise.target_rest_seconds_snapshot)}</span>
               </div>
-              <span className="rest-target">Rest {formatClock(exercise.target_rest_seconds_snapshot)}</span>
-            </div>
 
-            <div className="live-set-list">
-              {exercise.sets.map((workoutSet) => (
-                <SetEditor
-                  key={workoutSet.id}
-                  workoutSet={workoutSet}
-                  targetRepsMin={exercise.target_reps_min_snapshot}
-                  targetRepsMax={exercise.target_reps_max_snapshot}
-                  saving={active.savingSetId === workoutSet.id}
-                  onSave={(input, wasAlreadyCompleted) =>
-                    saveSet(
-                      workoutSet.id,
-                      exercise.exercise_name_snapshot,
-                      exercise.target_rest_seconds_snapshot,
-                      input,
-                      wasAlreadyCompleted,
-                    )
-                  }
-                />
-              ))}
-            </div>
-          </article>
-        ))}
-      </div>
+              <PreviousPerformance exerciseId={exercise.exercise_id} />
+
+              <div className="live-set-list">
+                {exercise.sets.map((workoutSet) => (
+                  <SetEditor
+                    key={workoutSet.id}
+                    workoutSet={workoutSet}
+                    targetRepsMin={exercise.target_reps_min_snapshot}
+                    targetRepsMax={exercise.target_reps_max_snapshot}
+                    saving={active.savingSetId === workoutSet.id}
+                    onSave={(input, wasAlreadyCompleted) =>
+                      saveSet(
+                        workoutSet.id,
+                        exercise.exercise_name_snapshot,
+                        exercise.target_rest_seconds_snapshot,
+                        input,
+                        wasAlreadyCompleted,
+                      )
+                    }
+                  />
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </PreviousPerformanceProvider>
 
       <div className="live-workout-actions">
         <button className="primary-button" type="button" disabled={active.finishing} onClick={() => void finishWorkout()}>
