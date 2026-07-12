@@ -14,7 +14,7 @@ import type {
   ProgressionRecommendationType,
 } from './repositories/progressionRepository';
 
- type ProgressionFilter = 'all' | ProgressionRecommendationType;
+type ProgressionFilter = 'all' | ProgressionRecommendationType;
 
 type RoutineExerciseLocation = {
   id: string;
@@ -664,7 +664,7 @@ export function ProgressionDashboard() {
           type="button"
           onClick={() => {
             progression.refresh();
-            routines.refresh();
+            void routines.refresh();
             changeState.refresh();
           }}
         >
