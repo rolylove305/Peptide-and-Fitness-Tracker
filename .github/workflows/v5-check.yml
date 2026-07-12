@@ -43,6 +43,9 @@ jobs:
         run: npm run typecheck
 
       - name: Build V5
+        env:
+          VITE_SUPABASE_URL: https://gfuazkuohrragkthtumz.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_HJNw6TpNJ0YwTo4rEME6zg_Gbp1xtGU
         run: npm run build
 
       - name: Upload V5 preview artifact
