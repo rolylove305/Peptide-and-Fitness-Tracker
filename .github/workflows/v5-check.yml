@@ -1,0 +1,45 @@
+name: BioTrack V5 Check
+
+on:
+  push:
+    branches:
+      - agent/v5-sync-foundation
+    paths:
+      - 'v5/**'
+      - 'supabase/migrations/**'
+      - '.github/workflows/v5-check.yml'
+  pull_request:
+    paths:
+      - 'v5/**'
+      - 'supabase/migrations/**'
+      - '.github/workflows/v5-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-v5:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: v5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: v5/package.json
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Type-check V5
+        run: npm run typecheck
+
+      - name: Build V5
+        run: npm run build
