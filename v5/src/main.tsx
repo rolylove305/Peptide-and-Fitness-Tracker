@@ -10,6 +10,7 @@ import './styles/active-workout.css';
 import './styles/workout-history.css';
 import './styles/progression.css';
 import './styles/progression-approval.css';
+import './styles/workspace-mobile.css';
 
 const rootElement = document.getElementById('root');
 
