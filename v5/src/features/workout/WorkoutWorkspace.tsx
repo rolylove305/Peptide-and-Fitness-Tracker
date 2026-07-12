@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { ActiveWorkout } from './ActiveWorkout';
 import { ExerciseLibrary } from './ExerciseLibrary';
 import { RoutineBuilder } from './RoutineBuilder';
+import { WorkoutHistory } from './WorkoutHistory';
 
-type WorkspaceView = 'train' | 'builder' | 'library';
+type WorkspaceView = 'train' | 'history' | 'builder' | 'library';
 
 export function WorkoutWorkspace() {
   const [view, setView] = useState<WorkspaceView>('train');
@@ -19,6 +20,15 @@ export function WorkoutWorkspace() {
           onClick={() => setView('train')}
         >
           Train
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={view === 'history'}
+          className={view === 'history' ? 'workspace-tab workspace-tab--active' : 'workspace-tab'}
+          onClick={() => setView('history')}
+        >
+          History
         </button>
         <button
           type="button"
@@ -41,6 +51,7 @@ export function WorkoutWorkspace() {
       </div>
 
       {view === 'train' ? <ActiveWorkout /> : null}
+      {view === 'history' ? <WorkoutHistory /> : null}
       {view === 'builder' ? <RoutineBuilder /> : null}
       {view === 'library' ? <ExerciseLibrary /> : null}
     </div>
