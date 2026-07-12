@@ -3,13 +3,19 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type PropsWithChildren,
 } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../../lib/supabase/client';
 
-export type AuthStatus = 'checking' | 'signed-out' | 'signed-in' | 'misconfigured';
+export type AuthStatus =
+  | 'checking'
+  | 'signed-out'
+  | 'signed-in'
+  | 'password-recovery'
+  | 'misconfigured';
 export type SignUpResult = 'signed-in' | 'confirmation-required';
 
 type AuthContextValue = {
@@ -20,20 +26,45 @@ type AuthContextValue = {
   clearError: () => void;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (name: string, email: string, password: string) => Promise<SignUpResult>;
+  requestPasswordReset: (email: string, redirectTo: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+const recoveryStorageKey = 'biotrack-password-recovery';
 
 function messageFrom(error: unknown): string {
   if (error instanceof Error && error.message) return error.message;
   return 'Something went wrong. Please try again.';
 }
 
+function readRecoveryFlag(): boolean {
+  if (typeof window === 'undefined') return false;
+
+  try {
+    return window.sessionStorage.getItem(recoveryStorageKey) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function writeRecoveryFlag(active: boolean): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    if (active) window.sessionStorage.setItem(recoveryStorageKey, '1');
+    else window.sessionStorage.removeItem(recoveryStorageKey);
+  } catch {
+    // Auth remains usable even when browser storage is unavailable.
+  }
+}
+
 export function AuthProvider({ children }: PropsWithChildren) {
   const [status, setStatus] = useState<AuthStatus>(supabase ? 'checking' : 'misconfigured');
   const [session, setSession] = useState<Session | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const recoveryStarted = useRef(readRecoveryFlag());
 
   useEffect(() => {
     if (!supabase) {
@@ -55,15 +86,38 @@ export function AuthProvider({ children }: PropsWithChildren) {
       }
 
       setSession(data.session);
-      setStatus(data.session ? 'signed-in' : 'signed-out');
+      if (!data.session) {
+        recoveryStarted.current = false;
+        writeRecoveryFlag(false);
+        setStatus('signed-out');
+        return;
+      }
+
+      setStatus(recoveryStarted.current ? 'password-recovery' : 'signed-in');
     });
 
     const {
       data: { subscription },
-    } = client.auth.onAuthStateChange((_event, nextSession) => {
+    } = client.auth.onAuthStateChange((event, nextSession) => {
       if (cancelled) return;
+
       setSession(nextSession);
-      setStatus(nextSession ? 'signed-in' : 'signed-out');
+
+      if (event === 'PASSWORD_RECOVERY') {
+        recoveryStarted.current = true;
+        writeRecoveryFlag(true);
+        setStatus('password-recovery');
+        return;
+      }
+
+      if (event === 'SIGNED_OUT' || !nextSession) {
+        recoveryStarted.current = false;
+        writeRecoveryFlag(false);
+        setStatus('signed-out');
+        return;
+      }
+
+      setStatus(recoveryStarted.current ? 'password-recovery' : 'signed-in');
     });
 
     return () => {
@@ -86,6 +140,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
           throw configurationError;
         }
 
+        recoveryStarted.current = false;
+        writeRecoveryFlag(false);
         setError(null);
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: email.trim().toLowerCase(),
@@ -104,6 +160,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
           throw configurationError;
         }
 
+        recoveryStarted.current = false;
+        writeRecoveryFlag(false);
         setError(null);
         const { data, error: signUpError } = await supabase.auth.signUp({
           email: email.trim().toLowerCase(),
@@ -122,6 +180,43 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         return data.session ? 'signed-in' : 'confirmation-required';
       },
+      requestPasswordReset: async (email, redirectTo) => {
+        if (!supabase) {
+          const configurationError = new Error('Supabase environment variables are not configured.');
+          setError(configurationError.message);
+          throw configurationError;
+        }
+
+        setError(null);
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+          email.trim().toLowerCase(),
+          { redirectTo },
+        );
+
+        if (resetError) {
+          setError(resetError.message);
+          throw resetError;
+        }
+      },
+      updatePassword: async (password) => {
+        if (!supabase) {
+          const configurationError = new Error('Supabase environment variables are not configured.');
+          setError(configurationError.message);
+          throw configurationError;
+        }
+
+        setError(null);
+        const { error: updateError } = await supabase.auth.updateUser({ password });
+
+        if (updateError) {
+          setError(updateError.message);
+          throw updateError;
+        }
+
+        recoveryStarted.current = false;
+        writeRecoveryFlag(false);
+        setStatus('signed-in');
+      },
       signOut: async () => {
         if (!supabase) return;
 
@@ -131,6 +226,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
           setError(signOutError.message);
           throw signOutError;
         }
+
+        recoveryStarted.current = false;
+        writeRecoveryFlag(false);
       },
     }),
     [error, session, status],
