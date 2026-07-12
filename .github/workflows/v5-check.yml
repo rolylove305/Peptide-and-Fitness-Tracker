@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify-v5:
@@ -52,10 +52,13 @@ jobs:
       - name: Build V5
         run: npm run build
 
-      - name: Verify preview configuration
+      - name: Verify preview configuration and app icons
         run: |
           grep -R -F -q 'gfuazkuohrragkthtumz' dist/assets/*.js
           grep -R -F -q 'sb_publishable_HJNw6TpNJ0YwTo4rEME6zg_Gbp1xtGU' dist/assets/*.js
+          test -f dist/manifest.webmanifest
+          test -f dist/biotrack-icon.svg
+          grep -F -q 'apple-touch-icon' dist/index.html
 
       - name: Upload V5 preview artifact
         uses: actions/upload-artifact@v4
@@ -64,3 +67,22 @@ jobs:
           path: v5/dist
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish V5 icon preview branch
+        if: github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'agent/v5-sync-foundation'
+        env:
+          PREVIEW_BRANCH: temp/v5-built-preview-icon
+        run: |
+          set -euo pipefail
+          preview_dir="$(mktemp -d)"
+          cp -R dist/. "$preview_dir/"
+          cd "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan v5-preview-icon-publish
+          git rm -rf .
+          cp -R "$preview_dir"/. .
+          touch .nojekyll
+          git add --all
+          git commit -m "Publish BioTrack V5 icon preview ${GITHUB_SHA}"
+          git push --force origin "HEAD:refs/heads/${PREVIEW_BRANCH}"
