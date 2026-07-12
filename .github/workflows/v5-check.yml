@@ -66,7 +66,7 @@ jobs:
           retention-days: 14
 
       - name: Publish immutable V5 preview branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/agent/v5-sync-foundation'
+        if: github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'agent/v5-sync-foundation'
         env:
           PREVIEW_BRANCH: temp/v5-built-preview-latest
         run: |
