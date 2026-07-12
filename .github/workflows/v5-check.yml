@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify-v5:
@@ -56,6 +56,25 @@ jobs:
         run: |
           grep -R -F -q 'gfuazkuohrragkthtumz' dist/assets/*.js
           grep -R -F -q 'sb_publishable_HJNw6TpNJ0YwTo4rEME6zg_Gbp1xtGU' dist/assets/*.js
+
+      - name: Publish temporary preview build branch
+        if: github.event_name == 'push'
+        working-directory: .
+        env:
+          PREVIEW_BRANCH: temp/v5-built-preview
+        run: |
+          rm -rf /tmp/biotrack-v5-dist
+          cp -R v5/dist /tmp/biotrack-v5-dist
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout --orphan "$PREVIEW_BRANCH"
+          git rm -rf --ignore-unmatch .
+          git clean -fdx
+          cp -R /tmp/biotrack-v5-dist/. .
+          find . -type f -not -path './.git/*' | sort > preview-manifest.txt
+          git add -A
+          git commit -m "Build BioTrack V5 preview ${GITHUB_SHA}"
+          git push --force origin HEAD:"refs/heads/${PREVIEW_BRANCH}"
 
       - name: Upload V5 preview artifact
         uses: actions/upload-artifact@v4
