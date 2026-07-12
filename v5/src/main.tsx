@@ -12,6 +12,18 @@ import './styles/progression.css';
 import './styles/progression-approval.css';
 import './styles/workspace-mobile.css';
 
+function registerServiceWorker(): void {
+  if (!('serviceWorker' in navigator)) return;
+
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch((error: unknown) => {
+      console.warn('BioTrack AI service worker registration failed.', error);
+    });
+  });
+}
+
+registerServiceWorker();
+
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {

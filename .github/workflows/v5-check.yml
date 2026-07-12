@@ -52,14 +52,18 @@ jobs:
       - name: Build V5
         run: npm run build
 
-      - name: Verify preview configuration and app icons
+      - name: Verify preview configuration, icons and PWA shell
         run: |
           grep -R -F -q 'gfuazkuohrragkthtumz' dist/assets/*.js
           grep -R -F -q 'sb_publishable_HJNw6TpNJ0YwTo4rEME6zg_Gbp1xtGU' dist/assets/*.js
+          grep -R -F -q '/sw.js' dist/assets/*.js
           test -f dist/manifest.json
+          test -f dist/sw.js
           test -f dist/biotrack-icon.svg
           test -f dist/apple-touch-icon.png
           test ! -f dist/apple-touch-icon.png.base64
+          grep -F -q '"id": "/"' dist/manifest.json
+          grep -F -q 'biotrack-v5-' dist/sw.js
           grep -F -q './apple-touch-icon.png' dist/index.html
 
       - name: Upload V5 preview artifact
