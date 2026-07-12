@@ -1,7 +1,12 @@
 import { createContext, useContext, type PropsWithChildren } from 'react';
 import { usePreviousPerformance } from './hooks/usePreviousPerformance';
+import { useProgressionRecommendations } from './hooks/useProgressionRecommendations';
+import type { ProgressionRecommendation } from './repositories/progressionRepository';
 
-type PreviousPerformanceContextValue = ReturnType<typeof usePreviousPerformance>;
+type PreviousPerformanceContextValue = {
+  previous: ReturnType<typeof usePreviousPerformance>;
+  progression: ReturnType<typeof useProgressionRecommendations>;
+};
 
 const PreviousPerformanceContext = createContext<PreviousPerformanceContextValue | null>(null);
 
@@ -9,9 +14,11 @@ export function PreviousPerformanceProvider({
   exerciseIds,
   children,
 }: PropsWithChildren<{ exerciseIds: string[] }>) {
-  const value = usePreviousPerformance(exerciseIds);
+  const previous = usePreviousPerformance(exerciseIds);
+  const progression = useProgressionRecommendations(exerciseIds);
+
   return (
-    <PreviousPerformanceContext.Provider value={value}>
+    <PreviousPerformanceContext.Provider value={{ previous, progression }}>
       {children}
     </PreviousPerformanceContext.Provider>
   );
@@ -28,11 +35,27 @@ function formatNumber(value: number): string {
   return new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(value);
 }
 
+function CompactProgression({ recommendation }: { recommendation: ProgressionRecommendation }) {
+  return (
+    <aside className={`compact-progression compact-progression--${recommendation.recommendation_type}`}>
+      <header>
+        <span>Progression guidance</span>
+        <span className={`confidence-chip confidence-chip--${recommendation.confidence}`}>
+          {recommendation.confidence}
+        </span>
+      </header>
+      <strong>{recommendation.action_label}</strong>
+      <p>{recommendation.rationale}</p>
+      <small>No target, repetition, load or routine was changed.</small>
+    </aside>
+  );
+}
+
 export function PreviousPerformance({ exerciseId }: { exerciseId: string }) {
   const context = useContext(PreviousPerformanceContext);
-  if (!context || context.status === 'idle') return null;
+  if (!context || context.previous.status === 'idle') return null;
 
-  if (context.status === 'loading') {
+  if (context.previous.status === 'loading') {
     return (
       <div className="previous-performance" aria-live="polite">
         <p>Loading previous performance…</p>
@@ -40,7 +63,7 @@ export function PreviousPerformance({ exerciseId }: { exerciseId: string }) {
     );
   }
 
-  const performance = context.byExerciseId[exerciseId];
+  const performance = context.previous.byExerciseId[exerciseId];
   if (!performance) {
     return (
       <div className="previous-performance">
@@ -49,18 +72,27 @@ export function PreviousPerformance({ exerciseId }: { exerciseId: string }) {
     );
   }
 
+  const recommendations = context.progression.byExerciseId[exerciseId] ?? [];
+  const recommendation =
+    recommendations.find((item) => item.weight_unit === performance.weight_unit) ??
+    recommendations[0] ??
+    null;
+
   return (
-    <div className="previous-performance">
-      <p>Last time · {formatDate(performance.performed_at)}</p>
-      <div className="previous-performance-sets">
-        {performance.sets.map((set) => (
-          <span key={set.set_number}>
-            {set.weight === null
-              ? `${set.reps ?? 0} reps`
-              : `${formatNumber(set.weight)} ${performance.weight_unit} × ${set.reps ?? 0}`}
-          </span>
-        ))}
+    <>
+      <div className="previous-performance">
+        <p>Last time · {formatDate(performance.performed_at)}</p>
+        <div className="previous-performance-sets">
+          {performance.sets.map((set) => (
+            <span key={set.set_number}>
+              {set.weight === null
+                ? `${set.reps ?? 0} reps`
+                : `${formatNumber(set.weight)} ${performance.weight_unit} × ${set.reps ?? 0}`}
+            </span>
+          ))}
+        </div>
       </div>
-    </div>
+      {recommendation ? <CompactProgression recommendation={recommendation} /> : null}
+    </>
   );
 }
