@@ -8,6 +8,7 @@ import './styles/routine-builder.css';
 import './styles/active-workout.css';
 import './styles/workout-history.css';
 import './styles/progression.css';
+import './styles/progression-approval.css';
 
 const rootElement = document.getElementById('root');
 
