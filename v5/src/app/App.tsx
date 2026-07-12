@@ -14,12 +14,12 @@ const foundationItems = [
   },
   {
     title: 'Workout system',
-    description: 'Exercise library, routine builder, live set logging and programmed rest timers.',
+    description: 'Exercise library, routine targets, live set logging and programmed rest timers.',
     status: 'Ready',
   },
   {
-    title: 'Progress intelligence',
-    description: 'History, records, muscle volume and explainable load or repetition guidance.',
+    title: 'Controlled progression',
+    description: 'Explainable guidance, explicit approval, audited before-and-after values and protected undo.',
     status: 'Ready',
   },
 ] as const;
@@ -108,15 +108,15 @@ function FoundationDashboard() {
         <section className="hero-card">
           <div>
             <p className="eyebrow">Workout AI milestone</p>
-            <h2>Recent sessions now produce explainable progression guidance</h2>
+            <h2>Progression changes now require your approval</h2>
             <p>
-              BioTrack compares completed working sets, programmed repetition ranges and recorded effort to
-              suggest when to add repetitions, consider a small load increase or hold steady. Every suggestion
-              shows its evidence, and nothing is changed without a separate approval step.
+              BioTrack compares recent training, shows the evidence, locates the exact saved routine target and
+              presents current versus proposed values. Nothing changes until you approve it; every application is
+              audited and can be safely undone when it would not overwrite a newer edit.
             </p>
           </div>
-          <div className="milestone-mark" aria-label="Explainable progression phase">
-            06
+          <div className="milestone-mark" aria-label="Controlled progression approval phase">
+            07
           </div>
         </section>
 
