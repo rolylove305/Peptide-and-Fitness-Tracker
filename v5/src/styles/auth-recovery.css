@@ -1,0 +1,38 @@
+.auth-link-button {
+  justify-self: start;
+  min-height: 2rem;
+  margin-top: -0.35rem;
+  padding: 0.2rem 0;
+  border: 0;
+  background: transparent;
+  color: #8edfff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-decoration: underline;
+  text-decoration-color: rgba(142, 223, 255, 0.38);
+  text-underline-offset: 0.2rem;
+}
+
+.auth-link-button:hover,
+.auth-link-button:focus-visible {
+  color: #d8f5ff;
+  text-decoration-color: currentColor;
+}
+
+.auth-link-button:focus-visible {
+  outline: 2px solid rgba(69, 200, 255, 0.7);
+  outline-offset: 0.2rem;
+  border-radius: 0.3rem;
+}
+
+.auth-link-button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.auth-link-button--center {
+  justify-self: center;
+  margin-top: -0.2rem;
+}
