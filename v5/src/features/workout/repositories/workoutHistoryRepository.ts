@@ -1,6 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from '../../../lib/supabase/client';
-import type { Json } from '../../../types/database';
+import type { Database, Json } from '../../../types/database';
 
 export type RepositoryResult<T> =
   | { ok: true; data: T }
@@ -101,82 +100,9 @@ export type PreviousExercisePerformance = {
   sets: PreviousPerformanceSet[];
 };
 
-type NullableSessionSummaryRow = {
-  id: string | null;
-  user_id: string | null;
-  routine_day_id: string | null;
-  name: string | null;
-  started_at: string | null;
-  completed_at: string | null;
-  duration_seconds: number | null;
-  exercise_count: number | null;
-  completed_set_count: number | null;
-  working_set_count: number | null;
-  total_reps: number | null;
-  total_volume: number | null;
-  weight_unit: string | null;
-};
-
-type NullableExerciseRecordRow = {
-  user_id: string | null;
-  exercise_id: string | null;
-  exercise_name: string | null;
-  primary_muscle_group: string | null;
-  weight_unit: string | null;
-  session_count: number | null;
-  completed_set_count: number | null;
-  total_reps: number | null;
-  heaviest_weight: number | null;
-  highest_reps: number | null;
-  best_set_volume: number | null;
-  last_performed_at: string | null;
-};
-
-type NullableMuscleVolumeRow = {
-  user_id: string | null;
-  workout_date: string | null;
-  muscle_group: string | null;
-  weight_unit: string | null;
-  completed_set_count: number | null;
-  total_reps: number | null;
-  total_volume: number | null;
-};
-
-type PreviousPerformanceRpcRow = {
-  exercise_id: string;
-  session_id: string;
-  performed_at: string;
-  weight_unit: string;
-  sets: Json;
-};
-
-type AnalyticsDatabase = {
-  public: {
-    Tables: Record<string, never>;
-    Views: {
-      workout_session_summaries: {
-        Row: NullableSessionSummaryRow;
-        Relationships: [];
-      };
-      workout_exercise_records: {
-        Row: NullableExerciseRecordRow;
-        Relationships: [];
-      };
-      workout_muscle_volume_daily: {
-        Row: NullableMuscleVolumeRow;
-        Relationships: [];
-      };
-    };
-    Functions: {
-      get_previous_exercise_performance: {
-        Args: { p_exercise_ids: string[] };
-        Returns: PreviousPerformanceRpcRow[];
-      };
-    };
-    Enums: Record<string, never>;
-    CompositeTypes: Record<string, never>;
-  };
-};
+type SessionSummaryRow = Database['public']['Views']['workout_session_summaries']['Row'];
+type ExerciseRecordRow = Database['public']['Views']['workout_exercise_records']['Row'];
+type MuscleVolumeRow = Database['public']['Views']['workout_muscle_volume_daily']['Row'];
 
 type SessionDetailQueryRow = Omit<WorkoutSessionDetail, 'exercises' | 'status' | 'completed_at'> & {
   status: string;
@@ -197,15 +123,11 @@ function messageFrom(error: unknown, fallback: string): string {
   return fallback;
 }
 
-function analyticsClient(): SupabaseClient<AnalyticsDatabase> | null {
-  return supabase as unknown as SupabaseClient<AnalyticsDatabase> | null;
-}
-
 function isWeightUnit(value: string | null): value is 'lb' | 'kg' {
   return value === 'lb' || value === 'kg';
 }
 
-function normalizeSummary(row: NullableSessionSummaryRow): WorkoutSessionSummary | null {
+function normalizeSummary(row: SessionSummaryRow): WorkoutSessionSummary | null {
   if (
     !row.id ||
     !row.user_id ||
@@ -234,7 +156,7 @@ function normalizeSummary(row: NullableSessionSummaryRow): WorkoutSessionSummary
   };
 }
 
-function normalizeRecord(row: NullableExerciseRecordRow): ExerciseRecord | null {
+function normalizeRecord(row: ExerciseRecordRow): ExerciseRecord | null {
   if (
     !row.user_id ||
     !row.exercise_id ||
@@ -261,7 +183,7 @@ function normalizeRecord(row: NullableExerciseRecordRow): ExerciseRecord | null 
   };
 }
 
-function normalizeMuscleDay(row: NullableMuscleVolumeRow): MuscleVolumeDay | null {
+function normalizeMuscleDay(row: MuscleVolumeRow): MuscleVolumeDay | null {
   if (!row.user_id || !row.workout_date || !isWeightUnit(row.weight_unit)) return null;
 
   return {
@@ -299,11 +221,10 @@ export async function loadWorkoutHistory(
   userId: string,
   limit = 24,
 ): Promise<RepositoryResult<WorkoutSessionSummary[]>> {
-  const client = analyticsClient();
-  if (!client) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
 
   try {
-    const { data, error } = await client
+    const { data, error } = await supabase
       .from('workout_session_summaries')
       .select('*')
       .eq('user_id', userId)
@@ -326,11 +247,10 @@ export async function loadWorkoutHistory(
 export async function loadExerciseRecords(
   userId: string,
 ): Promise<RepositoryResult<ExerciseRecord[]>> {
-  const client = analyticsClient();
-  if (!client) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
 
   try {
-    const { data, error } = await client
+    const { data, error } = await supabase
       .from('workout_exercise_records')
       .select('*')
       .eq('user_id', userId)
@@ -353,11 +273,10 @@ export async function loadMuscleVolume(
   userId: string,
   sinceDate: string,
 ): Promise<RepositoryResult<MuscleVolumeDay[]>> {
-  const client = analyticsClient();
-  if (!client) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
 
   try {
-    const { data, error } = await client
+    const { data, error } = await supabase
       .from('workout_muscle_volume_daily')
       .select('*')
       .eq('user_id', userId)
@@ -432,12 +351,11 @@ export async function loadWorkoutSessionDetail(
 export async function loadPreviousExercisePerformance(
   exerciseIds: string[],
 ): Promise<RepositoryResult<PreviousExercisePerformance[]>> {
-  const client = analyticsClient();
-  if (!client) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
   if (exerciseIds.length === 0) return { ok: true, data: [] };
 
   try {
-    const { data, error } = await client.rpc('get_previous_exercise_performance', {
+    const { data, error } = await supabase.rpc('get_previous_exercise_performance', {
       p_exercise_ids: Array.from(new Set(exerciseIds)),
     });
 
