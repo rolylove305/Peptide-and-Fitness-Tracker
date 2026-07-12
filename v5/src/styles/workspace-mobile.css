@@ -1,0 +1,28 @@
+.workout-workspace {
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.workspace-tabs {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.progression-dashboard {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.progression-dashboard > * {
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 700px) {
+  .workspace-tabs {
+    width: fit-content;
+    max-width: 100%;
+  }
+}
