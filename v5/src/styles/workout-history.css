@@ -1,0 +1,386 @@
+.workout-history {
+  display: grid;
+  gap: 1rem;
+}
+
+.history-heading {
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.history-heading p:last-child {
+  max-width: 48rem;
+  margin-bottom: 0;
+}
+
+.history-state-card,
+.history-empty {
+  display: grid;
+  min-height: 16rem;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1.35rem;
+  background: linear-gradient(145deg, rgba(16, 34, 55, 0.96), rgba(8, 21, 36, 0.95));
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.history-empty p {
+  max-width: 42rem;
+  margin-bottom: 0;
+}
+
+.history-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.history-overview-grid article {
+  display: grid;
+  gap: 0.35rem;
+  min-height: 6.8rem;
+  align-content: center;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1.15rem;
+  background: linear-gradient(145deg, rgba(19, 40, 63, 0.95), rgba(8, 22, 37, 0.94));
+}
+
+.history-overview-grid span {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.history-overview-grid strong {
+  color: #f4fbff;
+  font-size: clamp(1.25rem, 5vw, 1.85rem);
+  line-height: 1.1;
+}
+
+.history-dashboard-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.history-panel {
+  min-width: 0;
+  padding: clamp(1rem, 3vw, 1.35rem);
+  border: 1px solid var(--border);
+  border-radius: 1.35rem;
+  background: linear-gradient(145deg, rgba(16, 34, 55, 0.96), rgba(8, 21, 36, 0.95));
+  box-shadow: var(--shadow);
+}
+
+.history-panel-heading,
+.history-session-toggle,
+.history-exercise-heading,
+.muscle-progress-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.history-panel-heading {
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.history-panel-heading h3,
+.history-session-toggle h4,
+.history-exercise-heading h4,
+.exercise-record-card h4 {
+  margin-bottom: 0;
+}
+
+.history-panel-heading > span {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.62rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: #bfeeff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.history-session-list,
+.muscle-progress-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.history-session-card {
+  overflow: hidden;
+  border: 1px solid rgba(147, 197, 253, 0.14);
+  border-radius: 1rem;
+  background: rgba(4, 15, 27, 0.62);
+}
+
+.history-session-card--open {
+  border-color: rgba(69, 200, 255, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(69, 200, 255, 0.08);
+}
+
+.history-session-toggle {
+  width: 100%;
+  padding: 1rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.history-session-toggle > div:first-child {
+  min-width: 0;
+}
+
+.history-session-toggle > div:first-child span {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.history-session-toggle h4 {
+  margin-top: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-session-stats {
+  display: none;
+  flex: 0 0 auto;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.history-session-stats span {
+  padding: 0.32rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(69, 200, 255, 0.09);
+  color: #c5eefe;
+  font-size: 0.69rem;
+  font-weight: 750;
+}
+
+.history-detail-loading {
+  padding: 0 1rem 1rem;
+  margin-bottom: 0;
+}
+
+.history-session-detail {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0 0.8rem 0.8rem;
+}
+
+.history-exercise-detail {
+  padding: 0.85rem;
+  border: 1px solid rgba(147, 197, 253, 0.12);
+  border-radius: 0.85rem;
+  background: rgba(12, 28, 45, 0.78);
+}
+
+.history-exercise-heading {
+  align-items: flex-start;
+}
+
+.history-exercise-heading p {
+  margin-bottom: 0.2rem;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.history-exercise-heading > span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.history-set-list {
+  display: flex;
+  gap: 0.42rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.history-set-chip {
+  padding: 0.38rem 0.55rem;
+  border: 1px solid rgba(72, 214, 165, 0.2);
+  border-radius: 0.65rem;
+  background: rgba(72, 214, 165, 0.08);
+  color: #d7fff1;
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+
+.history-set-chip--skipped {
+  border-color: rgba(156, 176, 200, 0.14);
+  background: rgba(156, 176, 200, 0.06);
+  color: var(--muted);
+}
+
+.history-exercise-notes {
+  margin: 0.7rem 0 0;
+  font-size: 0.82rem;
+}
+
+.muscle-progress-list article {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.muscle-progress-label {
+  align-items: end;
+}
+
+.muscle-progress-label > div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.muscle-progress-label span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.muscle-progress-label > span {
+  color: #d7f3ff;
+}
+
+.muscle-progress-track {
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(147, 197, 253, 0.09);
+}
+
+.muscle-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(69, 200, 255, 0.58), rgba(72, 214, 165, 0.9));
+}
+
+.exercise-record-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.exercise-record-card {
+  padding: 1rem;
+  border: 1px solid rgba(147, 197, 253, 0.14);
+  border-radius: 1rem;
+  background: rgba(4, 15, 27, 0.62);
+}
+
+.exercise-record-card > p {
+  margin-bottom: 0.25rem;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.exercise-record-values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.exercise-record-values div {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.65rem;
+  border-radius: 0.75rem;
+  background: rgba(69, 200, 255, 0.07);
+}
+
+.exercise-record-values span {
+  color: var(--muted);
+  font-size: 0.63rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.exercise-record-values strong {
+  overflow: hidden;
+  color: #edf9ff;
+  font-size: 0.86rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.exercise-record-card footer {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.previous-performance {
+  margin: 0.75rem 0;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(69, 200, 255, 0.16);
+  border-radius: 0.85rem;
+  background: rgba(69, 200, 255, 0.06);
+}
+
+.previous-performance p {
+  margin-bottom: 0.35rem;
+  color: #c9efff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.previous-performance-sets {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.previous-performance-sets span {
+  padding: 0.3rem 0.45rem;
+  border-radius: 0.55rem;
+  background: rgba(5, 16, 28, 0.68);
+  color: #e2f6ff;
+  font-size: 0.69rem;
+  font-weight: 750;
+}
+
+@media (min-width: 700px) {
+  .history-overview-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .history-session-stats {
+    display: flex;
+  }
+
+  .exercise-record-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 980px) {
+  .history-dashboard-grid {
+    grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.75fr);
+  }
+
+  .exercise-record-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
