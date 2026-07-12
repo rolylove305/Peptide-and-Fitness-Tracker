@@ -1,0 +1,75 @@
+name: BioTrack V5 Preview Publish
+
+on:
+  pull_request_target:
+    branches:
+      - temp/v5-validation-base-20260712
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: write
+
+jobs:
+  publish-preview-build:
+    if: github.event.pull_request.number == 10 && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out V5 head commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+          cache-dependency-path: v5/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: v5
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Type-check V5
+        working-directory: v5
+        run: npm run typecheck
+
+      - name: Write public preview configuration
+        working-directory: v5
+        run: |
+          cat > .env.production <<'EOF'
+          VITE_SUPABASE_URL=https://gfuazkuohrragkthtumz.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_HJNw6TpNJ0YwTo4rEME6zg_Gbp1xtGU
+          EOF
+
+      - name: Build V5
+        working-directory: v5
+        run: npm run build
+
+      - name: Verify preview configuration
+        working-directory: v5
+        run: |
+          grep -R -F -q 'gfuazkuohrragkthtumz' dist/assets/*.js
+          grep -R -F -q 'sb_publishable_HJNw6TpNJ0YwTo4rEME6zg_Gbp1xtGU' dist/assets/*.js
+
+      - name: Publish compiled preview branch
+        env:
+          PREVIEW_BRANCH: temp/v5-built-preview
+        run: |
+          rm -rf /tmp/biotrack-v5-dist
+          cp -R v5/dist /tmp/biotrack-v5-dist
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout --orphan "$PREVIEW_BRANCH"
+          git rm -rf --ignore-unmatch .
+          git clean -fdx
+          cp -R /tmp/biotrack-v5-dist/. .
+          find . -type f -not -path './.git/*' | sort > preview-manifest.txt
+          git add -A
+          git commit -m "Build BioTrack V5 preview ${{ github.event.pull_request.head.sha }}"
+          git push --force origin HEAD:"refs/heads/${PREVIEW_BRANCH}"
