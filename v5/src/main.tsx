@@ -7,6 +7,7 @@ import './styles/workout.css';
 import './styles/routine-builder.css';
 import './styles/active-workout.css';
 import './styles/workout-history.css';
+import './styles/progression.css';
 
 const rootElement = document.getElementById('root');
 
