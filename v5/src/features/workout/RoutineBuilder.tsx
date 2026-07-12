@@ -7,6 +7,7 @@ import type {
   RoutineDraft,
   RoutineExerciseDraft,
   RoutineTree,
+  WeightUnit,
 } from './repositories/routineRepository';
 
 function localId(): string {
@@ -22,6 +23,8 @@ function newExercise(): RoutineExerciseDraft {
     target_reps_min: 8,
     target_reps_max: 12,
     target_rest_seconds: 90,
+    target_weight: null,
+    weight_unit: 'lb',
     tempo: '',
     notes: '',
   };
@@ -65,6 +68,8 @@ function routineToDraft(routine: RoutineTree): RoutineDraft {
         target_reps_min: exercise.target_reps_min ?? 8,
         target_reps_max: exercise.target_reps_max ?? exercise.target_reps_min ?? 12,
         target_rest_seconds: exercise.target_rest_seconds,
+        target_weight: exercise.target_weight,
+        weight_unit: exercise.weight_unit,
         tempo: exercise.tempo ?? '',
         notes: exercise.notes ?? '',
       })),
@@ -93,6 +98,15 @@ function validateRoutine(draft: RoutineDraft): string | null {
       }
       if (exercise.target_rest_seconds < 0 || exercise.target_rest_seconds > 3600) {
         return `${day.name}: rest must be between 0 and 3600 seconds.`;
+      }
+      if (
+        exercise.target_weight !== null &&
+        (!Number.isFinite(exercise.target_weight) || exercise.target_weight < 0)
+      ) {
+        return `${day.name}: target weight must be empty or a non-negative number.`;
+      }
+      if (exercise.weight_unit !== 'lb' && exercise.weight_unit !== 'kg') {
+        return `${day.name}: choose pounds or kilograms.`;
       }
     }
   }
@@ -159,7 +173,10 @@ export function RoutineBuilder() {
   }
 
   function addDay() {
-    setDraft((current) => ({ ...current, days: [...current.days, newDay(current.days.length + 1)] }));
+    setDraft((current) => ({
+      ...current,
+      days: [...current.days, newDay(current.days.length + 1)],
+    }));
   }
 
   function removeDay(dayId: string) {
@@ -256,7 +273,9 @@ export function RoutineBuilder() {
         <div>
           <p className="eyebrow">Workout AI</p>
           <h2 id="routine-builder-heading">Routine builder</h2>
-          <p>Create training days, choose exercises and set the targets BioTrack will show during workouts.</p>
+          <p>
+            Create training days, choose exercises and set the targets BioTrack will prefill in future workouts.
+          </p>
         </div>
         <button className="secondary-button" type="button" onClick={resetBuilder}>
           New routine
@@ -393,9 +412,7 @@ export function RoutineBuilder() {
                               {groupedExercises.map(([group, exercises]) => (
                                 <optgroup label={group} key={group}>
                                   {exercises.map((item) => (
-                                    <option value={item.id} key={item.id}>
-                                      {item.name}
-                                    </option>
+                                    <option value={item.id} key={item.id}>{item.name}</option>
                                   ))}
                                 </optgroup>
                               ))}
@@ -466,6 +483,39 @@ export function RoutineBuilder() {
                                 }
                               />
                             </label>
+                            <label className="field field--compact">
+                              <span>Target weight</span>
+                              <input
+                                type="number"
+                                min={0}
+                                step="0.5"
+                                inputMode="decimal"
+                                value={exercise.target_weight ?? ''}
+                                placeholder="Optional"
+                                onChange={(event) =>
+                                  updateExercise(day.localId, exercise.localId, {
+                                    target_weight:
+                                      event.target.value.trim() === ''
+                                        ? null
+                                        : Number(event.target.value),
+                                  })
+                                }
+                              />
+                            </label>
+                            <label className="field field--compact">
+                              <span>Weight unit</span>
+                              <select
+                                value={exercise.weight_unit}
+                                onChange={(event) =>
+                                  updateExercise(day.localId, exercise.localId, {
+                                    weight_unit: event.target.value as WeightUnit,
+                                  })
+                                }
+                              >
+                                <option value="lb">lb</option>
+                                <option value="kg">kg</option>
+                              </select>
+                            </label>
                             <label className="field">
                               <span>Tempo</span>
                               <input
@@ -479,6 +529,9 @@ export function RoutineBuilder() {
                               />
                             </label>
                           </div>
+                          <p className="selected-exercise-meta">
+                            Target weight is optional. When set, BioTrack prefills it in every future set.
+                          </p>
                         </div>
                         <button
                           className="icon-button icon-button--danger"
@@ -494,14 +547,22 @@ export function RoutineBuilder() {
                   })}
                 </div>
 
-                <button className="secondary-button secondary-button--wide" type="button" onClick={() => addExercise(day.localId)}>
+                <button
+                  className="secondary-button secondary-button--wide"
+                  type="button"
+                  onClick={() => addExercise(day.localId)}
+                >
                   + Add exercise
                 </button>
               </article>
             ))}
           </div>
 
-          <button className="secondary-button secondary-button--wide add-day-button" type="button" onClick={addDay}>
+          <button
+            className="secondary-button secondary-button--wide add-day-button"
+            type="button"
+            onClick={addDay}
+          >
             + Add workout day
           </button>
         </div>
@@ -512,7 +573,12 @@ export function RoutineBuilder() {
               <p className="eyebrow">Cloud routines</p>
               <h3 id="saved-routines-heading">Saved plans</h3>
             </div>
-            <button className="text-button" type="button" disabled={routineState.status === 'loading'} onClick={routineState.refresh}>
+            <button
+              className="text-button"
+              type="button"
+              disabled={routineState.status === 'loading'}
+              onClick={routineState.refresh}
+            >
               Refresh
             </button>
           </div>
@@ -535,8 +601,15 @@ export function RoutineBuilder() {
 
           {routineState.routines.map((routine) => {
             const exerciseCount = routine.days.reduce((total, day) => total + day.exercises.length, 0);
+            const presetLoadCount = routine.days.reduce(
+              (total, day) => total + day.exercises.filter((exercise) => exercise.target_weight !== null).length,
+              0,
+            );
             return (
-              <article className={`saved-routine-card ${editingId === routine.id ? 'saved-routine-card--active' : ''}`} key={routine.id}>
+              <article
+                className={`saved-routine-card ${editingId === routine.id ? 'saved-routine-card--active' : ''}`}
+                key={routine.id}
+              >
                 <div className="saved-routine-card-heading">
                   <div>
                     <span className="difficulty-chip">{routine.difficulty}</span>
@@ -548,6 +621,7 @@ export function RoutineBuilder() {
                 <div className="routine-summary">
                   <span>{routine.days.length} days</span>
                   <span>{exerciseCount} exercises</span>
+                  <span>{presetLoadCount} preset loads</span>
                 </div>
                 <div className="saved-routine-actions">
                   <button className="secondary-button" type="button" onClick={() => editRoutine(routine)}>
