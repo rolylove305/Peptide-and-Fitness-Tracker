@@ -11,6 +11,8 @@ export type RepositoryResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
+export type WeightUnit = 'lb' | 'kg';
+
 export type RoutineExerciseDraft = {
   localId: string;
   exercise_id: string;
@@ -18,6 +20,8 @@ export type RoutineExerciseDraft = {
   target_reps_min: number;
   target_reps_max: number;
   target_rest_seconds: number;
+  target_weight: number | null;
+  weight_unit: WeightUnit;
   tempo: string;
   notes: string;
 };
@@ -38,7 +42,12 @@ export type RoutineDraft = {
   days: RoutineDayDraft[];
 };
 
-export type RoutineExerciseTree = WorkoutRoutineExercise & {
+export type RoutineExerciseWithLoad = WorkoutRoutineExercise & {
+  target_weight: number | null;
+  weight_unit: WeightUnit;
+};
+
+export type RoutineExerciseTree = RoutineExerciseWithLoad & {
   exercise: Pick<Exercise, 'id' | 'name' | 'primary_muscle_group' | 'equipment'> | null;
 };
 
@@ -54,7 +63,7 @@ type RoutineQueryRow = WorkoutRoutine & {
   workout_routine_days: Array<
     WorkoutRoutineDay & {
       workout_routine_exercises: Array<
-        WorkoutRoutineExercise & {
+        RoutineExerciseWithLoad & {
           exercise_library: Pick<
             Exercise,
             'id' | 'name' | 'primary_muscle_group' | 'equipment'
@@ -149,6 +158,8 @@ export async function saveRoutineTree(
         target_reps_min: exercise.target_reps_min,
         target_reps_max: exercise.target_reps_max,
         target_rest_seconds: exercise.target_rest_seconds,
+        target_weight: exercise.target_weight,
+        weight_unit: exercise.weight_unit,
         tempo: exercise.tempo.trim(),
         notes: exercise.notes.trim(),
       })),
