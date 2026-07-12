@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '../features/auth/AuthProvider';
 import { AuthScreen } from '../features/auth/AuthScreen';
+import { ExerciseLibrary } from '../features/workout/ExerciseLibrary';
 import { supabaseConfiguration } from '../lib/supabase/client';
 
 type ConnectionState = 'online' | 'offline';
@@ -12,14 +13,14 @@ const foundationItems = [
     status: 'Ready',
   },
   {
-    title: 'Workout AI',
-    description: 'Exercise library, routines, live sets, rest timer and history.',
-    status: 'Priority',
+    title: 'Workout database',
+    description: 'Normalized routines, sessions, exercises and set-by-set history with verified RLS.',
+    status: 'Ready',
   },
   {
-    title: 'Progress intelligence',
-    description: 'Exercise, strength and muscle-group progress built from real logs.',
-    status: 'Planned',
+    title: 'Workout experience',
+    description: 'Exercise library is connected. Routine builder, live sets and rest timer come next.',
+    status: 'In progress',
   },
 ] as const;
 
@@ -74,8 +75,8 @@ function FoundationDashboard() {
       <header className="topbar">
         <div>
           <p className="eyebrow">BioTrack AI</p>
-          <h1>V5 Foundation</h1>
-          <p className="subtitle">A clean, modular rebuild beside the current working app.</p>
+          <h1>Workout AI Foundation</h1>
+          <p className="subtitle">Secure workout data and a real exercise library, built beside the current app.</p>
         </div>
 
         <div className="topbar-actions">
@@ -106,17 +107,19 @@ function FoundationDashboard() {
 
         <section className="hero-card">
           <div>
-            <p className="eyebrow">First product milestone</p>
-            <h2>Workout AI</h2>
+            <p className="eyebrow">Workout AI milestone</p>
+            <h2>Structured training starts here</h2>
             <p>
-              V5 will record structured workouts first, then use that history to generate explainable
-              recommendations without silently changing your plan.
+              BioTrack can now store routines, actual workout sessions and every completed set. The
+              first connected experience is the searchable exercise library below.
             </p>
           </div>
-          <div className="milestone-mark" aria-label="Foundation phase">
-            01
+          <div className="milestone-mark" aria-label="Database and library phase">
+            02
           </div>
         </section>
+
+        <ExerciseLibrary />
 
         <section aria-labelledby="foundation-heading">
           <div className="section-heading">
@@ -145,7 +148,7 @@ function FoundationDashboard() {
             </h2>
             <p>
               {supabaseConfiguration.isConfigured
-                ? 'The V5 client is using a project URL and browser-safe publishable key.'
+                ? 'The V5 client is using a project URL, browser-safe publishable key and typed Workout AI schema.'
                 : 'Add the approved environment variables before connecting authentication.'}
             </p>
           </div>
