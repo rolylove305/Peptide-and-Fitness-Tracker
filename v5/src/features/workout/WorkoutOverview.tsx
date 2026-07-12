@@ -14,7 +14,7 @@ type RoutineDayOption = {
   routineName: string;
   routineDifficulty: string;
   dayName: string;
-  focus: string;
+  focus: string | null;
   exerciseCount: number;
 };
 
