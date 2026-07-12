@@ -156,12 +156,7 @@ export async function saveRoutineTree(
   };
 
   try {
-    const invokeRoutineSave = supabase.rpc.bind(supabase) as unknown as (
-      functionName: 'save_workout_routine_tree',
-      args: { p_routine: Json; p_routine_id: string | null },
-    ) => Promise<{ data: string | null; error: { message: string } | null }>;
-
-    const { data, error } = await invokeRoutineSave('save_workout_routine_tree', {
+    const { data, error } = await supabase.rpc('save_workout_routine_tree', {
       p_routine: payload,
       p_routine_id: routineId,
     });
