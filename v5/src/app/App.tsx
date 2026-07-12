@@ -2,27 +2,8 @@ import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '../features/auth/AuthProvider';
 import { AuthScreen } from '../features/auth/AuthScreen';
 import { WorkoutWorkspace } from '../features/workout/WorkoutWorkspace';
-import { supabaseConfiguration } from '../lib/supabase/client';
 
 type ConnectionState = 'online' | 'offline';
-
-const foundationItems = [
-  {
-    title: 'Secure accounts',
-    description: 'Supabase session persistence, sign in, account creation and sign out.',
-    status: 'Ready',
-  },
-  {
-    title: 'Workout system',
-    description: 'Exercise library, routine targets, live set logging and programmed rest timers.',
-    status: 'Ready',
-  },
-  {
-    title: 'Controlled progression',
-    description: 'Explainable guidance, explicit approval, audited before-and-after values and protected undo.',
-    status: 'Ready',
-  },
-] as const;
 
 function useConnectionState(): ConnectionState {
   const [state, setState] = useState<ConnectionState>(navigator.onLine ? 'online' : 'offline');
@@ -54,7 +35,7 @@ function LoadingScreen() {
   );
 }
 
-function FoundationDashboard() {
+function WorkoutApp() {
   const connection = useConnectionState();
   const { user, error, signOut } = useAuth();
   const [signingOut, setSigningOut] = useState(false);
@@ -73,10 +54,13 @@ function FoundationDashboard() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div>
-          <p className="eyebrow">BioTrack AI</p>
-          <h1>Workout AI</h1>
-          <p className="subtitle">Plan, train, review every set and turn real sessions into measurable progress.</p>
+        <div className="app-brand">
+          <div className="app-brand-mark" aria-hidden="true">B</div>
+          <div>
+            <p className="eyebrow">BioTrack AI</p>
+            <h1>Workout AI</h1>
+            <p className="subtitle">Train with a plan, record every set and turn your history into progress.</p>
+          </div>
         </div>
 
         <div className="topbar-actions">
@@ -105,61 +89,7 @@ function FoundationDashboard() {
           </p>
         ) : null}
 
-        <section className="hero-card">
-          <div>
-            <p className="eyebrow">Workout AI milestone</p>
-            <h2>Progression changes now require your approval</h2>
-            <p>
-              BioTrack compares recent training, shows the evidence, locates the exact saved routine target and
-              presents current versus proposed values. Nothing changes until you approve it; every application is
-              audited and can be safely undone when it would not overwrite a newer edit.
-            </p>
-          </div>
-          <div className="milestone-mark" aria-label="Controlled progression approval phase">
-            07
-          </div>
-        </section>
-
         <WorkoutWorkspace />
-
-        <section aria-labelledby="foundation-heading">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Architecture</p>
-              <h2 id="foundation-heading">Workout AI status</h2>
-            </div>
-          </div>
-
-          <div className="card-grid">
-            {foundationItems.map((item) => (
-              <article className="feature-card" key={item.title}>
-                <span className="status-chip">{item.status}</span>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="system-card" aria-labelledby="system-heading">
-          <div>
-            <p className="eyebrow">Cloud configuration</p>
-            <h2 id="system-heading">
-              {supabaseConfiguration.isConfigured ? 'Supabase connected' : 'Environment setup required'}
-            </h2>
-            <p>
-              {supabaseConfiguration.isConfigured
-                ? 'The V5 client uses a browser-safe publishable key, authenticated sessions and RLS-protected workout data.'
-                : 'Add the approved environment variables before connecting authentication.'}
-            </p>
-          </div>
-          <span
-            className={`system-indicator ${
-              supabaseConfiguration.isConfigured ? 'system-indicator--ready' : ''
-            }`}
-            aria-hidden="true"
-          />
-        </section>
       </main>
     </div>
   );
@@ -171,7 +101,7 @@ function AppContent() {
   if (status === 'checking') return <LoadingScreen />;
   if (status !== 'signed-in') return <AuthScreen />;
 
-  return <FoundationDashboard />;
+  return <WorkoutApp />;
 }
 
 export function App() {

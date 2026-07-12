@@ -4,62 +4,46 @@ import { ExerciseLibrary } from './ExerciseLibrary';
 import { ProgressionDashboard } from './ProgressionDashboard';
 import { RoutineBuilder } from './RoutineBuilder';
 import { WorkoutHistory } from './WorkoutHistory';
+import { WorkoutOverview } from './WorkoutOverview';
 
-type WorkspaceView = 'train' | 'history' | 'progression' | 'builder' | 'library';
+export type WorkoutWorkspaceView =
+  | 'overview'
+  | 'train'
+  | 'history'
+  | 'progression'
+  | 'builder'
+  | 'library';
+
+const tabs: Array<{ view: WorkoutWorkspaceView; label: string }> = [
+  { view: 'overview', label: 'Today' },
+  { view: 'train', label: 'Train' },
+  { view: 'history', label: 'History' },
+  { view: 'progression', label: 'Progress' },
+  { view: 'builder', label: 'Routines' },
+  { view: 'library', label: 'Exercises' },
+];
 
 export function WorkoutWorkspace() {
-  const [view, setView] = useState<WorkspaceView>('train');
+  const [view, setView] = useState<WorkoutWorkspaceView>('overview');
 
   return (
     <div className="workout-workspace">
       <div className="workspace-tabs" role="tablist" aria-label="Workout AI tools">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={view === 'train'}
-          className={view === 'train' ? 'workspace-tab workspace-tab--active' : 'workspace-tab'}
-          onClick={() => setView('train')}
-        >
-          Train
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={view === 'history'}
-          className={view === 'history' ? 'workspace-tab workspace-tab--active' : 'workspace-tab'}
-          onClick={() => setView('history')}
-        >
-          History
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={view === 'progression'}
-          className={view === 'progression' ? 'workspace-tab workspace-tab--active' : 'workspace-tab'}
-          onClick={() => setView('progression')}
-        >
-          Progression
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={view === 'builder'}
-          className={view === 'builder' ? 'workspace-tab workspace-tab--active' : 'workspace-tab'}
-          onClick={() => setView('builder')}
-        >
-          Routine builder
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={view === 'library'}
-          className={view === 'library' ? 'workspace-tab workspace-tab--active' : 'workspace-tab'}
-          onClick={() => setView('library')}
-        >
-          Exercise library
-        </button>
+        {tabs.map((tab) => (
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === tab.view}
+            className={view === tab.view ? 'workspace-tab workspace-tab--active' : 'workspace-tab'}
+            onClick={() => setView(tab.view)}
+            key={tab.view}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
+      {view === 'overview' ? <WorkoutOverview onNavigate={setView} /> : null}
       {view === 'train' ? <ActiveWorkout /> : null}
       {view === 'history' ? <WorkoutHistory /> : null}
       {view === 'progression' ? <ProgressionDashboard /> : null}
