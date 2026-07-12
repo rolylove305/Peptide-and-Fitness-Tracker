@@ -115,24 +115,11 @@ export async function loadActiveWorkout(
   }
 }
 
-async function invokeUuidRpc(
-  functionName:
-    | 'start_workout_session_from_day'
-    | 'complete_workout_session'
-    | 'cancel_workout_session',
-  args: Record<string, string>,
-): Promise<{ data: string | null; error: { message: string } | null }> {
-  if (!supabase) return { data: null, error: { message: 'Supabase is not configured.' } };
-  const invoke = supabase.rpc.bind(supabase) as unknown as (
-    name: string,
-    parameters: Record<string, string>,
-  ) => Promise<{ data: string | null; error: { message: string } | null }>;
-  return invoke(functionName, args);
-}
-
 export async function startWorkoutFromDay(dayId: string): Promise<RepositoryResult<string>> {
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+
   try {
-    const { data, error } = await invokeUuidRpc('start_workout_session_from_day', {
+    const { data, error } = await supabase.rpc('start_workout_session_from_day', {
       p_routine_day_id: dayId,
     });
     if (error) throw error;
@@ -169,8 +156,10 @@ export async function saveWorkoutSet(
 }
 
 export async function completeWorkout(sessionId: string): Promise<RepositoryResult<null>> {
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+
   try {
-    const { error } = await invokeUuidRpc('complete_workout_session', {
+    const { error } = await supabase.rpc('complete_workout_session', {
       p_session_id: sessionId,
     });
     if (error) throw error;
@@ -181,8 +170,10 @@ export async function completeWorkout(sessionId: string): Promise<RepositoryResu
 }
 
 export async function cancelWorkout(sessionId: string): Promise<RepositoryResult<null>> {
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+
   try {
-    const { error } = await invokeUuidRpc('cancel_workout_session', {
+    const { error } = await supabase.rpc('cancel_workout_session', {
       p_session_id: sessionId,
     });
     if (error) throw error;
