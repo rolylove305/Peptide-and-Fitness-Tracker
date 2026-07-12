@@ -1,12 +1,19 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
-import { PreviousPerformance, PreviousPerformanceProvider } from './PreviousPerformance';
+import {
+  PreviousPerformance,
+  PreviousPerformanceProvider,
+  usePreviousPerformanceForExercise,
+} from './PreviousPerformance';
 import { useActiveWorkout } from './hooks/useActiveWorkout';
 import { useRoutines } from './hooks/useRoutines';
 import type {
+  ActiveWorkoutExercise,
   ActiveWorkoutSet,
   WorkoutSetInput,
 } from './repositories/activeWorkoutRepository';
+
+const REST_TIMER_STORAGE_KEY = 'biotrack-v5-rest-timer';
 
 function formatClock(totalSeconds: number): string {
   const safeSeconds = Math.max(0, Math.floor(totalSeconds));
@@ -41,16 +48,63 @@ function useElapsedSeconds(startedAt: string | undefined): number {
 }
 
 type RestTimerState = {
+  sessionId: string;
   exerciseName: string;
-  remaining: number;
+  endsAt: number;
   total: number;
 };
+
+type SetSuggestion = {
+  weight: number | null;
+  reps: number | null;
+  source: 'Previous set' | 'Last workout' | 'Routine target';
+};
+
+function readStoredRestTimer(): RestTimerState | null {
+  try {
+    const raw = window.localStorage.getItem(REST_TIMER_STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<RestTimerState>;
+    if (
+      typeof parsed.sessionId !== 'string' ||
+      typeof parsed.exerciseName !== 'string' ||
+      typeof parsed.endsAt !== 'number' ||
+      typeof parsed.total !== 'number' ||
+      !Number.isFinite(parsed.endsAt) ||
+      !Number.isFinite(parsed.total) ||
+      parsed.total <= 0
+    ) {
+      window.localStorage.removeItem(REST_TIMER_STORAGE_KEY);
+      return null;
+    }
+
+    if (Date.now() - parsed.endsAt > 5 * 60 * 1000) {
+      window.localStorage.removeItem(REST_TIMER_STORAGE_KEY);
+      return null;
+    }
+
+    return parsed as RestTimerState;
+  } catch {
+    window.localStorage.removeItem(REST_TIMER_STORAGE_KEY);
+    return null;
+  }
+}
+
+function formatSuggestion(suggestion: SetSuggestion, unit: 'lb' | 'kg'): string {
+  const parts: string[] = [];
+  if (suggestion.weight !== null) parts.push(`${suggestion.weight} ${unit}`);
+  if (suggestion.reps !== null) parts.push(`${suggestion.reps} reps`);
+  return parts.join(' × ');
+}
 
 type SetEditorProps = {
   workoutSet: ActiveWorkoutSet;
   targetRepsMin: number | null;
   targetRepsMax: number | null;
   saving: boolean;
+  suggestion: SetSuggestion | null;
+  nextSetId: string | null;
   onSave: (input: WorkoutSetInput, wasAlreadyCompleted: boolean) => Promise<boolean>;
 };
 
@@ -59,6 +113,8 @@ function SetEditor({
   targetRepsMin,
   targetRepsMax,
   saving,
+  suggestion,
+  nextSetId,
   onSave,
 }: SetEditorProps) {
   const [weight, setWeight] = useState(workoutSet.weight?.toString() ?? '');
@@ -72,12 +128,30 @@ function SetEditor({
     setRpe(workoutSet.rpe?.toString() ?? '');
   }, [workoutSet.rpe, workoutSet.reps, workoutSet.weight]);
 
+  useEffect(() => {
+    if (workoutSet.is_completed || !suggestion) return;
+    setWeight((current) => (current.trim() !== '' ? current : suggestion.weight?.toString() ?? ''));
+    setReps((current) => (current.trim() !== '' ? current : suggestion.reps?.toString() ?? ''));
+  }, [suggestion, workoutSet.is_completed]);
+
   const targetLabel =
     targetRepsMin && targetRepsMax
       ? targetRepsMin === targetRepsMax
         ? `${targetRepsMin} reps`
         : `${targetRepsMin}–${targetRepsMax} reps`
-      : 'Custom reps';
+      : 'Repetitions';
+
+  function adjustWeight(delta: number) {
+    const current = weight.trim() === '' ? 0 : Number(weight);
+    const next = Math.max(0, (Number.isFinite(current) ? current : 0) + delta);
+    setWeight(String(Math.round(next * 2) / 2));
+  }
+
+  function adjustReps(delta: number) {
+    const current = reps.trim() === '' ? 0 : Number(reps);
+    const next = Math.max(1, Math.round((Number.isFinite(current) ? current : 0) + delta));
+    setReps(String(next));
+  }
 
   async function handleSave() {
     setError(null);
@@ -98,7 +172,7 @@ function SetEditor({
       return;
     }
 
-    await onSave(
+    const saved = await onSave(
       {
         weight: parsedWeight,
         reps: parsedReps,
@@ -107,56 +181,198 @@ function SetEditor({
       },
       workoutSet.is_completed,
     );
+
+    if (saved && nextSetId && !workoutSet.is_completed) {
+      window.setTimeout(() => {
+        const nextSet = document.getElementById(`workout-set-${nextSetId}`);
+        nextSet?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        nextSet?.querySelector<HTMLInputElement>('input[data-field="reps"]')?.focus({ preventScroll: true });
+      }, 180);
+    }
   }
 
   return (
-    <div className={workoutSet.is_completed ? 'live-set live-set--complete' : 'live-set'}>
-      <div className="live-set-number">
-        <span>Set</span>
-        <strong>{workoutSet.set_number}</strong>
+    <div
+      className={workoutSet.is_completed ? 'live-set live-set--complete' : 'live-set'}
+      id={`workout-set-${workoutSet.id}`}
+    >
+      <div className="live-set-header-row">
+        <div className="live-set-number">
+          <span>Set</span>
+          <strong>{workoutSet.set_number}</strong>
+        </div>
+
+        <div className="live-set-status">
+          {workoutSet.is_completed ? (
+            <span className="set-complete-mark">✓ Saved</span>
+          ) : suggestion ? (
+            <>
+              <span className="set-prefill-source">{suggestion.source}</span>
+              <small>{formatSuggestion(suggestion, workoutSet.weight_unit)}</small>
+            </>
+          ) : (
+            <span className="set-ready-label">Ready to log</span>
+          )}
+        </div>
       </div>
-      <label className="live-set-field">
-        <span>Weight ({workoutSet.weight_unit})</span>
-        <input
-          type="number"
-          min={0}
-          step="0.5"
-          inputMode="decimal"
-          value={weight}
-          placeholder="0"
-          onChange={(event) => setWeight(event.target.value)}
-        />
-      </label>
-      <label className="live-set-field">
-        <span>{targetLabel}</span>
-        <input
-          type="number"
-          min={1}
-          max={10000}
-          inputMode="numeric"
-          value={reps}
-          placeholder="Reps"
-          onChange={(event) => setReps(event.target.value)}
-        />
-      </label>
-      <label className="live-set-field">
-        <span>RPE</span>
-        <input
-          type="number"
-          min={1}
-          max={10}
-          step="0.5"
-          inputMode="decimal"
-          value={rpe}
-          placeholder="1–10"
-          onChange={(event) => setRpe(event.target.value)}
-        />
-      </label>
-      <button className="complete-set-button" type="button" disabled={saving} onClick={() => void handleSave()}>
-        {saving ? 'Saving…' : workoutSet.is_completed ? 'Update' : 'Complete'}
+
+      <div className="live-set-fields">
+        <div className="live-set-field">
+          <span>Weight ({workoutSet.weight_unit})</span>
+          <div className="live-number-control">
+            <button type="button" aria-label="Decrease weight by 5" onClick={() => adjustWeight(-5)}>
+              −5
+            </button>
+            <input
+              aria-label={`Set ${workoutSet.set_number} weight`}
+              type="number"
+              min={0}
+              step="0.5"
+              inputMode="decimal"
+              data-field="weight"
+              value={weight}
+              placeholder="0"
+              onChange={(event) => setWeight(event.target.value)}
+            />
+            <button type="button" aria-label="Increase weight by 5" onClick={() => adjustWeight(5)}>
+              +5
+            </button>
+          </div>
+        </div>
+
+        <div className="live-set-field">
+          <span>{targetLabel}</span>
+          <div className="live-number-control">
+            <button type="button" aria-label="Decrease repetitions by 1" onClick={() => adjustReps(-1)}>
+              −1
+            </button>
+            <input
+              aria-label={`Set ${workoutSet.set_number} repetitions`}
+              type="number"
+              min={1}
+              max={10000}
+              inputMode="numeric"
+              data-field="reps"
+              value={reps}
+              placeholder="Reps"
+              onChange={(event) => setReps(event.target.value)}
+            />
+            <button type="button" aria-label="Increase repetitions by 1" onClick={() => adjustReps(1)}>
+              +1
+            </button>
+          </div>
+        </div>
+
+        <div className="live-set-field live-set-field--rpe">
+          <span>RPE (optional)</span>
+          <input
+            aria-label={`Set ${workoutSet.set_number} RPE`}
+            type="number"
+            min={1}
+            max={10}
+            step="0.5"
+            inputMode="decimal"
+            value={rpe}
+            placeholder="1–10"
+            onChange={(event) => setRpe(event.target.value)}
+          />
+        </div>
+      </div>
+
+      <button
+        className="complete-set-button"
+        type="button"
+        disabled={saving}
+        onClick={() => void handleSave()}
+      >
+        {saving ? 'Saving…' : workoutSet.is_completed ? 'Update saved set' : 'Complete set'}
       </button>
-      {workoutSet.is_completed ? <span className="set-complete-mark">✓ Saved</span> : null}
+
       {error ? <p className="live-set-error">{error}</p> : null}
+    </div>
+  );
+}
+
+type ExerciseSetEditorsProps = {
+  exercise: ActiveWorkoutExercise;
+  savingSetId: string | null;
+  onSave: (
+    setId: string,
+    exerciseName: string,
+    restSeconds: number,
+    input: WorkoutSetInput,
+    wasAlreadyCompleted: boolean,
+  ) => Promise<boolean>;
+};
+
+function ExerciseSetEditors({ exercise, savingSetId, onSave }: ExerciseSetEditorsProps) {
+  const previous = usePreviousPerformanceForExercise(exercise.exercise_id);
+
+  return (
+    <div className="live-set-list">
+      {exercise.sets.map((workoutSet, index) => {
+        const previousCompletedSet = [...exercise.sets]
+          .slice(0, index)
+          .reverse()
+          .find((set) => set.is_completed);
+        const previousWorkoutSet =
+          previous.performance?.sets.find((set) => set.set_number === workoutSet.set_number) ??
+          previous.performance?.sets[index] ??
+          previous.performance?.sets[previous.performance.sets.length - 1] ??
+          null;
+
+        let suggestion: SetSuggestion | null = null;
+        if (previousCompletedSet) {
+          suggestion = {
+            weight: previousCompletedSet.weight,
+            reps: previousCompletedSet.reps,
+            source: 'Previous set',
+          };
+        } else if (previousWorkoutSet) {
+          suggestion = {
+            weight: previousWorkoutSet.weight,
+            reps: previousWorkoutSet.reps,
+            source: 'Last workout',
+          };
+        } else if (
+          exercise.target_weight_snapshot !== null ||
+          exercise.target_reps_min_snapshot !== null
+        ) {
+          suggestion = {
+            weight: exercise.target_weight_snapshot,
+            reps: exercise.target_reps_min_snapshot,
+            source: 'Routine target',
+          };
+        }
+
+        if (suggestion && suggestion.weight === null && suggestion.reps === null) {
+          suggestion = null;
+        }
+
+        const nextSetId =
+          exercise.sets.slice(index + 1).find((set) => !set.is_completed)?.id ?? null;
+
+        return (
+          <SetEditor
+            key={workoutSet.id}
+            workoutSet={workoutSet}
+            targetRepsMin={exercise.target_reps_min_snapshot}
+            targetRepsMax={exercise.target_reps_max_snapshot}
+            saving={savingSetId === workoutSet.id}
+            suggestion={suggestion}
+            nextSetId={nextSetId}
+            onSave={(input, wasAlreadyCompleted) =>
+              onSave(
+                workoutSet.id,
+                exercise.exercise_name_snapshot,
+                exercise.target_rest_seconds_snapshot,
+                input,
+                wasAlreadyCompleted,
+              )
+            }
+          />
+        );
+      })}
     </div>
   );
 }
@@ -165,20 +381,48 @@ export function ActiveWorkout() {
   const { user } = useAuth();
   const active = useActiveWorkout(user?.id);
   const routines = useRoutines(user?.id);
-  const [restTimer, setRestTimer] = useState<RestTimerState | null>(null);
+  const [restTimer, setRestTimer] = useState<RestTimerState | null>(() => readStoredRestTimer());
+  const [timerNow, setTimerNow] = useState(() => Date.now());
   const [message, setMessage] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+  const announcedTimerRef = useRef<number | null>(null);
   const elapsedSeconds = useElapsedSeconds(active.session?.started_at);
 
+  const restTimerRemaining = restTimer
+    ? Math.max(0, Math.ceil((restTimer.endsAt - timerNow) / 1000))
+    : 0;
+
   useEffect(() => {
-    if (!restTimer || restTimer.remaining <= 0) return;
-    const timer = window.setInterval(() => {
-      setRestTimer((current) =>
-        current ? { ...current, remaining: Math.max(0, current.remaining - 1) } : current,
-      );
-    }, 1000);
+    if (!restTimer) return;
+    setTimerNow(Date.now());
+    const timer = window.setInterval(() => setTimerNow(Date.now()), 250);
     return () => window.clearInterval(timer);
-  }, [restTimer?.remaining]);
+  }, [restTimer?.endsAt]);
+
+  useEffect(() => {
+    try {
+      if (restTimer) {
+        window.localStorage.setItem(REST_TIMER_STORAGE_KEY, JSON.stringify(restTimer));
+      } else {
+        window.localStorage.removeItem(REST_TIMER_STORAGE_KEY);
+      }
+    } catch {
+      // The timer continues in memory when private storage is unavailable.
+    }
+  }, [restTimer]);
+
+  useEffect(() => {
+    if (!restTimer || active.status === 'loading') return;
+    if (!active.session || restTimer.sessionId !== active.session.id) {
+      setRestTimer(null);
+    }
+  }, [active.session?.id, active.status, restTimer?.sessionId]);
+
+  useEffect(() => {
+    if (!restTimer || restTimerRemaining !== 0 || announcedTimerRef.current === restTimer.endsAt) return;
+    announcedTimerRef.current = restTimer.endsAt;
+    if ('vibrate' in navigator) navigator.vibrate([180, 90, 180]);
+  }, [restTimer, restTimerRemaining]);
 
   const availableDays = useMemo(
     () =>
@@ -196,13 +440,72 @@ export function ActiveWorkout() {
   );
 
   const sessionProgress = useMemo(() => {
-    if (!active.session) return { completed: 0, total: 0 };
+    if (!active.session) return { completed: 0, total: 0, remaining: 0, percent: 0 };
     const allSets = active.session.exercises.flatMap((exercise) => exercise.sets);
+    const completed = allSets.filter((set) => set.is_completed).length;
+    const total = allSets.length;
     return {
-      completed: allSets.filter((set) => set.is_completed).length,
-      total: allSets.length,
+      completed,
+      total,
+      remaining: Math.max(0, total - completed),
+      percent: total > 0 ? Math.round((completed / total) * 100) : 0,
     };
   }, [active.session]);
+
+  const nextIncompleteSet = useMemo(() => {
+    if (!active.session) return null;
+    for (const exercise of active.session.exercises) {
+      const nextSet = exercise.sets.find((set) => !set.is_completed);
+      if (nextSet) {
+        return {
+          exerciseName: exercise.exercise_name_snapshot,
+          setNumber: nextSet.set_number,
+          setId: nextSet.id,
+        };
+      }
+    }
+    return null;
+  }, [active.session]);
+
+  function startRestTimer(sessionId: string, exerciseName: string, seconds: number) {
+    const now = Date.now();
+    announcedTimerRef.current = null;
+    setTimerNow(now);
+    setRestTimer({
+      sessionId,
+      exerciseName,
+      endsAt: now + seconds * 1000,
+      total: seconds,
+    });
+  }
+
+  function adjustRestTimer(seconds: number) {
+    const now = Date.now();
+    setTimerNow(now);
+    announcedTimerRef.current = null;
+    setRestTimer((current) => {
+      if (!current) return current;
+      const currentRemaining = Math.max(0, Math.ceil((current.endsAt - now) / 1000));
+      const nextRemaining = Math.max(0, currentRemaining + seconds);
+      return {
+        ...current,
+        endsAt: now + nextRemaining * 1000,
+        total: Math.max(1, current.total + seconds),
+      };
+    });
+  }
+
+  function clearRestTimer() {
+    setRestTimer(null);
+    announcedTimerRef.current = null;
+  }
+
+  function scrollToNextSet() {
+    if (!nextIncompleteSet) return;
+    document
+      .getElementById(`workout-set-${nextIncompleteSet.setId}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 
   async function startDay(dayId: string) {
     setMessage(null);
@@ -226,13 +529,24 @@ export function ActiveWorkout() {
       return false;
     }
 
-    if (!wasAlreadyCompleted && restSeconds > 0) {
-      setRestTimer({ exerciseName, remaining: restSeconds, total: restSeconds });
+    if (!wasAlreadyCompleted && restSeconds > 0 && active.session) {
+      startRestTimer(active.session.id, exerciseName, restSeconds);
     }
     return true;
   }
 
   async function finishWorkout() {
+    if (
+      sessionProgress.remaining > 0 &&
+      !window.confirm(
+        `Finish this workout with ${sessionProgress.remaining} incomplete ${
+          sessionProgress.remaining === 1 ? 'set' : 'sets'
+        }?`,
+      )
+    ) {
+      return;
+    }
+
     setMessage(null);
     setLocalError(null);
     const result = await active.finish();
@@ -240,7 +554,7 @@ export function ActiveWorkout() {
       setLocalError(result.error);
       return;
     }
-    setRestTimer(null);
+    clearRestTimer();
     setMessage('Workout completed and saved to your history.');
   }
 
@@ -253,7 +567,7 @@ export function ActiveWorkout() {
       setLocalError(result.error);
       return;
     }
-    setRestTimer(null);
+    clearRestTimer();
     setMessage('Workout cancelled.');
   }
 
@@ -330,18 +644,40 @@ export function ActiveWorkout() {
     );
   }
 
+  const restProgress =
+    restTimer && restTimer.total > 0
+      ? Math.min(100, Math.max(0, ((restTimer.total - restTimerRemaining) / restTimer.total) * 100))
+      : 0;
+
   return (
     <section className="live-workout" aria-labelledby="live-workout-heading">
       <header className="live-workout-header">
         <div>
           <p className="eyebrow">Workout in progress</p>
           <h2 id="live-workout-heading">{active.session.name}</h2>
-          <p>Complete each set to save it instantly and begin the programmed rest timer.</p>
+          <p>Weights and reps are prefilled from your last set, last workout or routine target.</p>
         </div>
         <div className="live-workout-metrics">
           <div><span>Elapsed</span><strong>{formatClock(elapsedSeconds)}</strong></div>
-          <div><span>Sets</span><strong>{sessionProgress.completed}/{sessionProgress.total}</strong></div>
+          <div><span>Completed</span><strong>{sessionProgress.completed}/{sessionProgress.total}</strong></div>
+          <div><span>Remaining</span><strong>{sessionProgress.remaining}</strong></div>
         </div>
+
+        <div className="live-workout-progress" aria-label={`${sessionProgress.percent}% complete`}>
+          <span style={{ width: `${sessionProgress.percent}%` }} />
+        </div>
+
+        {nextIncompleteSet ? (
+          <button className="next-set-cue" type="button" onClick={scrollToNextSet}>
+            <span>Next set</span>
+            <strong>{nextIncompleteSet.exerciseName} · Set {nextIncompleteSet.setNumber}</strong>
+          </button>
+        ) : (
+          <div className="next-set-cue next-set-cue--complete">
+            <span>All programmed sets complete</span>
+            <strong>Ready to finish</strong>
+          </div>
+        )}
       </header>
 
       {localError || active.error ? (
@@ -364,26 +700,11 @@ export function ActiveWorkout() {
 
               <PreviousPerformance exerciseId={exercise.exercise_id} />
 
-              <div className="live-set-list">
-                {exercise.sets.map((workoutSet) => (
-                  <SetEditor
-                    key={workoutSet.id}
-                    workoutSet={workoutSet}
-                    targetRepsMin={exercise.target_reps_min_snapshot}
-                    targetRepsMax={exercise.target_reps_max_snapshot}
-                    saving={active.savingSetId === workoutSet.id}
-                    onSave={(input, wasAlreadyCompleted) =>
-                      saveSet(
-                        workoutSet.id,
-                        exercise.exercise_name_snapshot,
-                        exercise.target_rest_seconds_snapshot,
-                        input,
-                        wasAlreadyCompleted,
-                      )
-                    }
-                  />
-                ))}
-              </div>
+              <ExerciseSetEditors
+                exercise={exercise}
+                savingSetId={active.savingSetId}
+                onSave={saveSet}
+              />
             </article>
           ))}
         </div>
@@ -399,16 +720,25 @@ export function ActiveWorkout() {
       </div>
 
       {restTimer ? (
-        <aside className={restTimer.remaining === 0 ? 'rest-timer rest-timer--done' : 'rest-timer'} aria-live="polite">
-          <div>
-            <p>{restTimer.remaining === 0 ? 'Rest complete' : `Rest after ${restTimer.exerciseName}`}</p>
-            <strong>{formatClock(restTimer.remaining)}</strong>
+        <aside
+          className={restTimerRemaining === 0 ? 'rest-timer rest-timer--done' : 'rest-timer'}
+          aria-live="polite"
+        >
+          <div className="rest-timer-copy">
+            <p>{restTimerRemaining === 0 ? 'Rest complete' : `Rest after ${restTimer.exerciseName}`}</p>
+            <strong>{formatClock(restTimerRemaining)}</strong>
+            <div className="rest-timer-progress" aria-hidden="true">
+              <span style={{ width: `${restProgress}%` }} />
+            </div>
           </div>
           <div className="rest-timer-actions">
-            {restTimer.remaining > 0 ? (
-              <button type="button" onClick={() => setRestTimer((current) => current ? { ...current, remaining: current.remaining + 30, total: current.total + 30 } : current)}>+30 sec</button>
+            {restTimerRemaining > 0 ? (
+              <button type="button" onClick={() => adjustRestTimer(-15)}>−15 sec</button>
             ) : null}
-            <button type="button" onClick={() => setRestTimer(null)}>{restTimer.remaining > 0 ? 'Skip' : 'Close'}</button>
+            <button type="button" onClick={() => adjustRestTimer(30)}>+30 sec</button>
+            <button type="button" onClick={clearRestTimer}>
+              {restTimerRemaining > 0 ? 'Skip' : 'Close'}
+            </button>
           </div>
         </aside>
       ) : null}
