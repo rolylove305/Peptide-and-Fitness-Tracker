@@ -1,9 +1,18 @@
 {
-  "name": "Peptide Fitness Tracker V4.1",
-  "short_name": "FitTracker V4.1",
-  "start_url": "index.html?v=41",
+  "name": "BioTrack AI Fitness Tracker",
+  "short_name": "BioTrack AI",
+  "start_url": "./index.html?v=50",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#07111f",
   "theme_color": "#07111f",
-  "icons": []
+  "description": "Personal fitness, health, protocol and progress tracker.",
+  "icons": [
+    {
+      "src": "biotrack-icon.svg?v=1",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
