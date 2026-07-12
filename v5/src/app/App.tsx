@@ -13,14 +13,14 @@ const foundationItems = [
     status: 'Ready',
   },
   {
-    title: 'Workout database',
-    description: 'Normalized routines, sessions, exercises and set-by-set history with verified RLS.',
+    title: 'Workout planning',
+    description: 'Exercise library and cloud routine builder with atomic create and edit operations.',
     status: 'Ready',
   },
   {
-    title: 'Workout experience',
-    description: 'Exercise library and routine builder are connected. Live workout logging comes next.',
-    status: 'In progress',
+    title: 'Live workout',
+    description: 'Start routine days, record sets, track elapsed time and run programmed rest timers.',
+    status: 'Ready',
   },
 ] as const;
 
@@ -76,7 +76,7 @@ function FoundationDashboard() {
         <div>
           <p className="eyebrow">BioTrack AI</p>
           <h1>Workout AI</h1>
-          <p className="subtitle">Build structured routines now and turn them into guided live workouts next.</p>
+          <p className="subtitle">Plan your training, start a guided workout and save every completed set.</p>
         </div>
 
         <div className="topbar-actions">
@@ -108,15 +108,15 @@ function FoundationDashboard() {
         <section className="hero-card">
           <div>
             <p className="eyebrow">Workout AI milestone</p>
-            <h2>Your training plan is becoming actionable</h2>
+            <h2>From routine to completed workout</h2>
             <p>
-              Create complete workout routines with days, exercises, sets, repetition ranges and rest
-              targets. BioTrack saves the entire plan atomically so incomplete routines never reach your
-              account.
+              Choose a saved training day, record weight, repetitions and effort for every set, and use
+              the automatic rest timer between sets. Completed workouts remain structured for history,
+              progress analytics and future AI coaching.
             </p>
           </div>
-          <div className="milestone-mark" aria-label="Routine builder phase">
-            03
+          <div className="milestone-mark" aria-label="Live workout phase">
+            04
           </div>
         </section>
 
@@ -126,7 +126,7 @@ function FoundationDashboard() {
           <div className="section-heading">
             <div>
               <p className="eyebrow">Architecture</p>
-              <h2 id="foundation-heading">Foundation status</h2>
+              <h2 id="foundation-heading">Workout AI status</h2>
             </div>
           </div>
 
@@ -149,7 +149,7 @@ function FoundationDashboard() {
             </h2>
             <p>
               {supabaseConfiguration.isConfigured
-                ? 'The V5 client is using a project URL, browser-safe publishable key and typed Workout AI schema.'
+                ? 'The V5 client uses a browser-safe publishable key, authenticated sessions and RLS-protected workout data.'
                 : 'Add the approved environment variables before connecting authentication.'}
             </p>
           </div>
