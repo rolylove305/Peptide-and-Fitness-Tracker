@@ -1,6 +1,49 @@
 (() => {
   const $ = (id) => document.getElementById(id);
 
+  function installAppBranding() {
+    document.title = 'BioTrack AI';
+
+    const ensureLink = (rel, href, sizes) => {
+      let link = document.querySelector(`link[rel="${rel}"]`);
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = rel;
+        document.head.appendChild(link);
+      }
+      link.href = href;
+      if (sizes) link.sizes = sizes;
+      link.type = 'image/svg+xml';
+    };
+
+    ensureLink('icon', 'biotrack-icon.svg?v=1', 'any');
+    ensureLink('apple-touch-icon', 'biotrack-icon.svg?v=1');
+
+    let theme = document.querySelector('meta[name="theme-color"]');
+    if (!theme) {
+      theme = document.createElement('meta');
+      theme.name = 'theme-color';
+      document.head.appendChild(theme);
+    }
+    theme.content = '#07111f';
+
+    let capable = document.querySelector('meta[name="apple-mobile-web-app-capable"]');
+    if (!capable) {
+      capable = document.createElement('meta');
+      capable.name = 'apple-mobile-web-app-capable';
+      document.head.appendChild(capable);
+    }
+    capable.content = 'yes';
+
+    let title = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+    if (!title) {
+      title = document.createElement('meta');
+      title.name = 'apple-mobile-web-app-title';
+      document.head.appendChild(title);
+    }
+    title.content = 'BioTrack AI';
+  }
+
   function formatTime(date) {
     return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   }
@@ -56,9 +99,14 @@
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', installSyncUpgrade);
-  } else {
+  const install = () => {
+    installAppBranding();
     installSyncUpgrade();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', install);
+  } else {
+    install();
   }
 })();
