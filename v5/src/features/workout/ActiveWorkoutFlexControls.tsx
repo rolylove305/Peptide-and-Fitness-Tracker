@@ -113,7 +113,7 @@ export function ExerciseNotesEditor({ exercise, saving, onSave }: ExerciseNotesE
   }
 
   return (
-    <details className="live-exercise-notes" open={Boolean(exercise.notes)}>
+    <details className="live-exercise-notes" defaultOpen={Boolean(exercise.notes)}>
       <summary>
         <span>{exercise.notes ? 'Exercise note saved' : 'Add exercise note'}</span>
         <span aria-hidden="true">＋</span>
