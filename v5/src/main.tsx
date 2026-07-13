@@ -5,6 +5,7 @@ import './styles/global.css';
 import './styles/auth.css';
 import './styles/auth-recovery.css';
 import './styles/workout.css';
+import './styles/exercise-library-pro.css';
 import './styles/workout-overview.css';
 import './styles/starter-plans.css';
 import './styles/routine-builder.css';
