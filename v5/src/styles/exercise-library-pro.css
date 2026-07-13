@@ -95,6 +95,20 @@
   position: relative;
 }
 
+.exercise-media-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 1.25rem 1.25rem 0 0;
+  background: none;
+  cursor: pointer;
+}
+
+.exercise-media-open .exercise-media-engine {
+  border-radius: 1.25rem 1.25rem 0 0;
+}
+
 .exercise-media-status {
   position: absolute;
   right: 0.65rem;
@@ -251,11 +265,6 @@
   overflow: hidden;
   border: 1px solid rgba(147, 197, 253, 0.14);
   border-radius: 1rem;
-}
-
-.exercise-media-image--expanded,
-.exercise-media-placeholder--expanded {
-  max-height: 28rem;
 }
 
 .exercise-guide-meta {

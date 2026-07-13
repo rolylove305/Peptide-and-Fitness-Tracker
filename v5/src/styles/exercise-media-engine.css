@@ -39,8 +39,7 @@
 }
 
 .exercise-media-engine__asset img,
-.exercise-media-engine__asset video,
-.exercise-media-engine__legacy {
+.exercise-media-engine__asset video {
   display: block;
   width: 100%;
   height: 100%;
@@ -50,8 +49,7 @@
 }
 
 .exercise-media-engine--expanded .exercise-media-engine__asset img,
-.exercise-media-engine--expanded .exercise-media-engine__asset video,
-.exercise-media-engine--expanded .exercise-media-engine__legacy {
+.exercise-media-engine--expanded .exercise-media-engine__asset video {
   max-height: min(62dvh, 34rem);
   object-fit: contain;
 }

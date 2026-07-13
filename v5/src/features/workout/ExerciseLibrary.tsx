@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Exercise } from '../../types/database';
+import { useExerciseMediaLibrary } from './ExerciseMediaProvider';
+import { ExerciseTechniqueMedia } from './ExerciseTechniqueMedia';
+import { hasExerciseVisual } from './exerciseVisuals';
 import { useExerciseLibrary } from './hooks/useExerciseLibrary';
 
 const allOption = 'all';
@@ -29,50 +32,6 @@ function readFavoriteIds(): string[] {
   }
 }
 
-function ExerciseMedia({ exercise, expanded = false }: { exercise: Exercise; expanded?: boolean }) {
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    setFailed(false);
-  }, [exercise.id, exercise.media_url]);
-
-  if (exercise.media_url && !failed) {
-    if (exercise.media_type === 'video') {
-      return (
-        <video
-          className={expanded ? 'exercise-media-image exercise-media-image--expanded' : 'exercise-media-image'}
-          src={exercise.media_url}
-          controls
-          playsInline
-          preload="metadata"
-          aria-label={`${exercise.name} demonstration`}
-          onError={() => setFailed(true)}
-        />
-      );
-    }
-
-    return (
-      <img
-        className={expanded ? 'exercise-media-image exercise-media-image--expanded' : 'exercise-media-image'}
-        src={exercise.media_url}
-        alt={`${exercise.name} demonstration`}
-        loading={expanded ? 'eager' : 'lazy'}
-        onError={() => setFailed(true)}
-      />
-    );
-  }
-
-  return (
-    <div
-      className={expanded ? 'exercise-media-placeholder exercise-media-placeholder--expanded' : 'exercise-media-placeholder'}
-      aria-label="Exercise demonstration not yet available"
-    >
-      <span aria-hidden="true">{exercise.primary_muscle_group.slice(0, 1)}</span>
-      <small>Technique guide</small>
-    </div>
-  );
-}
-
 function getSubstitutions(exercise: Exercise, exercises: Exercise[]): Exercise[] {
   const targetEquipment = new Set(exercise.equipment);
   const targetSecondary = new Set(exercise.secondary_muscle_groups);
@@ -99,19 +58,27 @@ function getSubstitutions(exercise: Exercise, exercises: Exercise[]): Exercise[]
 type ExerciseCardProps = {
   exercise: Exercise;
   favorite: boolean;
+  hasDemo: boolean;
   onToggleFavorite: (exerciseId: string) => void;
   onOpen: (exercise: Exercise) => void;
 };
 
-function ExerciseCard({ exercise, favorite, onToggleFavorite, onOpen }: ExerciseCardProps) {
+function ExerciseCard({ exercise, favorite, hasDemo, onToggleFavorite, onOpen }: ExerciseCardProps) {
   const firstInstruction = exercise.instructions[0] ?? 'Open the guide for setup and technique cues.';
 
   return (
     <article className="exercise-card exercise-card--interactive">
       <div className="exercise-media-wrap">
-        <ExerciseMedia exercise={exercise} />
-        <span className={exercise.media_url ? 'exercise-media-status exercise-media-status--ready' : 'exercise-media-status'}>
-          {exercise.media_url ? 'Demo available' : 'Guide available'}
+        <button
+          className="exercise-media-open"
+          type="button"
+          aria-label={`Open ${exercise.name} technique guide`}
+          onClick={() => onOpen(exercise)}
+        >
+          <ExerciseTechniqueMedia exercise={exercise} />
+        </button>
+        <span className={hasDemo ? 'exercise-media-status exercise-media-status--ready' : 'exercise-media-status'}>
+          {hasDemo ? 'Demo available' : 'Guide available'}
         </span>
         <button
           className={favorite ? 'exercise-favorite-button exercise-favorite-button--active' : 'exercise-favorite-button'}
@@ -222,7 +189,7 @@ function ExerciseGuide({
 
         <div className="exercise-guide-scroll">
           <div className="exercise-guide-media">
-            <ExerciseMedia exercise={exercise} expanded />
+            <ExerciseTechniqueMedia exercise={exercise} expanded />
           </div>
 
           <div className="exercise-guide-meta" aria-label="Exercise details">
@@ -315,6 +282,7 @@ function ExerciseSkeletons() {
 
 export function ExerciseLibrary() {
   const { status, exercises, error, refresh } = useExerciseLibrary();
+  const media = useExerciseMediaLibrary();
   const [search, setSearch] = useState('');
   const [muscleGroup, setMuscleGroup] = useState(allOption);
   const [equipment, setEquipment] = useState(allOption);
@@ -363,7 +331,8 @@ export function ExerciseLibrary() {
         const matchesEquipment = equipment === allOption || exercise.equipment.includes(equipment);
         const matchesDifficulty = difficulty === allOption || exercise.difficulty === difficulty;
         const matchesFavorites = !onlyFavorites || favoriteSet.has(exercise.id);
-        const matchesMedia = !onlyWithMedia || Boolean(exercise.media_url);
+        const matchesMedia =
+          !onlyWithMedia || hasExerciseVisual(exercise, media.bundlesByExerciseId.get(exercise.id));
 
         return matchesSearch && matchesMuscle && matchesEquipment && matchesDifficulty && matchesFavorites && matchesMedia;
       })
@@ -376,7 +345,7 @@ export function ExerciseLibrary() {
         }
         return a.name.localeCompare(b.name);
       });
-  }, [difficulty, equipment, exercises, favoriteSet, muscleGroup, onlyFavorites, onlyWithMedia, search, sort]);
+  }, [difficulty, equipment, exercises, favoriteSet, media.bundlesByExerciseId, muscleGroup, onlyFavorites, onlyWithMedia, search, sort]);
 
   const activeFilterCount = [
     search.trim().length > 0,
@@ -527,6 +496,7 @@ export function ExerciseLibrary() {
             <ExerciseCard
               exercise={exercise}
               favorite={favoriteSet.has(exercise.id)}
+              hasDemo={hasExerciseVisual(exercise, media.bundlesByExerciseId.get(exercise.id))}
               onToggleFavorite={toggleFavorite}
               onOpen={setSelectedExercise}
               key={exercise.id}

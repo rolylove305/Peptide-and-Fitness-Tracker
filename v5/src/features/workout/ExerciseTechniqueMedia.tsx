@@ -1,12 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Exercise } from '../../types/database';
 import { useExerciseMedia } from './ExerciseMediaProvider';
-import {
-  getMuscleHighlightLabels,
-  selectExerciseMediaAsset,
-  type ExerciseMediaAsset,
-  type ExerciseTechniqueGuide,
-} from './exerciseMedia';
+import { getMuscleHighlightLabels, type ExerciseTechniqueGuide } from './exerciseMedia';
+import { resolveExerciseVisuals, type ExerciseVisual } from './exerciseVisuals';
 
 type ExerciseTechniqueMediaProps = {
   exercise: Exercise;
@@ -18,11 +14,26 @@ type ResolvedExerciseTechniqueMediaProps = {
   expanded: boolean;
 };
 
-type AssetSurfaceProps = {
-  asset: ExerciseMediaAsset;
+type VisualSurfaceProps = {
+  visual: ExerciseVisual;
   expanded: boolean;
   phaseLabel?: string;
 };
+
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = (event: MediaQueryListEvent) => setReduced(event.matches);
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
+
+  return reduced;
+}
 
 function ExerciseMediaPlaceholder({ exercise, expanded }: ResolvedExerciseTechniqueMediaProps) {
   return (
@@ -41,12 +52,13 @@ function ExerciseMediaPlaceholder({ exercise, expanded }: ResolvedExerciseTechni
   );
 }
 
-function AssetSurface({ asset, expanded, phaseLabel }: AssetSurfaceProps) {
+function VisualSurface({ visual, expanded, phaseLabel }: VisualSurfaceProps) {
   const [failed, setFailed] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     setFailed(false);
-  }, [asset.id, asset.url]);
+  }, [visual.url]);
 
   if (failed) {
     return (
@@ -60,27 +72,27 @@ function AssetSurface({ asset, expanded, phaseLabel }: AssetSurfaceProps) {
   return (
     <figure className="exercise-media-engine__asset">
       {phaseLabel ? <figcaption>{phaseLabel}</figcaption> : null}
-      {asset.media_kind === 'video' ? (
+      {visual.kind === 'video' ? (
         <video
-          src={asset.url}
-          poster={asset.poster_url ?? undefined}
+          src={visual.url}
+          poster={visual.posterUrl ?? undefined}
           controls={expanded}
-          autoPlay={!expanded}
-          muted={!expanded}
+          autoPlay={!expanded && !prefersReducedMotion}
+          muted
           loop={!expanded}
           playsInline
           preload={expanded ? 'metadata' : 'none'}
-          aria-label={asset.alt_text}
+          aria-label={visual.alt}
           onError={() => setFailed(true)}
         />
       ) : (
         <img
-          src={asset.url}
-          alt={asset.alt_text}
+          src={visual.url}
+          alt={visual.alt}
           loading={expanded ? 'eager' : 'lazy'}
           decoding="async"
-          width={asset.width ?? undefined}
-          height={asset.height ?? undefined}
+          width={visual.width ?? undefined}
+          height={visual.height ?? undefined}
           onError={() => setFailed(true)}
         />
       )}
@@ -88,85 +100,30 @@ function AssetSurface({ asset, expanded, phaseLabel }: AssetSurfaceProps) {
   );
 }
 
-function LegacyExerciseMedia({ exercise, expanded }: ResolvedExerciseTechniqueMediaProps) {
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    setFailed(false);
-  }, [exercise.id, exercise.media_url]);
-
-  if (!exercise.media_url || failed) {
-    return <ExerciseMediaPlaceholder exercise={exercise} expanded={expanded} />;
-  }
-
-  if (exercise.media_type === 'video') {
-    return (
-      <video
-        className="exercise-media-engine__legacy"
-        src={exercise.media_url}
-        controls={expanded}
-        autoPlay={!expanded}
-        muted={!expanded}
-        loop={!expanded}
-        playsInline
-        preload={expanded ? 'metadata' : 'none'}
-        aria-label={`${exercise.name} demonstration`}
-        onError={() => setFailed(true)}
-      />
-    );
-  }
-
-  return (
-    <img
-      className="exercise-media-engine__legacy"
-      src={exercise.media_url}
-      alt={`${exercise.name} demonstration`}
-      loading={expanded ? 'eager' : 'lazy'}
-      decoding="async"
-      onError={() => setFailed(true)}
-    />
-  );
-}
-
 export function ExerciseTechniqueMedia({ exercise, expanded = false }: ExerciseTechniqueMediaProps) {
   const bundle = useExerciseMedia(exercise.id);
-  const startAsset = selectExerciseMediaAsset(bundle, ['start']);
-  const finishAsset = selectExerciseMediaAsset(bundle, ['finish']);
-  const primaryAsset = selectExerciseMediaAsset(
-    bundle,
-    expanded
-      ? ['loop', 'hero', 'start', 'finish', 'thumbnail']
-      : ['thumbnail', 'loop', 'hero', 'start', 'finish'],
-  );
+  const visuals = resolveExerciseVisuals(exercise, bundle, { expanded });
 
   const showPositionPair = Boolean(
     expanded &&
-    startAsset &&
-    finishAsset &&
-    startAsset.id !== finishAsset.id,
+    visuals.start &&
+    visuals.finish &&
+    visuals.start.url !== visuals.finish.url,
   );
 
-  if (showPositionPair && startAsset && finishAsset) {
+  if (showPositionPair && visuals.start && visuals.finish) {
     return (
       <div className="exercise-media-engine exercise-media-engine--expanded exercise-media-engine--pair">
-        <AssetSurface asset={startAsset} expanded phaseLabel="Start position" />
-        <AssetSurface asset={finishAsset} expanded phaseLabel="Finish position" />
+        <VisualSurface visual={visuals.start} expanded phaseLabel="Start position" />
+        <VisualSurface visual={visuals.finish} expanded phaseLabel="Finish position" />
       </div>
     );
   }
 
-  if (primaryAsset) {
+  if (visuals.primary) {
     return (
       <div className={expanded ? 'exercise-media-engine exercise-media-engine--expanded' : 'exercise-media-engine'}>
-        <AssetSurface asset={primaryAsset} expanded={expanded} />
-      </div>
-    );
-  }
-
-  if (exercise.media_url) {
-    return (
-      <div className={expanded ? 'exercise-media-engine exercise-media-engine--expanded' : 'exercise-media-engine'}>
-        <LegacyExerciseMedia exercise={exercise} expanded={expanded} />
+        <VisualSurface visual={visuals.primary} expanded={expanded} />
       </div>
     );
   }

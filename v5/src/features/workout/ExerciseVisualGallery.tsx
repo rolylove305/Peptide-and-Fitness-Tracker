@@ -3,7 +3,8 @@ import type { Exercise } from '../../types/database';
 import { useAuth } from '../auth/AuthProvider';
 import { ExerciseTechniqueMedia, ExerciseTechniqueSheet } from './ExerciseTechniqueMedia';
 import { useExerciseMediaLibrary } from './ExerciseMediaProvider';
-import { getTechniqueSummary, hasRenderableExerciseMedia } from './exerciseMedia';
+import { getTechniqueSummary } from './exerciseMedia';
+import { hasExerciseVisual } from './exerciseVisuals';
 import { useActiveWorkout } from './hooks/useActiveWorkout';
 import { useExerciseLibrary } from './hooks/useExerciseLibrary';
 
@@ -47,9 +48,7 @@ export function ExerciseVisualGallery() {
   const visualExercises = useMemo(
     () =>
       library.exercises
-        .filter((exercise) =>
-          Boolean(exercise.media_url) || hasRenderableExerciseMedia(media.bundlesByExerciseId.get(exercise.id)),
-        )
+        .filter((exercise) => hasExerciseVisual(exercise, media.bundlesByExerciseId.get(exercise.id)))
         .sort((left, right) => demoOrder(left) - demoOrder(right) || left.name.localeCompare(right.name)),
     [library.exercises, media.bundlesByExerciseId],
   );
@@ -148,7 +147,7 @@ export function ActiveWorkoutTechniqueDock() {
         (item): item is { sessionExercise: typeof item.sessionExercise; exercise: Exercise } => {
           if (!item.exercise) return false;
           const bundle = media.bundlesByExerciseId.get(item.exercise.id);
-          return Boolean(bundle?.guide || hasRenderableExerciseMedia(bundle) || item.exercise.media_url);
+          return Boolean(bundle?.guide) || hasExerciseVisual(item.exercise, bundle);
         },
       );
   }, [active.session, exerciseById, media.bundlesByExerciseId]);
