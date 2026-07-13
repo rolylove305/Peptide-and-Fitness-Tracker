@@ -17,7 +17,6 @@ type LoadStatus = 'loading' | 'ready' | 'empty' | 'error';
 type WeekBucket = {
   key: string;
   label: string;
-  start: Date;
   workouts: number;
   sets: number;
   reps: number;
@@ -35,6 +34,7 @@ type PeriodTotals = {
 
 const rangeOptions: RangeWeeks[] = [4, 8, 12];
 const weekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const emptyTotals: PeriodTotals = { workouts: 0, sets: 0, reps: 0, duration: 0, volume: 0 };
 
 function localDateKey(value: Date | string): string {
   const date = value instanceof Date ? value : new Date(value);
@@ -114,7 +114,7 @@ function sumWeeks(weeks: WeekBucket[]): PeriodTotals {
       duration: total.duration + week.duration,
       volume: total.volume + week.volume,
     }),
-    { workouts: 0, sets: 0, reps: 0, duration: 0, volume: 0 },
+    { ...emptyTotals },
   );
 }
 
@@ -124,22 +124,26 @@ function calculateStreaks(sessions: WorkoutSessionSummary[]) {
   );
   if (ordinals.length === 0) return { current: 0, longest: 0 };
 
-  let longest = 1;
-  let running = 1;
-  for (let index = 1; index < ordinals.length; index += 1) {
-    if (ordinals[index] === ordinals[index - 1] + 1) running += 1;
-    else running = 1;
+  let longest = 0;
+  let running = 0;
+  let previous: number | null = null;
+  for (const ordinal of ordinals) {
+    running = previous !== null && ordinal === previous + 1 ? running + 1 : 1;
     longest = Math.max(longest, running);
+    previous = ordinal;
   }
 
-  const today = dayOrdinal(new Date());
-  const latest = ordinals[ordinals.length - 1];
-  if (latest < today - 1) return { current: 0, longest };
+  const latest = ordinals.at(-1);
+  if (latest === undefined || latest < dayOrdinal(new Date()) - 1) {
+    return { current: 0, longest };
+  }
 
-  let current = 1;
-  for (let index = ordinals.length - 1; index > 0; index -= 1) {
-    if (ordinals[index - 1] === ordinals[index] - 1) current += 1;
-    else break;
+  let current = 0;
+  let expected = latest;
+  for (const ordinal of [...ordinals].reverse()) {
+    if (ordinal !== expected) break;
+    current += 1;
+    expected -= 1;
   }
 
   return { current, longest };
@@ -157,13 +161,14 @@ function TrendChart({ weeks }: { weeks: WeekBucket[] }) {
   const maximumWorkouts = Math.max(1, ...weeks.map((week) => week.workouts));
   const step = weeks.length > 1 ? chartWidth / (weeks.length - 1) : chartWidth;
   const barWidth = Math.min(42, Math.max(18, chartWidth / Math.max(weeks.length, 1) - 18));
-
   const points = weeks.map((week, index) => {
     const x = horizontalPadding + (weeks.length === 1 ? chartWidth / 2 : step * index);
     const y = topPadding + chartHeight - (week.sets / maximumSets) * chartHeight;
     return { x, y, week };
   });
-  const path = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+  const path = points
+    .map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`)
+    .join(' ');
 
   return (
     <div className="insights-chart-wrap">
@@ -175,7 +180,16 @@ function TrendChart({ weeks }: { weeks: WeekBucket[] }) {
       >
         {[0, 0.5, 1].map((fraction) => {
           const y = topPadding + chartHeight * fraction;
-          return <line className="insights-chart-gridline" x1={horizontalPadding} x2={width - horizontalPadding} y1={y} y2={y} key={fraction} />;
+          return (
+            <line
+              className="insights-chart-gridline"
+              x1={horizontalPadding}
+              x2={width - horizontalPadding}
+              y1={y}
+              y2={y}
+              key={fraction}
+            />
+          );
         })}
 
         {points.map(({ x, week }) => {
@@ -268,20 +282,23 @@ export function WorkoutInsights() {
   }, [requestVersion, user]);
 
   const availableUnits = useMemo<WeightUnit[]>(
-    () => [...new Set(sessions.map((session) => session.weight_unit))] as WeightUnit[],
+    () => [...new Set(sessions.map((session) => session.weight_unit))],
     [sessions],
   );
 
   useEffect(() => {
-    if (availableUnits.length === 0) return;
-    if (!availableUnits.includes(weightUnit)) {
-      setWeightUnit(availableUnits.includes(profile?.weightUnit ?? 'lb') ? (profile?.weightUnit ?? 'lb') : availableUnits[0]);
+    if (availableUnits.length === 0 || availableUnits.includes(weightUnit)) return;
+    const preferred = profile?.weightUnit;
+    if (preferred && availableUnits.includes(preferred)) {
+      setWeightUnit(preferred);
+      return;
     }
+    const first = availableUnits.at(0);
+    if (first) setWeightUnit(first);
   }, [availableUnits, profile?.weightUnit, weightUnit]);
 
   const rangeStart = useMemo(() => addDays(startOfWeek(), -(rangeWeeks - 1) * 7), [rangeWeeks]);
-  const rangeEnd = useMemo(() => addDays(startOfWeek(), 7), []);
-
+  const rangeEnd = addDays(startOfWeek(), 7);
   const filteredSessions = useMemo(
     () =>
       sessions.filter((session) => {
@@ -304,7 +321,6 @@ export function WorkoutInsights() {
         return {
           key: localDateKey(start),
           label: formatWeekLabel(start),
-          start,
           workouts: weekSessions.length,
           sets: weekSessions.reduce((sum, session) => sum + session.working_set_count, 0),
           reps: weekSessions.reduce((sum, session) => sum + session.total_reps, 0),
@@ -330,7 +346,13 @@ export function WorkoutInsights() {
   const averageDuration = totals.workouts > 0 ? totals.duration / totals.workouts : 0;
   const streaks = useMemo(() => calculateStreaks(filteredSessions), [filteredSessions]);
   const bestWeek = useMemo(
-    () => [...weeks].sort((a, b) => b.workouts - a.workouts || b.sets - a.sets)[0] ?? null,
+    () =>
+      weeks.reduce<WeekBucket | null>((best, week) => {
+        if (!best) return week;
+        if (week.workouts > best.workouts) return week;
+        if (week.workouts === best.workouts && week.sets > best.sets) return week;
+        return best;
+      }, null),
     [weeks],
   );
 
@@ -375,7 +397,7 @@ export function WorkoutInsights() {
   }, [muscleVolume, rangeStart]);
 
   const totalMuscleSets = muscles.reduce((sum, muscle) => sum + muscle.sets, 0);
-  const maximumMuscleSets = muscles[0]?.sets ?? 1;
+  const maximumMuscleSets = Math.max(1, ...muscles.map((muscle) => muscle.sets));
   const selectedRecords = useMemo(
     () =>
       records
@@ -393,9 +415,13 @@ export function WorkoutInsights() {
     if (totals.workouts === 0) return ['Complete a workout to establish your first analytics baseline.'];
     const notes: string[] = [];
     if (adherence !== null) {
-      if (adherence >= 90) notes.push(`You completed ${adherence}% of your ${profile?.daysPerWeek}-day weekly target across this range.`);
-      else if (adherence >= 60) notes.push(`You reached ${adherence}% of your planned frequency. One more consistent day each week would close most of the gap.`);
-      else notes.push(`Your current frequency is ${adherence}% of the profile target. A smaller weekly plan may be easier to sustain.`);
+      if (adherence >= 90) {
+        notes.push(`You completed ${adherence}% of your ${profile?.daysPerWeek}-day weekly target across this range.`);
+      } else if (adherence >= 60) {
+        notes.push(`You reached ${adherence}% of your planned frequency. One more consistent day each week would close most of the gap.`);
+      } else {
+        notes.push(`Your current frequency is ${adherence}% of the profile target. A smaller weekly plan may be easier to sustain.`);
+      }
     } else {
       notes.push(`You averaged ${(totals.workouts / rangeWeeks).toFixed(1)} workouts per week.`);
     }
@@ -406,7 +432,7 @@ export function WorkoutInsights() {
     else if (workoutDelta < -15) notes.push(`Workout frequency decreased ${Math.abs(workoutDelta)}% in the latest comparison period.`);
     else notes.push('Workout frequency is stable between the two comparison periods.');
 
-    const topMuscle = muscles[0];
+    const topMuscle = muscles.at(0);
     if (topMuscle && totalMuscleSets > 0) {
       const share = Math.round((topMuscle.sets / totalMuscleSets) * 100);
       if (share >= 40) notes.push(`${topMuscle.name} represents ${share}% of recorded muscle-group sets, making it the strongest training emphasis.`);
