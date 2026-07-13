@@ -130,7 +130,7 @@ export function ExerciseTechniqueMedia({ exercise, expanded = false }: ExerciseT
   const primaryAsset = selectExerciseMediaAsset(
     bundle,
     expanded
-      ? ['loop', 'hero', 'video', 'start', 'finish', 'thumbnail'] as never
+      ? ['loop', 'hero', 'start', 'finish', 'thumbnail']
       : ['thumbnail', 'loop', 'hero', 'start', 'finish'],
   );
 
