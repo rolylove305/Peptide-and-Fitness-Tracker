@@ -1,0 +1,48 @@
+name: BioTrack V5 Typecheck Diagnostics
+
+on:
+  push:
+    branches:
+      - agent/v5-sync-foundation
+
+permissions:
+  contents: read
+
+jobs:
+  capture-typecheck:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: v5
+    steps:
+      - name: Check out V5 branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/v5-sync-foundation
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: v5/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Capture TypeScript diagnostics
+        shell: bash
+        run: |
+          set +e
+          npm run typecheck > typecheck-diagnostics.txt 2>&1
+          status=$?
+          echo "TYPECHECK_EXIT_CODE=$status" >> typecheck-diagnostics.txt
+          exit 0
+
+      - name: Upload TypeScript diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: v5-typecheck-diagnostics
+          path: v5/typecheck-diagnostics.txt
+          if-no-files-found: error
+          retention-days: 1
