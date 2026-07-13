@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { ActiveWorkout } from './ActiveWorkout';
 import { ExerciseLibrary } from './ExerciseLibrary';
+import {
+  ActiveWorkoutTechniqueDock,
+  ExerciseVisualGallery,
+} from './ExerciseVisualGallery';
 import { PersonalizedPlans } from './PersonalizedPlans';
 import { ProgressionCoach } from './ProgressionCoach';
 import { ProgressionDashboard } from './ProgressionDashboard';
@@ -61,7 +65,12 @@ function WorkoutWorkspaceContent() {
       {view === 'overview' ? <WorkoutOverview onNavigate={setView} /> : null}
       {view === 'planner' ? <WeeklyPlanner onNavigate={setView} /> : null}
       {view === 'plans' ? <PersonalizedPlans onNavigate={setView} /> : null}
-      {view === 'train' ? <ActiveWorkout /> : null}
+      {view === 'train' ? (
+        <div className="live-training-stack">
+          <ActiveWorkout />
+          <ActiveWorkoutTechniqueDock />
+        </div>
+      ) : null}
       {view === 'history' ? <WorkoutHistory /> : null}
       {view === 'progression' ? (
         <div className="progression-workspace-stack">
@@ -70,7 +79,12 @@ function WorkoutWorkspaceContent() {
         </div>
       ) : null}
       {view === 'builder' ? <RoutineBuilder /> : null}
-      {view === 'library' ? <ExerciseLibrary /> : null}
+      {view === 'library' ? (
+        <div className="exercise-library-visual-stack">
+          <ExerciseVisualGallery />
+          <ExerciseLibrary />
+        </div>
+      ) : null}
       {view === 'profile' ? <WorkoutProfilePanel /> : null}
 
       <WorkoutCompletionExperience onNavigate={setView} />
