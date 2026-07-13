@@ -5,6 +5,7 @@ import { PersonalizedPlans } from './PersonalizedPlans';
 import { ProgressionCoach } from './ProgressionCoach';
 import { ProgressionDashboard } from './ProgressionDashboard';
 import { RoutineBuilder } from './RoutineBuilder';
+import { WeeklyPlanner } from './WeeklyPlanner';
 import { WorkoutCompletionExperience } from './WorkoutCompletionExperience';
 import { WorkoutHistory } from './WorkoutHistory';
 import { WorkoutOverview } from './WorkoutOverview';
@@ -16,6 +17,7 @@ import { WorkoutProfileProvider } from './WorkoutProfileProvider';
 
 export type WorkoutWorkspaceView =
   | 'overview'
+  | 'planner'
   | 'plans'
   | 'train'
   | 'history'
@@ -26,6 +28,7 @@ export type WorkoutWorkspaceView =
 
 const tabs: Array<{ view: WorkoutWorkspaceView; label: string }> = [
   { view: 'overview', label: 'Today' },
+  { view: 'planner', label: 'Week' },
   { view: 'plans', label: 'Plans' },
   { view: 'train', label: 'Train' },
   { view: 'history', label: 'History' },
@@ -56,6 +59,7 @@ function WorkoutWorkspaceContent() {
       </div>
 
       {view === 'overview' ? <WorkoutOverview onNavigate={setView} /> : null}
+      {view === 'planner' ? <WeeklyPlanner onNavigate={setView} /> : null}
       {view === 'plans' ? <PersonalizedPlans onNavigate={setView} /> : null}
       {view === 'train' ? <ActiveWorkout /> : null}
       {view === 'history' ? <WorkoutHistory /> : null}
