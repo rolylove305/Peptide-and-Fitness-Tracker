@@ -5,13 +5,10 @@ export type RepositoryResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
-type WorkoutSetUpdate = Database['public']['Tables']['workout_sets']['Update'] & {
-  is_skipped?: boolean;
-};
-
-type WorkoutSetInsert = Database['public']['Tables']['workout_sets']['Insert'] & {
-  is_skipped?: boolean;
-};
+type WorkoutSetUpdate = Database['public']['Tables']['workout_sets']['Update'];
+type WorkoutSetInsert = Database['public']['Tables']['workout_sets']['Insert'];
+type WorkoutSetUpdateWithSkip = WorkoutSetUpdate & { is_skipped?: boolean };
+type WorkoutSetInsertWithSkip = WorkoutSetInsert & { is_skipped?: boolean };
 
 export type ActiveWorkoutSet = {
   id: string;
@@ -94,6 +91,14 @@ function messageFrom(error: unknown, fallback: string): string {
   return fallback;
 }
 
+function asWorkoutSetUpdate(value: WorkoutSetUpdateWithSkip): WorkoutSetUpdate {
+  return value as unknown as WorkoutSetUpdate;
+}
+
+function asWorkoutSetInsert(value: WorkoutSetInsertWithSkip): WorkoutSetInsert {
+  return value as unknown as WorkoutSetInsert;
+}
+
 export async function loadActiveWorkout(
   userId: string,
 ): Promise<RepositoryResult<ActiveWorkoutSession | null>> {
@@ -158,7 +163,7 @@ export async function saveWorkoutSet(
   if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
 
   try {
-    const update: WorkoutSetUpdate = {
+    const update: WorkoutSetUpdateWithSkip = {
       weight: input.weight,
       reps: input.reps,
       rpe: input.rpe,
@@ -167,7 +172,10 @@ export async function saveWorkoutSet(
       is_skipped: false,
       completed_at: input.is_completed ? new Date().toISOString() : null,
     };
-    const { error } = await supabase.from('workout_sets').update(update).eq('id', setId);
+    const { error } = await supabase
+      .from('workout_sets')
+      .update(asWorkoutSetUpdate(update))
+      .eq('id', setId);
 
     if (error) throw error;
     return { ok: true, data: null };
@@ -196,12 +204,15 @@ export async function skipWorkoutSet(setId: string): Promise<RepositoryResult<nu
   if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
 
   try {
-    const update: WorkoutSetUpdate = {
+    const update: WorkoutSetUpdateWithSkip = {
       is_skipped: true,
       is_completed: false,
       completed_at: null,
     };
-    const { error } = await supabase.from('workout_sets').update(update).eq('id', setId);
+    const { error } = await supabase
+      .from('workout_sets')
+      .update(asWorkoutSetUpdate(update))
+      .eq('id', setId);
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
@@ -213,8 +224,11 @@ export async function restoreWorkoutSet(setId: string): Promise<RepositoryResult
   if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
 
   try {
-    const update: WorkoutSetUpdate = { is_skipped: false };
-    const { error } = await supabase.from('workout_sets').update(update).eq('id', setId);
+    const update: WorkoutSetUpdateWithSkip = { is_skipped: false };
+    const { error } = await supabase
+      .from('workout_sets')
+      .update(asWorkoutSetUpdate(update))
+      .eq('id', setId);
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
@@ -226,12 +240,15 @@ export async function resetWorkoutSet(setId: string): Promise<RepositoryResult<n
   if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
 
   try {
-    const update: WorkoutSetUpdate = {
+    const update: WorkoutSetUpdateWithSkip = {
       is_completed: false,
       is_skipped: false,
       completed_at: null,
     };
-    const { error } = await supabase.from('workout_sets').update(update).eq('id', setId);
+    const { error } = await supabase
+      .from('workout_sets')
+      .update(asWorkoutSetUpdate(update))
+      .eq('id', setId);
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
@@ -247,7 +264,7 @@ export async function addWorkoutSet(
   if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
 
   try {
-    const insert: WorkoutSetInsert = {
+    const insert: WorkoutSetInsertWithSkip = {
       session_exercise_id: sessionExerciseId,
       set_number: setNumber,
       weight_unit: weightUnit,
@@ -255,7 +272,9 @@ export async function addWorkoutSet(
       is_completed: false,
       is_skipped: false,
     };
-    const { error } = await supabase.from('workout_sets').insert(insert);
+    const { error } = await supabase
+      .from('workout_sets')
+      .insert(asWorkoutSetInsert(insert));
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
