@@ -1,0 +1,297 @@
+.weekly-planner {
+  display: grid;
+  gap: 1rem;
+}
+
+.weekly-planner-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.weekly-planner-heading h2 {
+  margin: 0.2rem 0 0.4rem;
+}
+
+.weekly-planner-heading p:last-child {
+  max-width: 44rem;
+  margin: 0;
+  color: #91a9bb;
+}
+
+.weekly-planner-range {
+  display: grid;
+  min-width: 10rem;
+  gap: 0.18rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid rgba(147, 197, 253, 0.13);
+  border-radius: 0.95rem;
+  background: rgba(5, 18, 31, 0.7);
+  text-align: right;
+}
+
+.weekly-planner-range span {
+  color: #7891a5;
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.weekly-planner-range strong {
+  color: #e4f5ff;
+  font-size: 0.86rem;
+}
+
+.weekly-planner-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.weekly-planner-summary article {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(147, 197, 253, 0.12);
+  border-radius: 0.9rem;
+  background: rgba(5, 17, 29, 0.72);
+}
+
+.weekly-planner-summary span {
+  color: #7f98aa;
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.weekly-planner-summary strong {
+  color: #e7f8ff;
+  font-size: 1.35rem;
+}
+
+.weekly-planner-summary .weekly-summary-alert {
+  border-color: rgba(255, 181, 116, 0.24);
+  background: rgba(95, 52, 20, 0.14);
+}
+
+.weekly-planner-toolbar,
+.weekly-planner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.weekly-planner-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.weekly-day-card {
+  display: grid;
+  min-width: 0;
+  min-height: 13rem;
+  align-content: start;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(147, 197, 253, 0.12);
+  border-radius: 1rem;
+  background: rgba(5, 17, 29, 0.74);
+}
+
+.weekly-day-card > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.weekly-day-card > header > div {
+  display: grid;
+  gap: 0.08rem;
+}
+
+.weekly-day-card > header span {
+  color: #d9f2ff;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.weekly-day-card > header strong {
+  color: #6f899c;
+  font-size: 0.65rem;
+}
+
+.weekly-day-card > header em {
+  height: fit-content;
+  padding: 0.25rem 0.42rem;
+  border-radius: 999px;
+  background: rgba(147, 197, 253, 0.08);
+  color: #8da5b6;
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.weekly-day-card select {
+  width: 100%;
+  min-height: 2.7rem;
+  padding: 0.55rem;
+  border: 1px solid rgba(147, 197, 253, 0.16);
+  border-radius: 0.75rem;
+  background: rgba(3, 13, 23, 0.88);
+  color: #dff4ff;
+  font-size: 0.72rem;
+}
+
+.weekly-day-details,
+.weekly-day-rest {
+  display: grid;
+  min-width: 0;
+  gap: 0.2rem;
+}
+
+.weekly-day-details strong,
+.weekly-day-rest strong {
+  overflow: hidden;
+  color: #e7f7ff;
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weekly-day-details span,
+.weekly-day-rest span {
+  overflow: hidden;
+  color: #9bb3c4;
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weekly-day-details small {
+  color: #718b9d;
+  font-size: 0.64rem;
+  line-height: 1.4;
+}
+
+.weekly-day-card--today {
+  border-color: rgba(69, 200, 255, 0.34);
+  background: linear-gradient(160deg, rgba(24, 91, 122, 0.2), rgba(5, 17, 29, 0.82));
+}
+
+.weekly-day-card--today > header em {
+  background: rgba(69, 200, 255, 0.14);
+  color: #b9ebff;
+}
+
+.weekly-day-card--completed {
+  border-color: rgba(72, 214, 165, 0.26);
+  background: linear-gradient(160deg, rgba(24, 84, 68, 0.18), rgba(5, 17, 29, 0.82));
+}
+
+.weekly-day-card--completed > header em {
+  background: rgba(72, 214, 165, 0.13);
+  color: #a8efd4;
+}
+
+.weekly-day-card--overdue {
+  border-color: rgba(255, 181, 116, 0.24);
+}
+
+.weekly-day-card--overdue > header em {
+  background: rgba(255, 181, 116, 0.11);
+  color: #f1c79d;
+}
+
+.weekly-day-card--loading {
+  min-height: 13rem;
+  background: linear-gradient(90deg, rgba(147, 197, 253, 0.04), rgba(147, 197, 253, 0.09), rgba(147, 197, 253, 0.04));
+  background-size: 200% 100%;
+  animation: weekly-planner-loading 1.2s linear infinite;
+}
+
+.weekly-planner-empty,
+.weekly-planner-note {
+  padding: 1rem;
+  border: 1px solid rgba(147, 197, 253, 0.12);
+  border-radius: 1rem;
+  background: rgba(5, 17, 29, 0.72);
+}
+
+.weekly-planner-empty h3,
+.weekly-planner-note strong {
+  margin: 0;
+  color: #e3f5ff;
+}
+
+.weekly-planner-empty p,
+.weekly-planner-note p {
+  margin: 0.35rem 0 0.8rem;
+  color: #8fa8ba;
+  line-height: 1.55;
+}
+
+.weekly-planner-note p {
+  margin-bottom: 0;
+}
+
+@keyframes weekly-planner-loading {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 1050px) {
+  .weekly-planner-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .weekly-planner-heading {
+    display: grid;
+  }
+
+  .weekly-planner-range {
+    width: 100%;
+    text-align: left;
+  }
+
+  .weekly-planner-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weekly-planner-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 440px) {
+  .weekly-planner-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-day-card {
+    min-height: auto;
+  }
+
+  .weekly-planner-toolbar,
+  .weekly-planner-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-planner-toolbar button,
+  .weekly-planner-actions button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weekly-day-card--loading {
+    animation: none;
+  }
+}
