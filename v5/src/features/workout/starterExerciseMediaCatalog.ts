@@ -1,4 +1,5 @@
 import phaseTwoExerciseMediaManifest from './phase2ExerciseMediaManifest.json';
+import phaseThreeExerciseMediaManifest from './phase3ExerciseMediaManifest.json';
 
 export const starterExerciseMediaRoles = ['hero', 'start', 'finish'] as const;
 
@@ -16,7 +17,7 @@ export type StarterExerciseMediaEntry = {
   images: Record<StarterExerciseMediaRole, StarterExerciseMediaImage>;
 };
 
-type PhaseTwoExerciseMediaManifestEntry = {
+type GeneratedExerciseMediaManifestEntry = {
   slug: string;
   alts: Record<StarterExerciseMediaRole, string>;
 };
@@ -45,9 +46,10 @@ function starterEntry(
   return { slug, images };
 }
 
-const phaseTwoEntries = (
-  phaseTwoExerciseMediaManifest as readonly PhaseTwoExerciseMediaManifestEntry[]
-).map((entry) => starterEntry(entry.slug, entry.alts, 'generated'));
+const generatedEntries = [
+  ...(phaseTwoExerciseMediaManifest as readonly GeneratedExerciseMediaManifestEntry[]),
+  ...(phaseThreeExerciseMediaManifest as readonly GeneratedExerciseMediaManifestEntry[]),
+].map((entry) => starterEntry(entry.slug, entry.alts, 'generated'));
 
 const entries: readonly StarterExerciseMediaEntry[] = [
   starterEntry('goblet-squat', {
@@ -90,7 +92,7 @@ const entries: readonly StarterExerciseMediaEntry[] = [
     start: 'Dumbbell lateral raise start position: standing with the dumbbells at the sides of the body',
     finish: 'Dumbbell lateral raise finish position: arms raised out to shoulder height',
   }),
-  ...phaseTwoEntries,
+  ...generatedEntries,
 ];
 
 const entriesBySlug: ReadonlyMap<string, StarterExerciseMediaEntry> = new Map(

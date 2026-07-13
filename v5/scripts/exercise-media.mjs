@@ -5,39 +5,63 @@ import { fileURLToPath } from 'node:url';
 
 const projectRoot = fileURLToPath(new URL('..', import.meta.url));
 const workoutDirectory = path.join(projectRoot, 'src', 'features', 'workout');
-const manifestPath = path.join(workoutDirectory, 'phase2ExerciseMediaManifest.json');
-const bundlePath = path.join(workoutDirectory, 'phase2ExerciseMediaSprites.b64');
 const generatedDirectory = path.join(projectRoot, 'public', 'exercise-media', 'generated');
-const distDirectory = path.join(projectRoot, 'dist', 'exercise-media', 'generated');
+const distExerciseMediaDirectory = path.join(projectRoot, 'dist', 'exercise-media');
 const roles = ['hero', 'start', 'finish'];
 const expectedWidth = 800;
 const expectedHeight = 450;
 
-function assertManifest(value) {
+const individualSlugs = [
+  'goblet-squat',
+  'push-up',
+  'incline-dumbbell-press',
+  'lat-pulldown',
+  'seated-cable-row',
+  'romanian-deadlift',
+  'leg-press',
+  'dumbbell-lateral-raise',
+];
+
+const mediaPacks = [
+  {
+    name: 'phase2',
+    manifestPath: path.join(workoutDirectory, 'phase2ExerciseMediaManifest.json'),
+    bundlePath: path.join(workoutDirectory, 'phase2ExerciseMediaSprites.b64'),
+  },
+  {
+    name: 'phase3',
+    manifestPath: path.join(workoutDirectory, 'phase3ExerciseMediaManifest.json'),
+    bundlePath: path.join(workoutDirectory, 'phase3ExerciseMediaSprites.b64'),
+  },
+];
+
+const expectedExerciseCount = 35;
+
+function assertManifest(value, packName) {
   if (!Array.isArray(value) || value.length === 0) {
-    throw new Error('Phase 2 exercise media manifest must be a non-empty array.');
+    throw new Error(`${packName} exercise media manifest must be a non-empty array.`);
   }
 
   const seen = new Set();
   for (const [index, entry] of value.entries()) {
     if (!entry || typeof entry !== 'object') {
-      throw new Error(`Manifest entry ${index} must be an object.`);
+      throw new Error(`${packName} manifest entry ${index} must be an object.`);
     }
     if (typeof entry.slug !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry.slug)) {
-      throw new Error(`Manifest entry ${index} has an invalid slug.`);
+      throw new Error(`${packName} manifest entry ${index} has an invalid slug.`);
     }
     if (seen.has(entry.slug)) {
-      throw new Error(`Duplicate exercise media slug: ${entry.slug}`);
+      throw new Error(`Duplicate ${packName} exercise media slug: ${entry.slug}`);
     }
     seen.add(entry.slug);
 
     if (!entry.alts || typeof entry.alts !== 'object') {
-      throw new Error(`Manifest entry ${entry.slug} is missing alt text.`);
+      throw new Error(`${packName} manifest entry ${entry.slug} is missing alt text.`);
     }
     for (const role of roles) {
       const alt = entry.alts[role];
       if (typeof alt !== 'string' || alt.trim().length < 20) {
-        throw new Error(`Manifest entry ${entry.slug} has invalid ${role} alt text.`);
+        throw new Error(`${packName} manifest entry ${entry.slug} has invalid ${role} alt text.`);
       }
     }
   }
@@ -45,21 +69,55 @@ function assertManifest(value) {
   return value;
 }
 
-async function readManifest() {
-  const raw = await readFile(manifestPath, 'utf8');
-  return assertManifest(JSON.parse(raw));
-}
+async function readPack(pack) {
+  const [manifestRaw, encodedRaw] = await Promise.all([
+    readFile(pack.manifestPath, 'utf8'),
+    readFile(pack.bundlePath, 'utf8'),
+  ]);
 
-async function readSprites() {
-  const encoded = (await readFile(bundlePath, 'utf8')).trim();
-  const decoded = gunzipSync(Buffer.from(encoded, 'base64')).toString('utf8');
-  const value = JSON.parse(decoded);
+  const manifest = assertManifest(JSON.parse(manifestRaw), pack.name);
+  const decoded = gunzipSync(Buffer.from(encodedRaw.trim(), 'base64')).toString('utf8');
+  const sprites = JSON.parse(decoded);
 
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error('Phase 2 exercise media bundle must decode to a slug map.');
+  if (!sprites || typeof sprites !== 'object' || Array.isArray(sprites)) {
+    throw new Error(`${pack.name} exercise media bundle must decode to a slug map.`);
   }
 
-  return value;
+  const expectedSlugs = new Set(manifest.map((entry) => entry.slug));
+  for (const slug of expectedSlugs) {
+    if (typeof sprites[slug] !== 'string') {
+      throw new Error(`${pack.name} exercise media bundle is missing ${slug}.`);
+    }
+  }
+  for (const slug of Object.keys(sprites)) {
+    if (!expectedSlugs.has(slug)) {
+      throw new Error(`${pack.name} exercise media bundle contains unexpected slug ${slug}.`);
+    }
+  }
+
+  return { ...pack, manifest, sprites };
+}
+
+async function readAllPacks() {
+  const packs = await Promise.all(mediaPacks.map((pack) => readPack(pack)));
+  const allSlugs = new Set(individualSlugs);
+
+  for (const pack of packs) {
+    for (const entry of pack.manifest) {
+      if (allSlugs.has(entry.slug)) {
+        throw new Error(`Duplicate exercise media slug across packs: ${entry.slug}`);
+      }
+      allSlugs.add(entry.slug);
+    }
+  }
+
+  if (allSlugs.size !== expectedExerciseCount) {
+    throw new Error(
+      `Exercise media coverage contains ${allSlugs.size} exercises; expected ${expectedExerciseCount}.`,
+    );
+  }
+
+  return packs;
 }
 
 function extractPanels(sprite, slug) {
@@ -84,63 +142,76 @@ function standaloneSvg(panel) {
 }
 
 async function generate() {
-  const [manifest, sprites] = await Promise.all([readManifest(), readSprites()]);
-  const expectedSlugs = new Set(manifest.map((entry) => entry.slug));
-  const bundledSlugs = Object.keys(sprites);
-
-  for (const slug of expectedSlugs) {
-    if (typeof sprites[slug] !== 'string') {
-      throw new Error(`Exercise media bundle is missing ${slug}.`);
-    }
-  }
-  for (const slug of bundledSlugs) {
-    if (!expectedSlugs.has(slug)) {
-      throw new Error(`Exercise media bundle contains unexpected slug ${slug}.`);
-    }
-  }
-
+  const packs = await readAllPacks();
   await rm(generatedDirectory, { recursive: true, force: true });
 
   let generatedCount = 0;
-  for (const entry of manifest) {
-    const panels = extractPanels(sprites[entry.slug], entry.slug);
-    const outputDirectory = path.join(generatedDirectory, entry.slug);
-    await mkdir(outputDirectory, { recursive: true });
+  for (const pack of packs) {
+    for (const entry of pack.manifest) {
+      const panels = extractPanels(pack.sprites[entry.slug], entry.slug);
+      const outputDirectory = path.join(generatedDirectory, entry.slug);
+      await mkdir(outputDirectory, { recursive: true });
 
-    for (const [index, role] of roles.entries()) {
-      await writeFile(
-        path.join(outputDirectory, `${role}.svg`),
-        standaloneSvg(panels[index]),
-        'utf8',
-      );
-      generatedCount += 1;
+      for (const [index, role] of roles.entries()) {
+        await writeFile(
+          path.join(outputDirectory, `${role}.svg`),
+          standaloneSvg(panels[index]),
+          'utf8',
+        );
+        generatedCount += 1;
+      }
     }
   }
 
-  const expectedCount = manifest.length * roles.length;
-  if (generatedCount !== expectedCount) {
-    throw new Error(`Generated ${generatedCount} files; expected ${expectedCount}.`);
+  const expectedGeneratedCount =
+    packs.reduce((count, pack) => count + pack.manifest.length, 0) * roles.length;
+
+  if (generatedCount !== expectedGeneratedCount) {
+    throw new Error(`Generated ${generatedCount} files; expected ${expectedGeneratedCount}.`);
   }
 
-  console.log(`Generated ${generatedCount} professional exercise media files.`);
+  console.log(
+    `Generated ${generatedCount} professional media files for ${expectedExerciseCount} covered exercises.`,
+  );
+}
+
+async function assertBuiltAsset(filePath) {
+  const details = await stat(filePath);
+  if (!details.isFile() || details.size < 500) {
+    throw new Error(`Invalid built exercise media file: ${filePath}`);
+  }
 }
 
 async function verifyDist() {
-  const manifest = await readManifest();
+  const packs = await readAllPacks();
   let verifiedCount = 0;
 
-  for (const entry of manifest) {
+  for (const slug of individualSlugs) {
     for (const role of roles) {
-      const filePath = path.join(distDirectory, entry.slug, `${role}.svg`);
-      const details = await stat(filePath);
-      if (!details.isFile() || details.size < 500) {
-        throw new Error(`Invalid built exercise media file: ${filePath}`);
-      }
+      await assertBuiltAsset(
+        path.join(distExerciseMediaDirectory, slug, `${role}.svg`),
+      );
       verifiedCount += 1;
     }
   }
 
-  console.log(`Verified ${verifiedCount} built exercise media files.`);
+  for (const pack of packs) {
+    for (const entry of pack.manifest) {
+      for (const role of roles) {
+        await assertBuiltAsset(
+          path.join(distExerciseMediaDirectory, 'generated', entry.slug, `${role}.svg`),
+        );
+        verifiedCount += 1;
+      }
+    }
+  }
+
+  const expectedCount = expectedExerciseCount * roles.length;
+  if (verifiedCount !== expectedCount) {
+    throw new Error(`Verified ${verifiedCount} files; expected ${expectedCount}.`);
+  }
+
+  console.log(`Verified ${verifiedCount} built exercise media files across all 35 exercises.`);
 }
 
 const command = process.argv[2] ?? 'generate';
