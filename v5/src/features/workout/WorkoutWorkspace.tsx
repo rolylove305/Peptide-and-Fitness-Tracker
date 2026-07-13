@@ -12,6 +12,7 @@ import { RoutineBuilder } from './RoutineBuilder';
 import { WeeklyPlanner } from './WeeklyPlanner';
 import { WorkoutCompletionExperience } from './WorkoutCompletionExperience';
 import { WorkoutHistory } from './WorkoutHistory';
+import { WorkoutInsights } from './WorkoutInsights';
 import { WorkoutOverview } from './WorkoutOverview';
 import {
   WorkoutProfileOnboarding,
@@ -25,6 +26,7 @@ export type WorkoutWorkspaceView =
   | 'plans'
   | 'train'
   | 'history'
+  | 'insights'
   | 'progression'
   | 'builder'
   | 'library'
@@ -36,6 +38,7 @@ const tabs: Array<{ view: WorkoutWorkspaceView; label: string }> = [
   { view: 'plans', label: 'Plans' },
   { view: 'train', label: 'Train' },
   { view: 'history', label: 'History' },
+  { view: 'insights', label: 'Insights' },
   { view: 'progression', label: 'Progress' },
   { view: 'builder', label: 'Routines' },
   { view: 'library', label: 'Exercises' },
@@ -72,6 +75,7 @@ function WorkoutWorkspaceContent() {
         </div>
       ) : null}
       {view === 'history' ? <WorkoutHistory /> : null}
+      {view === 'insights' ? <WorkoutInsights /> : null}
       {view === 'progression' ? (
         <div className="progression-workspace-stack">
           <ProgressionCoach />
