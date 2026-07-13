@@ -100,10 +100,12 @@ type ExerciseNotesEditorProps = {
 export function ExerciseNotesEditor({ exercise, saving, onSave }: ExerciseNotesEditorProps) {
   const [notes, setNotes] = useState(exercise.notes ?? '');
   const [saved, setSaved] = useState(false);
+  const [open, setOpen] = useState(Boolean(exercise.notes));
 
   useEffect(() => {
     setNotes(exercise.notes ?? '');
     setSaved(false);
+    setOpen(Boolean(exercise.notes));
   }, [exercise.id, exercise.notes]);
 
   async function submit() {
@@ -113,7 +115,11 @@ export function ExerciseNotesEditor({ exercise, saving, onSave }: ExerciseNotesE
   }
 
   return (
-    <details className="live-exercise-notes" defaultOpen={Boolean(exercise.notes)}>
+    <details
+      className="live-exercise-notes"
+      open={open}
+      onToggle={(event) => setOpen(event.currentTarget.open)}
+    >
       <summary>
         <span>{exercise.notes ? 'Exercise note saved' : 'Add exercise note'}</span>
         <span aria-hidden="true">＋</span>
