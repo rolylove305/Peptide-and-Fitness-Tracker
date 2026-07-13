@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ActiveWorkout } from './ActiveWorkout';
 import { ExerciseLibrary } from './ExerciseLibrary';
+import { ProgressionCoach } from './ProgressionCoach';
 import { ProgressionDashboard } from './ProgressionDashboard';
 import { RoutineBuilder } from './RoutineBuilder';
 import { StarterPlans } from './StarterPlans';
@@ -51,7 +52,12 @@ export function WorkoutWorkspace() {
       {view === 'plans' ? <StarterPlans onNavigate={setView} /> : null}
       {view === 'train' ? <ActiveWorkout /> : null}
       {view === 'history' ? <WorkoutHistory /> : null}
-      {view === 'progression' ? <ProgressionDashboard /> : null}
+      {view === 'progression' ? (
+        <div className="progression-workspace-stack">
+          <ProgressionCoach />
+          <ProgressionDashboard />
+        </div>
+      ) : null}
       {view === 'builder' ? <RoutineBuilder /> : null}
       {view === 'library' ? <ExerciseLibrary /> : null}
 
