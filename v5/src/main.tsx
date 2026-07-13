@@ -19,6 +19,7 @@ import './styles/active-workout.css';
 import './styles/fast-workout.css';
 import './styles/workout-completion.css';
 import './styles/workout-history.css';
+import './styles/workout-insights.css';
 import './styles/progression.css';
 import './styles/progression-approval.css';
 import './styles/progression-coach.css';
