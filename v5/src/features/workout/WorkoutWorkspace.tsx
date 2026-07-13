@@ -8,6 +8,11 @@ import { StarterPlans } from './StarterPlans';
 import { WorkoutCompletionExperience } from './WorkoutCompletionExperience';
 import { WorkoutHistory } from './WorkoutHistory';
 import { WorkoutOverview } from './WorkoutOverview';
+import {
+  WorkoutProfileOnboarding,
+  WorkoutProfilePanel,
+} from './WorkoutProfileExperience';
+import { WorkoutProfileProvider } from './WorkoutProfileProvider';
 
 export type WorkoutWorkspaceView =
   | 'overview'
@@ -16,7 +21,8 @@ export type WorkoutWorkspaceView =
   | 'history'
   | 'progression'
   | 'builder'
-  | 'library';
+  | 'library'
+  | 'profile';
 
 const tabs: Array<{ view: WorkoutWorkspaceView; label: string }> = [
   { view: 'overview', label: 'Today' },
@@ -26,9 +32,10 @@ const tabs: Array<{ view: WorkoutWorkspaceView; label: string }> = [
   { view: 'progression', label: 'Progress' },
   { view: 'builder', label: 'Routines' },
   { view: 'library', label: 'Exercises' },
+  { view: 'profile', label: 'Profile' },
 ];
 
-export function WorkoutWorkspace() {
+function WorkoutWorkspaceContent() {
   const [view, setView] = useState<WorkoutWorkspaceView>('overview');
 
   return (
@@ -60,8 +67,18 @@ export function WorkoutWorkspace() {
       ) : null}
       {view === 'builder' ? <RoutineBuilder /> : null}
       {view === 'library' ? <ExerciseLibrary /> : null}
+      {view === 'profile' ? <WorkoutProfilePanel /> : null}
 
       <WorkoutCompletionExperience onNavigate={setView} />
+      <WorkoutProfileOnboarding />
     </div>
+  );
+}
+
+export function WorkoutWorkspace() {
+  return (
+    <WorkoutProfileProvider>
+      <WorkoutWorkspaceContent />
+    </WorkoutProfileProvider>
   );
 }
