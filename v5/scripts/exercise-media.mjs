@@ -26,12 +26,15 @@ const mediaPacks = [
   {
     name: 'phase2',
     manifestPath: path.join(workoutDirectory, 'phase2ExerciseMediaManifest.json'),
-    bundlePath: path.join(workoutDirectory, 'phase2ExerciseMediaSprites.b64'),
+    bundlePaths: [path.join(workoutDirectory, 'phase2ExerciseMediaSprites.b64')],
   },
   {
     name: 'phase3',
     manifestPath: path.join(workoutDirectory, 'phase3ExerciseMediaManifest.json'),
-    bundlePath: path.join(workoutDirectory, 'phase3ExerciseMediaSprites.b64'),
+    bundlePaths: Array.from(
+      { length: 9 },
+      (_, index) => path.join(workoutDirectory, `phase3ExerciseMediaSprites.part${index + 1}.b64`),
+    ),
   },
 ];
 
@@ -70,13 +73,14 @@ function assertManifest(value, packName) {
 }
 
 async function readPack(pack) {
-  const [manifestRaw, encodedRaw] = await Promise.all([
+  const [manifestRaw, encodedParts] = await Promise.all([
     readFile(pack.manifestPath, 'utf8'),
-    readFile(pack.bundlePath, 'utf8'),
+    Promise.all(pack.bundlePaths.map((bundlePath) => readFile(bundlePath, 'utf8'))),
   ]);
 
   const manifest = assertManifest(JSON.parse(manifestRaw), pack.name);
-  const decoded = gunzipSync(Buffer.from(encodedRaw.trim(), 'base64')).toString('utf8');
+  const encoded = encodedParts.map((part) => part.trim()).join('');
+  const decoded = gunzipSync(Buffer.from(encoded, 'base64')).toString('utf8');
   const sprites = JSON.parse(decoded);
 
   if (!sprites || typeof sprites !== 'object' || Array.isArray(sprites)) {
