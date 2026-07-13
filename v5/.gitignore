@@ -5,3 +5,4 @@ dist/
 .env.production
 *.local
 tsconfig.tsbuildinfo
+public/exercise-media/generated/

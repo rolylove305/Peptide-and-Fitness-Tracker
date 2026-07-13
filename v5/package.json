@@ -8,11 +8,14 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "predev": "node scripts/exercise-media.mjs generate",
     "dev": "vite",
-    "build": "node scripts/app-icon.mjs prepare && tsc -b && vite build",
+    "prebuild": "node scripts/exercise-media.mjs generate",
+    "build": "node scripts/app-icon.mjs prepare && tsc -b && vite build && node scripts/exercise-media.mjs verify-dist",
     "postbuild": "node scripts/app-icon.mjs cleanup",
     "preview": "vite preview",
-    "typecheck": "tsc -b --pretty false"
+    "typecheck": "tsc -b --pretty false",
+    "media:generate": "node scripts/exercise-media.mjs generate"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.110.2",

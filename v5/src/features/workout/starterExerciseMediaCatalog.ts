@@ -1,3 +1,5 @@
+import phaseTwoExerciseMediaManifest from './phase2ExerciseMediaManifest.json';
+
 export const starterExerciseMediaRoles = ['hero', 'start', 'finish'] as const;
 
 export type StarterExerciseMediaRole = (typeof starterExerciseMediaRoles)[number];
@@ -14,16 +16,27 @@ export type StarterExerciseMediaEntry = {
   images: Record<StarterExerciseMediaRole, StarterExerciseMediaImage>;
 };
 
+type PhaseTwoExerciseMediaManifestEntry = {
+  slug: string;
+  alts: Record<StarterExerciseMediaRole, string>;
+};
+
 const mediaBasePath = `${import.meta.env.BASE_URL}exercise-media`;
 
 function starterEntry(
   slug: string,
   alts: Record<StarterExerciseMediaRole, string>,
+  source: 'individual' | 'generated' = 'individual',
 ): StarterExerciseMediaEntry {
   const images = {} as Record<StarterExerciseMediaRole, StarterExerciseMediaImage>;
   for (const role of starterExerciseMediaRoles) {
+    const relativePath =
+      source === 'generated'
+        ? `generated/${slug}/${role}.svg`
+        : `${slug}/${role}.svg`;
+
     images[role] = {
-      url: `${mediaBasePath}/${slug}/${role}.svg`,
+      url: `${mediaBasePath}/${relativePath}`,
       alt: alts[role],
       width: 800,
       height: 450,
@@ -31,6 +44,10 @@ function starterEntry(
   }
   return { slug, images };
 }
+
+const phaseTwoEntries = (
+  phaseTwoExerciseMediaManifest as readonly PhaseTwoExerciseMediaManifestEntry[]
+).map((entry) => starterEntry(entry.slug, entry.alts, 'generated'));
 
 const entries: readonly StarterExerciseMediaEntry[] = [
   starterEntry('goblet-squat', {
@@ -73,6 +90,7 @@ const entries: readonly StarterExerciseMediaEntry[] = [
     start: 'Dumbbell lateral raise start position: standing with the dumbbells at the sides of the body',
     finish: 'Dumbbell lateral raise finish position: arms raised out to shoulder height',
   }),
+  ...phaseTwoEntries,
 ];
 
 const entriesBySlug: ReadonlyMap<string, StarterExerciseMediaEntry> = new Map(
