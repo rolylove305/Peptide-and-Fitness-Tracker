@@ -1,0 +1,322 @@
+.live-workout-metrics--flexible {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.live-workout-details,
+.live-exercise-notes {
+  border: 1px solid rgba(147, 197, 253, 0.14);
+  border-radius: 1rem;
+  background: rgba(4, 15, 27, 0.62);
+  overflow: hidden;
+}
+
+.live-workout-details > summary,
+.live-exercise-notes > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.25rem;
+  padding: 0.8rem 0.95rem;
+  color: #dff6ff;
+  cursor: pointer;
+  list-style: none;
+}
+
+.live-workout-details > summary::-webkit-details-marker,
+.live-exercise-notes > summary::-webkit-details-marker {
+  display: none;
+}
+
+.live-workout-details > summary span:first-child {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.live-workout-details > summary small {
+  color: #9eb4c8;
+  font-size: 0.74rem;
+  font-weight: 650;
+}
+
+.live-workout-details[open] > summary > span:last-child,
+.live-exercise-notes[open] > summary > span:last-child {
+  transform: rotate(45deg);
+}
+
+.live-workout-details-body {
+  display: grid;
+  gap: 0.9rem;
+  padding: 0 0.95rem 0.95rem;
+}
+
+.live-workout-details-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 7rem;
+  gap: 0.7rem;
+}
+
+.live-workout-details label,
+.live-exercise-notes label {
+  display: grid;
+  gap: 0.35rem;
+  color: #a8bdd2;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.live-workout-details input,
+.live-workout-details select,
+.live-workout-details textarea,
+.live-exercise-notes textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.7rem 0.78rem;
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  border-radius: 0.78rem;
+  outline: none;
+  background: rgba(3, 13, 24, 0.82);
+  color: #edf6ff;
+  font: inherit;
+}
+
+.live-workout-details textarea,
+.live-exercise-notes textarea {
+  resize: vertical;
+}
+
+.live-workout-details input:focus,
+.live-workout-details select:focus,
+.live-workout-details textarea:focus,
+.live-exercise-notes textarea:focus {
+  border-color: rgba(69, 200, 255, 0.68);
+  box-shadow: 0 0 0 0.18rem rgba(69, 200, 255, 0.08);
+}
+
+.live-workout-details-actions,
+.live-exercise-note-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.flex-save-message {
+  color: #8ce7c7;
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.live-exercise-notes {
+  margin: 0 0 0.8rem;
+  background: rgba(69, 200, 255, 0.035);
+}
+
+.live-exercise-notes > summary {
+  min-height: 2.85rem;
+  padding: 0.65rem 0.78rem;
+  color: #bfeeff;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.live-exercise-notes > div {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0 0.78rem 0.78rem;
+}
+
+.live-exercise-note-actions button {
+  min-height: 2.4rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid rgba(69, 200, 255, 0.24);
+  border-radius: 0.7rem;
+  background: rgba(69, 200, 255, 0.09);
+  color: #c9efff;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.live-set {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.live-set-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.live-set-status {
+  display: grid;
+  justify-items: end;
+  gap: 0.15rem;
+  text-align: right;
+}
+
+.live-set-status small {
+  color: #91a9bd;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.live-set--warmup {
+  border-color: rgba(250, 204, 21, 0.28);
+  background: rgba(120, 88, 18, 0.1);
+}
+
+.live-set--skipped {
+  border-style: dashed;
+  border-color: rgba(148, 163, 184, 0.34);
+  background: rgba(71, 85, 105, 0.09);
+}
+
+.live-set--extra {
+  box-shadow: inset 0 0 0 1px rgba(167, 139, 250, 0.1);
+}
+
+.set-skipped-mark {
+  color: #cbd5e1;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.warmup-toggle {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgba(250, 204, 21, 0.22);
+  border-radius: 999px;
+  background: rgba(250, 204, 21, 0.06);
+  color: #d9c987;
+  font-size: 0.72rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.warmup-toggle--active {
+  border-color: rgba(250, 204, 21, 0.48);
+  background: rgba(250, 204, 21, 0.13);
+  color: #fde68a;
+}
+
+.live-set-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.live-set-field--rpe {
+  grid-column: 1 / -1;
+}
+
+.complete-set-button {
+  grid-column: auto;
+}
+
+.live-set-secondary-actions,
+.live-set-compact-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.live-set-secondary-actions button,
+.live-set-compact-actions button {
+  min-height: 2.35rem;
+  padding: 0.46rem 0.7rem;
+  border: 1px solid rgba(147, 197, 253, 0.18);
+  border-radius: 0.7rem;
+  background: rgba(147, 197, 253, 0.06);
+  color: #bcd2e5;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.live-set-action--danger {
+  border-color: rgba(248, 113, 113, 0.24) !important;
+  background: rgba(248, 113, 113, 0.07) !important;
+  color: #fecaca !important;
+}
+
+.add-extra-set-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.85rem;
+  border: 1px dashed rgba(167, 139, 250, 0.34);
+  border-radius: 0.9rem;
+  background: rgba(167, 139, 250, 0.06);
+  color: #d8ccff;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.add-extra-set-button:disabled,
+.live-set-secondary-actions button:disabled,
+.live-set-compact-actions button:disabled,
+.warmup-toggle:disabled,
+.live-exercise-note-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (min-width: 700px) {
+  .live-workout-metrics--flexible {
+    grid-template-columns: repeat(4, minmax(7rem, 1fr));
+  }
+
+  .live-set-fields {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .live-set-field--rpe {
+    grid-column: auto;
+  }
+
+  .live-set {
+    padding: 0.95rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .live-workout-details-grid {
+    grid-template-columns: minmax(0, 1fr) 6.5rem;
+  }
+
+  .live-set-header-row {
+    align-items: flex-start;
+  }
+
+  .live-set-status {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .live-set-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .live-set-field--rpe {
+    grid-column: auto;
+  }
+
+  .live-set-secondary-actions,
+  .live-set-compact-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .live-set-secondary-actions button,
+  .live-set-compact-actions button {
+    width: 100%;
+  }
+}
