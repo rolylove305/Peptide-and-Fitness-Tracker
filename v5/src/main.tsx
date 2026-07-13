@@ -16,6 +16,8 @@ import './styles/workout-completion.css';
 import './styles/workout-history.css';
 import './styles/progression.css';
 import './styles/progression-approval.css';
+import './styles/progression-coach.css';
+import './styles/progression-coach-layout.css';
 import './styles/workspace-mobile.css';
 
 function registerServiceWorker(): void {
