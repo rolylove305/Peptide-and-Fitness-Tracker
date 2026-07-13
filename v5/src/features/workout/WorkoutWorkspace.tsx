@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { ActiveWorkout } from './ActiveWorkout';
 import { ExerciseLibrary } from './ExerciseLibrary';
+import { PersonalizedPlans } from './PersonalizedPlans';
 import { ProgressionCoach } from './ProgressionCoach';
 import { ProgressionDashboard } from './ProgressionDashboard';
 import { RoutineBuilder } from './RoutineBuilder';
-import { StarterPlans } from './StarterPlans';
 import { WorkoutCompletionExperience } from './WorkoutCompletionExperience';
 import { WorkoutHistory } from './WorkoutHistory';
 import { WorkoutOverview } from './WorkoutOverview';
@@ -56,7 +56,7 @@ function WorkoutWorkspaceContent() {
       </div>
 
       {view === 'overview' ? <WorkoutOverview onNavigate={setView} /> : null}
-      {view === 'plans' ? <StarterPlans onNavigate={setView} /> : null}
+      {view === 'plans' ? <PersonalizedPlans onNavigate={setView} /> : null}
       {view === 'train' ? <ActiveWorkout /> : null}
       {view === 'history' ? <WorkoutHistory /> : null}
       {view === 'progression' ? (
