@@ -1,0 +1,123 @@
+.routine-day-heading--managed {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8rem;
+}
+
+.routine-day-title-copy {
+  min-width: 0;
+}
+
+.day-command-bar {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(2, minmax(2.75rem, auto)) repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+  padding-top: 0.2rem;
+}
+
+.day-command-bar button,
+.exercise-row-toolbar button {
+  min-height: 2.45rem;
+  padding: 0.48rem 0.58rem;
+  border: 1px solid rgba(147, 197, 253, 0.16);
+  border-radius: 0.72rem;
+  background: rgba(8, 24, 40, 0.88);
+  color: #cce8f8;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.day-command-bar button:disabled,
+.exercise-row-toolbar button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.day-command-bar .day-command-danger,
+.exercise-row-toolbar .exercise-row-remove {
+  color: #ffb7b7;
+}
+
+.routine-exercise-row--managed {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.exercise-row-toolbar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(2.75rem, auto)) repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin-bottom: 0.72rem;
+}
+
+.routine-substitution-panel {
+  margin: 0.72rem 0 0.85rem;
+  padding: 0.78rem;
+  border: 1px solid rgba(72, 214, 165, 0.17);
+  border-radius: 0.9rem;
+  background: linear-gradient(135deg, rgba(72, 214, 165, 0.07), rgba(69, 200, 255, 0.05));
+}
+
+.routine-substitution-panel p {
+  margin: 0.45rem 0 0;
+  color: #90aebe;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.exercise-notes-field {
+  grid-column: 1 / -1;
+}
+
+.saved-routine-actions--managed {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+}
+
+.saved-routine-actions--managed .text-button {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+@media (min-width: 700px) {
+  .routine-day-heading--managed {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .day-command-bar {
+    grid-column: auto;
+    grid-template-columns: repeat(4, auto);
+    align-self: center;
+    padding-top: 0;
+  }
+
+  .exercise-row-toolbar {
+    grid-template-columns: repeat(4, auto);
+    justify-content: start;
+  }
+
+  .saved-routine-actions--managed {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  }
+
+  .saved-routine-actions--managed .text-button {
+    grid-column: auto;
+    justify-self: end;
+  }
+}
+
+@media (max-width: 430px) {
+  .day-command-bar,
+  .exercise-row-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .day-command-bar button,
+  .exercise-row-toolbar button {
+    min-height: 2.75rem;
+  }
+}

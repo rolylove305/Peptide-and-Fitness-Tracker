@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { Exercise } from '../../types/database';
 import { useAuth } from '../auth/AuthProvider';
 import { useExerciseLibrary } from './hooks/useExerciseLibrary';
 import { useRoutines } from './hooks/useRoutines';
@@ -15,7 +16,7 @@ function localId(): string {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function newExercise(): RoutineExerciseDraft {
+function newExercise(weightUnit: WeightUnit = 'lb'): RoutineExerciseDraft {
   return {
     localId: localId(),
     exercise_id: '',
@@ -24,10 +25,14 @@ function newExercise(): RoutineExerciseDraft {
     target_reps_max: 12,
     target_rest_seconds: 90,
     target_weight: null,
-    weight_unit: 'lb',
+    weight_unit: weightUnit,
     tempo: '',
     notes: '',
   };
+}
+
+function cloneExercise(exercise: RoutineExerciseDraft): RoutineExerciseDraft {
+  return { ...exercise, localId: localId() };
 }
 
 function newDay(order: number): RoutineDayDraft {
@@ -37,6 +42,15 @@ function newDay(order: number): RoutineDayDraft {
     focus: '',
     focus_muscle_groups: [],
     exercises: [newExercise()],
+  };
+}
+
+function cloneDay(day: RoutineDayDraft): RoutineDayDraft {
+  return {
+    ...day,
+    localId: localId(),
+    name: `${day.name.trim() || 'Workout day'} Copy`,
+    exercises: day.exercises.map(cloneExercise),
   };
 }
 
@@ -75,6 +89,28 @@ function routineToDraft(routine: RoutineTree): RoutineDraft {
       })),
     })),
   };
+}
+
+function moveItem<T>(items: T[], fromIndex: number, toIndex: number): T[] {
+  if (fromIndex < 0 || toIndex < 0 || fromIndex >= items.length || toIndex >= items.length) {
+    return items;
+  }
+  const next = [...items];
+  const [moved] = next.splice(fromIndex, 1);
+  if (moved === undefined) return items;
+  next.splice(toIndex, 0, moved);
+  return next;
+}
+
+function substitutionScore(current: Exercise, candidate: Exercise): number {
+  let score = 0;
+  if (candidate.primary_muscle_group === current.primary_muscle_group) score += 12;
+  if (candidate.secondary_muscle_groups.includes(current.primary_muscle_group)) score += 3;
+  if (current.secondary_muscle_groups.includes(candidate.primary_muscle_group)) score += 2;
+  const sharedEquipment = candidate.equipment.filter((item) => current.equipment.includes(item)).length;
+  score += sharedEquipment * 4;
+  if (candidate.difficulty === current.difficulty) score += 2;
+  return score;
 }
 
 function validateRoutine(draft: RoutineDraft): string | null {
@@ -129,14 +165,31 @@ export function RoutineBuilder() {
   );
 
   const groupedExercises = useMemo(() => {
-    const groups = new Map<string, typeof exerciseLibrary.exercises>();
+    const groups = new Map<string, Exercise[]>();
     for (const exercise of exerciseLibrary.exercises) {
       const current = groups.get(exercise.primary_muscle_group) ?? [];
       current.push(exercise);
       groups.set(exercise.primary_muscle_group, current);
     }
-    return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
+    return [...groups.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([group, exercises]) => [
+        group,
+        [...exercises].sort((a, b) => a.name.localeCompare(b.name)),
+      ] as const);
   }, [exerciseLibrary.exercises]);
+
+  function compatibleSubstitutions(exerciseId: string): Exercise[] {
+    const selected = exerciseById.get(exerciseId);
+    if (!selected) return [];
+    return exerciseLibrary.exercises
+      .filter((candidate) => candidate.id !== selected.id)
+      .map((candidate) => ({ candidate, score: substitutionScore(selected, candidate) }))
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score || a.candidate.name.localeCompare(b.candidate.name))
+      .slice(0, 8)
+      .map(({ candidate }) => candidate);
+  }
 
   function resetBuilder() {
     setEditingId(null);
@@ -177,6 +230,26 @@ export function RoutineBuilder() {
       ...current,
       days: [...current.days, newDay(current.days.length + 1)],
     }));
+    setMessage('Workout day added. Save the routine when you are finished.');
+  }
+
+  function duplicateDay(dayId: string) {
+    setDraft((current) => {
+      const index = current.days.findIndex((day) => day.localId === dayId);
+      const sourceDay = current.days[index];
+      if (index < 0 || !sourceDay) return current;
+      const nextDays = [...current.days];
+      nextDays.splice(index + 1, 0, cloneDay(sourceDay));
+      return { ...current, days: nextDays };
+    });
+    setMessage('Day duplicated with the same exercise targets.');
+  }
+
+  function moveDay(dayId: string, direction: -1 | 1) {
+    setDraft((current) => {
+      const index = current.days.findIndex((day) => day.localId === dayId);
+      return { ...current, days: moveItem(current.days, index, index + direction) };
+    });
   }
 
   function removeDay(dayId: string) {
@@ -189,11 +262,37 @@ export function RoutineBuilder() {
   function addExercise(dayId: string) {
     setDraft((current) => ({
       ...current,
-      days: current.days.map((day) =>
-        day.localId === dayId
-          ? { ...day, exercises: [...day.exercises, newExercise()] }
-          : day,
-      ),
+      days: current.days.map((day) => {
+        if (day.localId !== dayId) return day;
+        const inheritedUnit = day.exercises.at(-1)?.weight_unit ?? 'lb';
+        return { ...day, exercises: [...day.exercises, newExercise(inheritedUnit)] };
+      }),
+    }));
+  }
+
+  function duplicateExercise(dayId: string, exerciseId: string) {
+    setDraft((current) => ({
+      ...current,
+      days: current.days.map((day) => {
+        if (day.localId !== dayId) return day;
+        const index = day.exercises.findIndex((exercise) => exercise.localId === exerciseId);
+        const sourceExercise = day.exercises[index];
+        if (index < 0 || !sourceExercise) return day;
+        const exercises = [...day.exercises];
+        exercises.splice(index + 1, 0, cloneExercise(sourceExercise));
+        return { ...day, exercises };
+      }),
+    }));
+  }
+
+  function moveExercise(dayId: string, exerciseId: string, direction: -1 | 1) {
+    setDraft((current) => ({
+      ...current,
+      days: current.days.map((day) => {
+        if (day.localId !== dayId) return day;
+        const index = day.exercises.findIndex((exercise) => exercise.localId === exerciseId);
+        return { ...day, exercises: moveItem(day.exercises, index, index + direction) };
+      }),
     }));
   }
 
@@ -253,6 +352,15 @@ export function RoutineBuilder() {
     document.getElementById('routine-editor-heading')?.scrollIntoView({ behavior: 'smooth' });
   }
 
+  function duplicateRoutine(routine: RoutineTree) {
+    const copied = routineToDraft(routine);
+    setEditingId(null);
+    setDraft({ ...copied, name: `${routine.name} Copy` });
+    setMessage('Routine copied into a new unsaved plan.');
+    setLocalError(null);
+    document.getElementById('routine-editor-heading')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
   async function deleteRoutine(routine: RoutineTree) {
     const confirmed = window.confirm(`Delete “${routine.name}” and all of its workout days?`);
     if (!confirmed) return;
@@ -274,12 +382,10 @@ export function RoutineBuilder() {
           <p className="eyebrow">Workout AI</p>
           <h2 id="routine-builder-heading">Routine builder</h2>
           <p>
-            Create training days, choose exercises and set the targets BioTrack will prefill in future workouts.
+            Build, reorder and adapt training days without losing the targets that power future workouts.
           </p>
         </div>
-        <button className="secondary-button" type="button" onClick={resetBuilder}>
-          New routine
-        </button>
+        <button className="secondary-button" type="button" onClick={resetBuilder}>New routine</button>
       </div>
 
       <div className="routine-layout">
@@ -356,20 +462,18 @@ export function RoutineBuilder() {
           <div className="routine-days">
             {draft.days.map((day, dayIndex) => (
               <article className="routine-day-card" key={day.localId}>
-                <div className="routine-day-heading">
+                <div className="routine-day-heading routine-day-heading--managed">
                   <span className="day-number">{dayIndex + 1}</span>
-                  <div>
+                  <div className="routine-day-title-copy">
                     <p>Training day</p>
                     <h3>{day.name.trim() || `Day ${dayIndex + 1}`}</h3>
                   </div>
-                  <button
-                    className="text-button text-button--danger"
-                    type="button"
-                    disabled={draft.days.length === 1}
-                    onClick={() => removeDay(day.localId)}
-                  >
-                    Remove day
-                  </button>
+                  <div className="day-command-bar" aria-label={`Controls for ${day.name}`}>
+                    <button type="button" disabled={dayIndex === 0} onClick={() => moveDay(day.localId, -1)} aria-label="Move day earlier">↑</button>
+                    <button type="button" disabled={dayIndex === draft.days.length - 1} onClick={() => moveDay(day.localId, 1)} aria-label="Move day later">↓</button>
+                    <button type="button" onClick={() => duplicateDay(day.localId)}>Duplicate</button>
+                    <button className="day-command-danger" type="button" disabled={draft.days.length === 1} onClick={() => removeDay(day.localId)}>Remove</button>
+                  </div>
                 </div>
 
                 <div className="day-fields">
@@ -394,94 +498,89 @@ export function RoutineBuilder() {
                 <div className="routine-exercise-list">
                   {day.exercises.map((exercise, exerciseIndex) => {
                     const selectedExercise = exerciseById.get(exercise.exercise_id);
+                    const recommended = compatibleSubstitutions(exercise.exercise_id);
+                    const recommendedIds = new Set(recommended.map((item) => item.id));
+                    const otherExercises = exerciseLibrary.exercises.filter(
+                      (item) => item.id !== exercise.exercise_id && !recommendedIds.has(item.id),
+                    );
+
                     return (
-                      <div className="routine-exercise-row" key={exercise.localId}>
+                      <div className="routine-exercise-row routine-exercise-row--managed" key={exercise.localId}>
                         <div className="exercise-row-number">{exerciseIndex + 1}</div>
                         <div className="exercise-row-main">
+                          <div className="exercise-row-toolbar" aria-label={`Controls for exercise ${exerciseIndex + 1}`}>
+                            <button type="button" disabled={exerciseIndex === 0} onClick={() => moveExercise(day.localId, exercise.localId, -1)} aria-label="Move exercise up">↑</button>
+                            <button type="button" disabled={exerciseIndex === day.exercises.length - 1} onClick={() => moveExercise(day.localId, exercise.localId, 1)} aria-label="Move exercise down">↓</button>
+                            <button type="button" onClick={() => duplicateExercise(day.localId, exercise.localId)}>Duplicate</button>
+                            <button className="exercise-row-remove" type="button" disabled={day.exercises.length === 1} onClick={() => removeExercise(day.localId, exercise.localId)}>Remove</button>
+                          </div>
+
                           <label className="field field--full">
                             <span>Exercise</span>
                             <select
                               value={exercise.exercise_id}
                               onChange={(event) =>
-                                updateExercise(day.localId, exercise.localId, {
-                                  exercise_id: event.target.value,
-                                })
+                                updateExercise(day.localId, exercise.localId, { exercise_id: event.target.value })
                               }
                             >
                               <option value="">Select an exercise</option>
                               {groupedExercises.map(([group, exercises]) => (
                                 <optgroup label={group} key={group}>
-                                  {exercises.map((item) => (
-                                    <option value={item.id} key={item.id}>{item.name}</option>
-                                  ))}
+                                  {exercises.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
                                 </optgroup>
                               ))}
                             </select>
                           </label>
+
                           {selectedExercise ? (
-                            <p className="selected-exercise-meta">
-                              {selectedExercise.primary_muscle_group} ·{' '}
-                              {selectedExercise.equipment.join(', ') || 'No equipment'}
-                            </p>
+                            <>
+                              <p className="selected-exercise-meta">
+                                {selectedExercise.primary_muscle_group} · {selectedExercise.equipment.join(', ') || 'No equipment'} · {selectedExercise.difficulty}
+                              </p>
+                              <div className="routine-substitution-panel">
+                                <label className="field field--full">
+                                  <span>Quick substitute</span>
+                                  <select
+                                    value=""
+                                    onChange={(event) => {
+                                      if (!event.target.value) return;
+                                      updateExercise(day.localId, exercise.localId, { exercise_id: event.target.value });
+                                    }}
+                                  >
+                                    <option value="">Choose a replacement</option>
+                                    {recommended.length > 0 ? (
+                                      <optgroup label="Recommended: similar muscle and equipment">
+                                        {recommended.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
+                                      </optgroup>
+                                    ) : null}
+                                    <optgroup label="All other exercises">
+                                      {otherExercises
+                                        .sort((a, b) => a.name.localeCompare(b.name))
+                                        .map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
+                                    </optgroup>
+                                  </select>
+                                </label>
+                                <p>Replacing the exercise keeps the programmed sets, reps, rest, tempo and target load.</p>
+                              </div>
+                            </>
                           ) : null}
 
                           <div className="exercise-target-grid">
                             <label className="field field--compact">
                               <span>Sets</span>
-                              <input
-                                type="number"
-                                min={1}
-                                max={20}
-                                value={exercise.target_sets}
-                                onChange={(event) =>
-                                  updateExercise(day.localId, exercise.localId, {
-                                    target_sets: Number(event.target.value),
-                                  })
-                                }
-                              />
+                              <input type="number" min={1} max={20} value={exercise.target_sets} onChange={(event) => updateExercise(day.localId, exercise.localId, { target_sets: Number(event.target.value) })} />
                             </label>
                             <label className="field field--compact">
                               <span>Reps min</span>
-                              <input
-                                type="number"
-                                min={1}
-                                max={1000}
-                                value={exercise.target_reps_min}
-                                onChange={(event) =>
-                                  updateExercise(day.localId, exercise.localId, {
-                                    target_reps_min: Number(event.target.value),
-                                  })
-                                }
-                              />
+                              <input type="number" min={1} max={1000} value={exercise.target_reps_min} onChange={(event) => updateExercise(day.localId, exercise.localId, { target_reps_min: Number(event.target.value) })} />
                             </label>
                             <label className="field field--compact">
                               <span>Reps max</span>
-                              <input
-                                type="number"
-                                min={1}
-                                max={1000}
-                                value={exercise.target_reps_max}
-                                onChange={(event) =>
-                                  updateExercise(day.localId, exercise.localId, {
-                                    target_reps_max: Number(event.target.value),
-                                  })
-                                }
-                              />
+                              <input type="number" min={1} max={1000} value={exercise.target_reps_max} onChange={(event) => updateExercise(day.localId, exercise.localId, { target_reps_max: Number(event.target.value) })} />
                             </label>
                             <label className="field field--compact">
                               <span>Rest sec.</span>
-                              <input
-                                type="number"
-                                min={0}
-                                max={3600}
-                                step={15}
-                                value={exercise.target_rest_seconds}
-                                onChange={(event) =>
-                                  updateExercise(day.localId, exercise.localId, {
-                                    target_rest_seconds: Number(event.target.value),
-                                  })
-                                }
-                              />
+                              <input type="number" min={0} max={3600} step={15} value={exercise.target_rest_seconds} onChange={(event) => updateExercise(day.localId, exercise.localId, { target_rest_seconds: Number(event.target.value) })} />
                             </label>
                             <label className="field field--compact">
                               <span>Target weight</span>
@@ -492,111 +591,56 @@ export function RoutineBuilder() {
                                 inputMode="decimal"
                                 value={exercise.target_weight ?? ''}
                                 placeholder="Optional"
-                                onChange={(event) =>
-                                  updateExercise(day.localId, exercise.localId, {
-                                    target_weight:
-                                      event.target.value.trim() === ''
-                                        ? null
-                                        : Number(event.target.value),
-                                  })
-                                }
+                                onChange={(event) => updateExercise(day.localId, exercise.localId, {
+                                  target_weight: event.target.value.trim() === '' ? null : Number(event.target.value),
+                                })}
                               />
                             </label>
                             <label className="field field--compact">
                               <span>Weight unit</span>
-                              <select
-                                value={exercise.weight_unit}
-                                onChange={(event) =>
-                                  updateExercise(day.localId, exercise.localId, {
-                                    weight_unit: event.target.value as WeightUnit,
-                                  })
-                                }
-                              >
+                              <select value={exercise.weight_unit} onChange={(event) => updateExercise(day.localId, exercise.localId, { weight_unit: event.target.value as WeightUnit })}>
                                 <option value="lb">lb</option>
                                 <option value="kg">kg</option>
                               </select>
                             </label>
                             <label className="field">
                               <span>Tempo</span>
-                              <input
-                                value={exercise.tempo}
-                                placeholder="Optional: 3-1-1"
-                                onChange={(event) =>
-                                  updateExercise(day.localId, exercise.localId, {
-                                    tempo: event.target.value,
-                                  })
-                                }
-                              />
+                              <input value={exercise.tempo} placeholder="Optional: 3-1-1" onChange={(event) => updateExercise(day.localId, exercise.localId, { tempo: event.target.value })} />
+                            </label>
+                            <label className="field field--full exercise-notes-field">
+                              <span>Exercise notes</span>
+                              <input value={exercise.notes} placeholder="Cues, limitations or setup notes" onChange={(event) => updateExercise(day.localId, exercise.localId, { notes: event.target.value })} />
                             </label>
                           </div>
-                          <p className="selected-exercise-meta">
-                            Target weight is optional. When set, BioTrack prefills it in every future set.
-                          </p>
                         </div>
-                        <button
-                          className="icon-button icon-button--danger"
-                          type="button"
-                          aria-label={`Remove exercise ${exerciseIndex + 1} from ${day.name}`}
-                          disabled={day.exercises.length === 1}
-                          onClick={() => removeExercise(day.localId, exercise.localId)}
-                        >
-                          ×
-                        </button>
                       </div>
                     );
                   })}
                 </div>
 
-                <button
-                  className="secondary-button secondary-button--wide"
-                  type="button"
-                  onClick={() => addExercise(day.localId)}
-                >
-                  + Add exercise
-                </button>
+                <button className="secondary-button secondary-button--wide" type="button" onClick={() => addExercise(day.localId)}>+ Add exercise</button>
               </article>
             ))}
           </div>
 
-          <button
-            className="secondary-button secondary-button--wide add-day-button"
-            type="button"
-            onClick={addDay}
-          >
-            + Add workout day
-          </button>
+          <button className="secondary-button secondary-button--wide add-day-button" type="button" onClick={addDay}>+ Add workout day</button>
         </div>
 
         <aside className="saved-routines" aria-labelledby="saved-routines-heading">
           <div className="saved-routines-heading">
-            <div>
-              <p className="eyebrow">Cloud routines</p>
-              <h3 id="saved-routines-heading">Saved plans</h3>
-            </div>
-            <button
-              className="text-button"
-              type="button"
-              disabled={routineState.status === 'loading'}
-              onClick={routineState.refresh}
-            >
-              Refresh
-            </button>
+            <div><p className="eyebrow">Cloud routines</p><h3 id="saved-routines-heading">Saved plans</h3></div>
+            <button className="text-button" type="button" disabled={routineState.status === 'loading'} onClick={routineState.refresh}>Refresh</button>
           </div>
 
           {routineState.status === 'loading' ? <p>Loading your routines…</p> : null}
           {routineState.status === 'error' ? (
             <div className="saved-routine-state" role="alert">
               <p>{routineState.error}</p>
-              <button className="secondary-button" type="button" onClick={routineState.refresh}>
-                Try again
-              </button>
+              <button className="secondary-button" type="button" onClick={routineState.refresh}>Try again</button>
             </div>
           ) : null}
           {routineState.status === 'empty' ? (
-            <div className="saved-routine-state">
-              <h4>No routines saved yet</h4>
-              <p>Your first routine will appear here after you save it.</p>
-            </div>
+            <div className="saved-routine-state"><h4>No routines saved yet</h4><p>Your first routine will appear here after you save it.</p></div>
           ) : null}
 
           {routineState.routines.map((routine) => {
@@ -606,33 +650,19 @@ export function RoutineBuilder() {
               0,
             );
             return (
-              <article
-                className={`saved-routine-card ${editingId === routine.id ? 'saved-routine-card--active' : ''}`}
-                key={routine.id}
-              >
+              <article className={`saved-routine-card ${editingId === routine.id ? 'saved-routine-card--active' : ''}`} key={routine.id}>
                 <div className="saved-routine-card-heading">
-                  <div>
-                    <span className="difficulty-chip">{routine.difficulty}</span>
-                    <h4>{routine.name}</h4>
-                  </div>
+                  <div><span className="difficulty-chip">{routine.difficulty}</span><h4>{routine.name}</h4></div>
                   {routine.source === 'ai' ? <span className="status-chip">AI</span> : null}
                 </div>
                 <p>{routine.goal || 'Custom workout routine'}</p>
                 <div className="routine-summary">
-                  <span>{routine.days.length} days</span>
-                  <span>{exerciseCount} exercises</span>
-                  <span>{presetLoadCount} preset loads</span>
+                  <span>{routine.days.length} days</span><span>{exerciseCount} exercises</span><span>{presetLoadCount} preset loads</span>
                 </div>
-                <div className="saved-routine-actions">
-                  <button className="secondary-button" type="button" onClick={() => editRoutine(routine)}>
-                    Edit
-                  </button>
-                  <button
-                    className="text-button text-button--danger"
-                    type="button"
-                    disabled={routineState.deletingId === routine.id}
-                    onClick={() => void deleteRoutine(routine)}
-                  >
+                <div className="saved-routine-actions saved-routine-actions--managed">
+                  <button className="secondary-button" type="button" onClick={() => editRoutine(routine)}>Edit</button>
+                  <button className="secondary-button" type="button" onClick={() => duplicateRoutine(routine)}>Copy</button>
+                  <button className="text-button text-button--danger" type="button" disabled={routineState.deletingId === routine.id} onClick={() => void deleteRoutine(routine)}>
                     {routineState.deletingId === routine.id ? 'Deleting…' : 'Delete'}
                   </button>
                 </div>
