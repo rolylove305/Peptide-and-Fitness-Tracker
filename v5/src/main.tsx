@@ -8,6 +8,8 @@ import './styles/workout.css';
 import './styles/exercise-library-pro.css';
 import './styles/workout-overview.css';
 import './styles/starter-plans.css';
+import './styles/personalized-plans.css';
+import './styles/workout-profile.css';
 import './styles/routine-builder.css';
 import './styles/routine-builder-controls.css';
 import './styles/active-workout.css';
