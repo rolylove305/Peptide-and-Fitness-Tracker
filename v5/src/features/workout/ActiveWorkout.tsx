@@ -5,11 +5,16 @@ import {
   PreviousPerformanceProvider,
   usePreviousPerformanceForExercise,
 } from './PreviousPerformance';
+import {
+  ExerciseNotesEditor,
+  SessionDetailsEditor,
+} from './ActiveWorkoutFlexControls';
 import { useActiveWorkout } from './hooks/useActiveWorkout';
 import { useRoutines } from './hooks/useRoutines';
 import type {
   ActiveWorkoutExercise,
   ActiveWorkoutSet,
+  WorkoutSessionDetailsInput,
   WorkoutSetInput,
 } from './repositories/activeWorkoutRepository';
 
@@ -102,25 +107,38 @@ type SetEditorProps = {
   workoutSet: ActiveWorkoutSet;
   targetRepsMin: number | null;
   targetRepsMax: number | null;
+  targetSets: number;
   saving: boolean;
   suggestion: SetSuggestion | null;
   nextSetId: string | null;
   onSave: (input: WorkoutSetInput, wasAlreadyCompleted: boolean) => Promise<boolean>;
+  onToggleWarmup: (isWarmup: boolean) => Promise<boolean>;
+  onSkip: () => Promise<boolean>;
+  onRestore: () => Promise<boolean>;
+  onReset: () => Promise<boolean>;
+  onDeleteExtra: () => Promise<boolean>;
 };
 
 function SetEditor({
   workoutSet,
   targetRepsMin,
   targetRepsMax,
+  targetSets,
   saving,
   suggestion,
   nextSetId,
   onSave,
+  onToggleWarmup,
+  onSkip,
+  onRestore,
+  onReset,
+  onDeleteExtra,
 }: SetEditorProps) {
   const [weight, setWeight] = useState(workoutSet.weight?.toString() ?? '');
   const [reps, setReps] = useState(workoutSet.reps?.toString() ?? '');
   const [rpe, setRpe] = useState(workoutSet.rpe?.toString() ?? '');
   const [error, setError] = useState<string | null>(null);
+  const isExtra = workoutSet.set_number > targetSets;
 
   useEffect(() => {
     setWeight(workoutSet.weight?.toString() ?? '');
@@ -129,10 +147,10 @@ function SetEditor({
   }, [workoutSet.rpe, workoutSet.reps, workoutSet.weight]);
 
   useEffect(() => {
-    if (workoutSet.is_completed || !suggestion) return;
+    if (workoutSet.is_completed || workoutSet.is_skipped || !suggestion) return;
     setWeight((current) => (current.trim() !== '' ? current : suggestion.weight?.toString() ?? ''));
     setReps((current) => (current.trim() !== '' ? current : suggestion.reps?.toString() ?? ''));
-  }, [suggestion, workoutSet.is_completed]);
+  }, [suggestion, workoutSet.is_completed, workoutSet.is_skipped]);
 
   const targetLabel =
     targetRepsMin && targetRepsMax
@@ -177,6 +195,7 @@ function SetEditor({
         weight: parsedWeight,
         reps: parsedReps,
         rpe: parsedRpe,
+        is_warmup: workoutSet.is_warmup,
         is_completed: true,
       },
       workoutSet.is_completed,
@@ -191,14 +210,56 @@ function SetEditor({
     }
   }
 
+  async function removeExtraSet() {
+    const confirmed = window.confirm(
+      workoutSet.is_completed
+        ? 'Remove this completed extra set from the current workout?'
+        : 'Remove this extra set from the current workout?',
+    );
+    if (!confirmed) return;
+    await onDeleteExtra();
+  }
+
+  const classNames = [
+    'live-set',
+    workoutSet.is_completed ? 'live-set--complete' : '',
+    workoutSet.is_warmup ? 'live-set--warmup' : '',
+    workoutSet.is_skipped ? 'live-set--skipped' : '',
+    isExtra ? 'live-set--extra' : '',
+  ].filter(Boolean).join(' ');
+
+  if (workoutSet.is_skipped) {
+    return (
+      <div className={classNames} id={`workout-set-${workoutSet.id}`}>
+        <div className="live-set-header-row">
+          <div className="live-set-number">
+            <span>{isExtra ? 'Extra' : 'Set'}</span>
+            <strong>{workoutSet.set_number}</strong>
+          </div>
+          <div className="live-set-status">
+            <span className="set-skipped-mark">Skipped for today</span>
+            <small>This set will not count toward training volume.</small>
+          </div>
+        </div>
+        <div className="live-set-compact-actions">
+          <button type="button" disabled={saving} onClick={() => void onRestore()}>
+            {saving ? 'Restoring…' : 'Restore set'}
+          </button>
+          {isExtra ? (
+            <button className="live-set-action--danger" type="button" disabled={saving} onClick={() => void removeExtraSet()}>
+              Remove extra set
+            </button>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={workoutSet.is_completed ? 'live-set live-set--complete' : 'live-set'}
-      id={`workout-set-${workoutSet.id}`}
-    >
+    <div className={classNames} id={`workout-set-${workoutSet.id}`}>
       <div className="live-set-header-row">
         <div className="live-set-number">
-          <span>Set</span>
+          <span>{isExtra ? 'Extra' : 'Set'}</span>
           <strong>{workoutSet.set_number}</strong>
         </div>
 
@@ -213,8 +274,20 @@ function SetEditor({
           ) : (
             <span className="set-ready-label">Ready to log</span>
           )}
+          {isExtra ? <small>Added during this workout</small> : null}
         </div>
       </div>
+
+      <button
+        className={workoutSet.is_warmup ? 'warmup-toggle warmup-toggle--active' : 'warmup-toggle'}
+        type="button"
+        aria-pressed={workoutSet.is_warmup}
+        disabled={saving}
+        onClick={() => void onToggleWarmup(!workoutSet.is_warmup)}
+      >
+        <span aria-hidden="true">{workoutSet.is_warmup ? '✓' : '○'}</span>
+        {workoutSet.is_warmup ? 'Warm-up set' : 'Mark as warm-up'}
+      </button>
 
       <div className="live-set-fields">
         <div className="live-set-field">
@@ -285,8 +358,31 @@ function SetEditor({
         disabled={saving}
         onClick={() => void handleSave()}
       >
-        {saving ? 'Saving…' : workoutSet.is_completed ? 'Update saved set' : 'Complete set'}
+        {saving
+          ? 'Saving…'
+          : workoutSet.is_completed
+            ? 'Update saved set'
+            : workoutSet.is_warmup
+              ? 'Complete warm-up set'
+              : 'Complete set'}
       </button>
+
+      <div className="live-set-secondary-actions">
+        {workoutSet.is_completed ? (
+          <button type="button" disabled={saving} onClick={() => void onReset()}>
+            Mark incomplete
+          </button>
+        ) : (
+          <button type="button" disabled={saving} onClick={() => void onSkip()}>
+            Skip set
+          </button>
+        )}
+        {isExtra ? (
+          <button className="live-set-action--danger" type="button" disabled={saving} onClick={() => void removeExtraSet()}>
+            Remove extra
+          </button>
+        ) : null}
+      </div>
 
       {error ? <p className="live-set-error">{error}</p> : null}
     </div>
@@ -296,6 +392,7 @@ function SetEditor({
 type ExerciseSetEditorsProps = {
   exercise: ActiveWorkoutExercise;
   savingSetId: string | null;
+  addingSet: boolean;
   onSave: (
     setId: string,
     exerciseName: string,
@@ -303,10 +400,28 @@ type ExerciseSetEditorsProps = {
     input: WorkoutSetInput,
     wasAlreadyCompleted: boolean,
   ) => Promise<boolean>;
+  onToggleWarmup: (setId: string, isWarmup: boolean) => Promise<boolean>;
+  onSkip: (setId: string) => Promise<boolean>;
+  onRestore: (setId: string) => Promise<boolean>;
+  onReset: (setId: string) => Promise<boolean>;
+  onDeleteExtra: (setId: string) => Promise<boolean>;
+  onAddSet: (nextSetNumber: number) => Promise<boolean>;
 };
 
-function ExerciseSetEditors({ exercise, savingSetId, onSave }: ExerciseSetEditorsProps) {
+function ExerciseSetEditors({
+  exercise,
+  savingSetId,
+  addingSet,
+  onSave,
+  onToggleWarmup,
+  onSkip,
+  onRestore,
+  onReset,
+  onDeleteExtra,
+  onAddSet,
+}: ExerciseSetEditorsProps) {
   const previous = usePreviousPerformanceForExercise(exercise.exercise_id);
+  const nextSetNumber = Math.max(0, ...exercise.sets.map((set) => set.set_number)) + 1;
 
   return (
     <div className="live-set-list">
@@ -350,7 +465,9 @@ function ExerciseSetEditors({ exercise, savingSetId, onSave }: ExerciseSetEditor
         }
 
         const nextSetId =
-          exercise.sets.slice(index + 1).find((set) => !set.is_completed)?.id ?? null;
+          exercise.sets
+            .slice(index + 1)
+            .find((set) => !set.is_completed && !set.is_skipped)?.id ?? null;
 
         return (
           <SetEditor
@@ -358,6 +475,7 @@ function ExerciseSetEditors({ exercise, savingSetId, onSave }: ExerciseSetEditor
             workoutSet={workoutSet}
             targetRepsMin={exercise.target_reps_min_snapshot}
             targetRepsMax={exercise.target_reps_max_snapshot}
+            targetSets={exercise.target_sets_snapshot}
             saving={savingSetId === workoutSet.id}
             suggestion={suggestion}
             nextSetId={nextSetId}
@@ -370,9 +488,24 @@ function ExerciseSetEditors({ exercise, savingSetId, onSave }: ExerciseSetEditor
                 wasAlreadyCompleted,
               )
             }
+            onToggleWarmup={(isWarmup) => onToggleWarmup(workoutSet.id, isWarmup)}
+            onSkip={() => onSkip(workoutSet.id)}
+            onRestore={() => onRestore(workoutSet.id)}
+            onReset={() => onReset(workoutSet.id)}
+            onDeleteExtra={() => onDeleteExtra(workoutSet.id)}
           />
         );
       })}
+
+      <button
+        className="add-extra-set-button"
+        type="button"
+        disabled={addingSet || nextSetNumber > 100}
+        onClick={() => void onAddSet(nextSetNumber)}
+      >
+        <span aria-hidden="true">＋</span>
+        {addingSet ? 'Adding set…' : 'Add extra set'}
+      </button>
     </div>
   );
 }
@@ -440,22 +573,27 @@ export function ActiveWorkout() {
   );
 
   const sessionProgress = useMemo(() => {
-    if (!active.session) return { completed: 0, total: 0, remaining: 0, percent: 0 };
+    if (!active.session) {
+      return { completed: 0, skipped: 0, total: 0, remaining: 0, percent: 0 };
+    }
     const allSets = active.session.exercises.flatMap((exercise) => exercise.sets);
     const completed = allSets.filter((set) => set.is_completed).length;
+    const skipped = allSets.filter((set) => set.is_skipped).length;
     const total = allSets.length;
+    const resolved = completed + skipped;
     return {
       completed,
+      skipped,
       total,
-      remaining: Math.max(0, total - completed),
-      percent: total > 0 ? Math.round((completed / total) * 100) : 0,
+      remaining: Math.max(0, total - resolved),
+      percent: total > 0 ? Math.round((resolved / total) * 100) : 0,
     };
   }, [active.session]);
 
   const nextIncompleteSet = useMemo(() => {
     if (!active.session) return null;
     for (const exercise of active.session.exercises) {
-      const nextSet = exercise.sets.find((set) => !set.is_completed);
+      const nextSet = exercise.sets.find((set) => !set.is_completed && !set.is_skipped);
       if (nextSet) {
         return {
           exerciseName: exercise.exercise_name_snapshot,
@@ -535,13 +673,54 @@ export function ActiveWorkout() {
     return true;
   }
 
+  async function runSetAction(
+    action: () => Promise<{ ok: true; data: null } | { ok: false; error: string }>,
+  ): Promise<boolean> {
+    setMessage(null);
+    setLocalError(null);
+    const result = await action();
+    if (!result.ok) {
+      setLocalError(result.error);
+      return false;
+    }
+    return true;
+  }
+
+  async function addSet(exercise: ActiveWorkoutExercise, nextSetNumber: number): Promise<boolean> {
+    return runSetAction(() =>
+      active.addSet(exercise.id, nextSetNumber, exercise.weight_unit_snapshot),
+    );
+  }
+
+  async function saveSessionDetails(input: WorkoutSessionDetailsInput): Promise<boolean> {
+    setMessage(null);
+    setLocalError(null);
+    const result = await active.saveDetails(input);
+    if (!result.ok) {
+      setLocalError(result.error);
+      return false;
+    }
+    return true;
+  }
+
+  async function saveExerciseNote(exerciseId: string, notes: string | null): Promise<boolean> {
+    setMessage(null);
+    setLocalError(null);
+    const result = await active.saveExerciseNotes(exerciseId, notes);
+    if (!result.ok) {
+      setLocalError(result.error);
+      return false;
+    }
+    return true;
+  }
+
   async function finishWorkout() {
     if (
       sessionProgress.remaining > 0 &&
       !window.confirm(
-        `Finish this workout with ${sessionProgress.remaining} incomplete ${
+        `Finish this workout with ${sessionProgress.remaining} unresolved ${
           sessionProgress.remaining === 1 ? 'set' : 'sets'
-        }?`,
+        }? Skipped sets are already resolved.`,
       )
     ) {
       return;
@@ -655,15 +834,16 @@ export function ActiveWorkout() {
         <div>
           <p className="eyebrow">Workout in progress</p>
           <h2 id="live-workout-heading">{active.session.name}</h2>
-          <p>Weights and reps are prefilled from your last set, last workout or routine target.</p>
+          <p>Adjust this session freely. Your saved routine remains unchanged.</p>
         </div>
-        <div className="live-workout-metrics">
+        <div className="live-workout-metrics live-workout-metrics--flexible">
           <div><span>Elapsed</span><strong>{formatClock(elapsedSeconds)}</strong></div>
-          <div><span>Completed</span><strong>{sessionProgress.completed}/{sessionProgress.total}</strong></div>
+          <div><span>Completed</span><strong>{sessionProgress.completed}</strong></div>
+          <div><span>Skipped</span><strong>{sessionProgress.skipped}</strong></div>
           <div><span>Remaining</span><strong>{sessionProgress.remaining}</strong></div>
         </div>
 
-        <div className="live-workout-progress" aria-label={`${sessionProgress.percent}% complete`}>
+        <div className="live-workout-progress" aria-label={`${sessionProgress.percent}% resolved`}>
           <span style={{ width: `${sessionProgress.percent}%` }} />
         </div>
 
@@ -674,11 +854,17 @@ export function ActiveWorkout() {
           </button>
         ) : (
           <div className="next-set-cue next-set-cue--complete">
-            <span>All programmed sets complete</span>
+            <span>All sets resolved</span>
             <strong>Ready to finish</strong>
           </div>
         )}
       </header>
+
+      <SessionDetailsEditor
+        session={active.session}
+        saving={active.savingSessionDetails}
+        onSave={saveSessionDetails}
+      />
 
       {localError || active.error ? (
         <p className="builder-message builder-message--error" role="alert">
@@ -698,12 +884,25 @@ export function ActiveWorkout() {
                 <span className="rest-target">Rest {formatClock(exercise.target_rest_seconds_snapshot)}</span>
               </div>
 
+              <ExerciseNotesEditor
+                exercise={exercise}
+                saving={active.savingExerciseId === exercise.id}
+                onSave={(notes) => saveExerciseNote(exercise.id, notes)}
+              />
+
               <PreviousPerformance exerciseId={exercise.exercise_id} />
 
               <ExerciseSetEditors
                 exercise={exercise}
                 savingSetId={active.savingSetId}
+                addingSet={active.addingSetExerciseId === exercise.id}
                 onSave={saveSet}
+                onToggleWarmup={(setId, isWarmup) => runSetAction(() => active.toggleWarmup(setId, isWarmup))}
+                onSkip={(setId) => runSetAction(() => active.skipSet(setId))}
+                onRestore={(setId) => runSetAction(() => active.restoreSet(setId))}
+                onReset={(setId) => runSetAction(() => active.resetSet(setId))}
+                onDeleteExtra={(setId) => runSetAction(() => active.removeSet(setId))}
+                onAddSet={(nextSetNumber) => addSet(exercise, nextSetNumber)}
               />
             </article>
           ))}

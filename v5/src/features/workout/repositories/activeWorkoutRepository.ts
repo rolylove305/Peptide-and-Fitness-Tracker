@@ -1,8 +1,14 @@
 import { supabase } from '../../../lib/supabase/client';
+import type { Database } from '../../../types/database';
 
 export type RepositoryResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string };
+
+type WorkoutSetUpdate = Database['public']['Tables']['workout_sets']['Update'];
+type WorkoutSetInsert = Database['public']['Tables']['workout_sets']['Insert'];
+type WorkoutSetUpdateWithSkip = WorkoutSetUpdate & { is_skipped?: boolean };
+type WorkoutSetInsertWithSkip = WorkoutSetInsert & { is_skipped?: boolean };
 
 export type ActiveWorkoutSet = {
   id: string;
@@ -14,6 +20,7 @@ export type ActiveWorkoutSet = {
   rpe: number | null;
   is_warmup: boolean;
   is_completed: boolean;
+  is_skipped: boolean;
   rest_seconds_actual: number | null;
   completed_at: string | null;
   created_at: string;
@@ -56,7 +63,7 @@ export type ActiveWorkoutSession = {
 type SessionQueryRow = Omit<ActiveWorkoutSession, 'exercises'> & {
   workout_session_exercises: Array<
     Omit<ActiveWorkoutExercise, 'sets'> & {
-      workout_sets: ActiveWorkoutSet[];
+      workout_sets: Array<Omit<ActiveWorkoutSet, 'is_skipped'> & { is_skipped?: boolean }>;
     }
   >;
 };
@@ -65,7 +72,14 @@ export type WorkoutSetInput = {
   weight: number | null;
   reps: number;
   rpe: number | null;
+  is_warmup: boolean;
   is_completed: boolean;
+};
+
+export type WorkoutSessionDetailsInput = {
+  bodyWeight: number | null;
+  weightUnit: 'lb' | 'kg';
+  notes: string | null;
 };
 
 function messageFrom(error: unknown, fallback: string): string {
@@ -75,6 +89,14 @@ function messageFrom(error: unknown, fallback: string): string {
     if (message) return message;
   }
   return fallback;
+}
+
+function asWorkoutSetUpdate(value: WorkoutSetUpdateWithSkip): WorkoutSetUpdate {
+  return value as unknown as WorkoutSetUpdate;
+}
+
+function asWorkoutSetInsert(value: WorkoutSetInsertWithSkip): WorkoutSetInsert {
+  return value as unknown as WorkoutSetInsert;
 }
 
 export async function loadActiveWorkout(
@@ -108,7 +130,9 @@ export async function loadActiveWorkout(
           .sort((a, b) => a.exercise_order - b.exercise_order)
           .map((exercise) => ({
             ...exercise,
-            sets: [...exercise.workout_sets].sort((a, b) => a.set_number - b.set_number),
+            sets: [...exercise.workout_sets]
+              .sort((a, b) => a.set_number - b.set_number)
+              .map((set) => ({ ...set, is_skipped: set.is_skipped ?? false })),
           })),
       },
     };
@@ -139,21 +163,175 @@ export async function saveWorkoutSet(
   if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
 
   try {
+    const update: WorkoutSetUpdateWithSkip = {
+      weight: input.weight,
+      reps: input.reps,
+      rpe: input.rpe,
+      is_warmup: input.is_warmup,
+      is_completed: input.is_completed,
+      is_skipped: false,
+      completed_at: input.is_completed ? new Date().toISOString() : null,
+    };
     const { error } = await supabase
       .from('workout_sets')
-      .update({
-        weight: input.weight,
-        reps: input.reps,
-        rpe: input.rpe,
-        is_completed: input.is_completed,
-        completed_at: input.is_completed ? new Date().toISOString() : null,
-      })
+      .update(asWorkoutSetUpdate(update))
       .eq('id', setId);
 
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
     return { ok: false, error: messageFrom(error, 'BioTrack could not save this set.') };
+  }
+}
+
+export async function setWorkoutSetWarmup(
+  setId: string,
+  isWarmup: boolean,
+): Promise<RepositoryResult<null>> {
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+
+  try {
+    const update: WorkoutSetUpdate = { is_warmup: isWarmup };
+    const { error } = await supabase.from('workout_sets').update(update).eq('id', setId);
+    if (error) throw error;
+    return { ok: true, data: null };
+  } catch (error) {
+    return { ok: false, error: messageFrom(error, 'BioTrack could not update the set type.') };
+  }
+}
+
+export async function skipWorkoutSet(setId: string): Promise<RepositoryResult<null>> {
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+
+  try {
+    const update: WorkoutSetUpdateWithSkip = {
+      is_skipped: true,
+      is_completed: false,
+      completed_at: null,
+    };
+    const { error } = await supabase
+      .from('workout_sets')
+      .update(asWorkoutSetUpdate(update))
+      .eq('id', setId);
+    if (error) throw error;
+    return { ok: true, data: null };
+  } catch (error) {
+    return { ok: false, error: messageFrom(error, 'BioTrack could not skip this set.') };
+  }
+}
+
+export async function restoreWorkoutSet(setId: string): Promise<RepositoryResult<null>> {
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+
+  try {
+    const update: WorkoutSetUpdateWithSkip = { is_skipped: false };
+    const { error } = await supabase
+      .from('workout_sets')
+      .update(asWorkoutSetUpdate(update))
+      .eq('id', setId);
+    if (error) throw error;
+    return { ok: true, data: null };
+  } catch (error) {
+    return { ok: false, error: messageFrom(error, 'BioTrack could not restore this set.') };
+  }
+}
+
+export async function resetWorkoutSet(setId: string): Promise<RepositoryResult<null>> {
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+
+  try {
+    const update: WorkoutSetUpdateWithSkip = {
+      is_completed: false,
+      is_skipped: false,
+      completed_at: null,
+    };
+    const { error } = await supabase
+      .from('workout_sets')
+      .update(asWorkoutSetUpdate(update))
+      .eq('id', setId);
+    if (error) throw error;
+    return { ok: true, data: null };
+  } catch (error) {
+    return { ok: false, error: messageFrom(error, 'BioTrack could not reopen this set.') };
+  }
+}
+
+export async function addWorkoutSet(
+  sessionExerciseId: string,
+  setNumber: number,
+  weightUnit: 'lb' | 'kg',
+): Promise<RepositoryResult<null>> {
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+
+  try {
+    const insert: WorkoutSetInsertWithSkip = {
+      session_exercise_id: sessionExerciseId,
+      set_number: setNumber,
+      weight_unit: weightUnit,
+      is_warmup: false,
+      is_completed: false,
+      is_skipped: false,
+    };
+    const { error } = await supabase
+      .from('workout_sets')
+      .insert(asWorkoutSetInsert(insert));
+    if (error) throw error;
+    return { ok: true, data: null };
+  } catch (error) {
+    return { ok: false, error: messageFrom(error, 'BioTrack could not add another set.') };
+  }
+}
+
+export async function deleteWorkoutSet(setId: string): Promise<RepositoryResult<null>> {
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+
+  try {
+    const { error } = await supabase.from('workout_sets').delete().eq('id', setId);
+    if (error) throw error;
+    return { ok: true, data: null };
+  } catch (error) {
+    return { ok: false, error: messageFrom(error, 'BioTrack could not remove this extra set.') };
+  }
+}
+
+export async function saveWorkoutSessionDetails(
+  sessionId: string,
+  input: WorkoutSessionDetailsInput,
+): Promise<RepositoryResult<null>> {
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+
+  try {
+    const { error } = await supabase
+      .from('workout_sessions')
+      .update({
+        body_weight: input.bodyWeight,
+        weight_unit: input.weightUnit,
+        notes: input.notes,
+      })
+      .eq('id', sessionId)
+      .eq('status', 'in_progress');
+    if (error) throw error;
+    return { ok: true, data: null };
+  } catch (error) {
+    return { ok: false, error: messageFrom(error, 'BioTrack could not save the workout details.') };
+  }
+}
+
+export async function saveWorkoutExerciseNotes(
+  sessionExerciseId: string,
+  notes: string | null,
+): Promise<RepositoryResult<null>> {
+  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+
+  try {
+    const { error } = await supabase
+      .from('workout_session_exercises')
+      .update({ notes })
+      .eq('id', sessionExerciseId);
+    if (error) throw error;
+    return { ok: true, data: null };
+  } catch (error) {
+    return { ok: false, error: messageFrom(error, 'BioTrack could not save the exercise note.') };
   }
 }
 
