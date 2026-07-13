@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ActiveWorkout } from './ActiveWorkout';
 import { ExerciseLibrary } from './ExerciseLibrary';
+import { ExerciseMediaProvider } from './ExerciseMediaProvider';
 import {
   ActiveWorkoutTechniqueDock,
   ExerciseVisualGallery,
@@ -100,7 +101,9 @@ function WorkoutWorkspaceContent() {
 export function WorkoutWorkspace() {
   return (
     <WorkoutProfileProvider>
-      <WorkoutWorkspaceContent />
+      <ExerciseMediaProvider>
+        <WorkoutWorkspaceContent />
+      </ExerciseMediaProvider>
     </WorkoutProfileProvider>
   );
 }
