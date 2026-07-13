@@ -7,6 +7,7 @@ import './styles/auth-recovery.css';
 import './styles/workout.css';
 import './styles/exercise-library-pro.css';
 import './styles/workout-overview.css';
+import './styles/today-command-center.css';
 import './styles/starter-plans.css';
 import './styles/personalized-plans.css';
 import './styles/workout-profile.css';
