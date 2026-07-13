@@ -3,11 +3,13 @@ import { ActiveWorkout } from './ActiveWorkout';
 import { ExerciseLibrary } from './ExerciseLibrary';
 import { ProgressionDashboard } from './ProgressionDashboard';
 import { RoutineBuilder } from './RoutineBuilder';
+import { StarterPlans } from './StarterPlans';
 import { WorkoutHistory } from './WorkoutHistory';
 import { WorkoutOverview } from './WorkoutOverview';
 
 export type WorkoutWorkspaceView =
   | 'overview'
+  | 'plans'
   | 'train'
   | 'history'
   | 'progression'
@@ -16,6 +18,7 @@ export type WorkoutWorkspaceView =
 
 const tabs: Array<{ view: WorkoutWorkspaceView; label: string }> = [
   { view: 'overview', label: 'Today' },
+  { view: 'plans', label: 'Plans' },
   { view: 'train', label: 'Train' },
   { view: 'history', label: 'History' },
   { view: 'progression', label: 'Progress' },
@@ -44,6 +47,7 @@ export function WorkoutWorkspace() {
       </div>
 
       {view === 'overview' ? <WorkoutOverview onNavigate={setView} /> : null}
+      {view === 'plans' ? <StarterPlans onNavigate={setView} /> : null}
       {view === 'train' ? <ActiveWorkout /> : null}
       {view === 'history' ? <WorkoutHistory /> : null}
       {view === 'progression' ? <ProgressionDashboard /> : null}
