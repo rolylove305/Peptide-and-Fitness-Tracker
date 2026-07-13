@@ -1,13 +1,11 @@
 import { useMemo, useState } from 'react';
 import type { Exercise } from '../../types/database';
 import { useAuth } from '../auth/AuthProvider';
+import { ExerciseTechniqueMedia, ExerciseTechniqueSheet } from './ExerciseTechniqueMedia';
+import { useExerciseMediaLibrary } from './ExerciseMediaProvider';
+import { getTechniqueSummary, hasRenderableExerciseMedia } from './exerciseMedia';
 import { useActiveWorkout } from './hooks/useActiveWorkout';
 import { useExerciseLibrary } from './hooks/useExerciseLibrary';
-import {
-  ExerciseTechniqueMedia,
-  ExerciseTechniqueSheet,
-  getBuiltInExerciseDemo,
-} from './ExerciseTechniqueMedia';
 
 const starterExerciseOrder = [
   'goblet-squat',
@@ -42,22 +40,25 @@ function demoOrder(exercise: Exercise): number {
 
 export function ExerciseVisualGallery() {
   const library = useExerciseLibrary();
+  const media = useExerciseMediaLibrary();
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [showAll, setShowAll] = useState(false);
 
   const visualExercises = useMemo(
     () =>
       library.exercises
-        .filter((exercise) => Boolean(getBuiltInExerciseDemo(exercise.slug)))
-        .sort((a, b) => demoOrder(a) - demoOrder(b) || a.name.localeCompare(b.name)),
-    [library.exercises],
+        .filter((exercise) =>
+          Boolean(exercise.media_url) || hasRenderableExerciseMedia(media.bundlesByExerciseId.get(exercise.id)),
+        )
+        .sort((left, right) => demoOrder(left) - demoOrder(right) || left.name.localeCompare(right.name)),
+    [library.exercises, media.bundlesByExerciseId],
   );
 
-  if (library.status === 'loading') {
+  if (library.status === 'loading' || media.status === 'loading') {
     return (
       <section className="visual-demo-gallery visual-demo-gallery--loading" aria-live="polite" aria-busy="true">
         <div className="visual-demo-gallery-heading">
-          <div><p className="eyebrow">Technique demos</p><h2>Loading movement visuals…</h2></div>
+          <div><p className="eyebrow">Technique media</p><h2>Loading professional movement demos…</h2></div>
         </div>
         <div className="visual-demo-skeleton-row">
           {Array.from({ length: 3 }, (_, index) => <span key={index} />)}
@@ -75,18 +76,20 @@ export function ExerciseVisualGallery() {
       <section className="visual-demo-gallery" aria-labelledby="visual-demo-gallery-heading">
         <div className="visual-demo-gallery-heading">
           <div>
-            <p className="eyebrow">Technique demos</p>
+            <p className="eyebrow">Technique media</p>
             <h2 id="visual-demo-gallery-heading">See the movement before you train</h2>
             <p>
-              Lightweight BioTrack illustrations show the start and finish positions without relying on random external videos.
+              BioTrack uses rights-cleared professional images, movement loops and short videos stored in its own media catalog.
             </p>
           </div>
-          <span>{visualExercises.length} illustrated exercises</span>
+          <span>{visualExercises.length} professional demos</span>
         </div>
 
         <div className="visual-demo-grid">
           {displayed.map((exercise) => {
-            const demo = getBuiltInExerciseDemo(exercise.slug);
+            const bundle = media.getBundle(exercise.id);
+            const summary = getTechniqueSummary(bundle) ?? exercise.instructions[0] ?? 'Open the complete technique guide.';
+
             return (
               <article className="visual-demo-card" key={exercise.id}>
                 <button type="button" onClick={() => setSelectedExercise(exercise)} aria-label={`Open ${exercise.name} technique demo`}>
@@ -95,7 +98,7 @@ export function ExerciseVisualGallery() {
                 <div>
                   <span>{exercise.primary_muscle_group}</span>
                   <h3>{exercise.name}</h3>
-                  <p>{demo?.direction}</p>
+                  <p>{summary}</p>
                   <button className="exercise-guide-button" type="button" onClick={() => setSelectedExercise(exercise)}>
                     View technique
                     <span aria-hidden="true">→</span>
@@ -124,8 +127,9 @@ export function ActiveWorkoutTechniqueDock() {
   const { user } = useAuth();
   const active = useActiveWorkout(user?.id);
   const library = useExerciseLibrary();
+  const media = useExerciseMediaLibrary();
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-  const [selectedId, setSelectedId] = useState<string>('');
+  const [selectedId, setSelectedId] = useState('');
 
   const exerciseById = useMemo(
     () => new Map(library.exercises.map((exercise) => [exercise.id, exercise])),
@@ -134,25 +138,36 @@ export function ActiveWorkoutTechniqueDock() {
 
   const available = useMemo(() => {
     if (!active.session) return [];
+
     return active.session.exercises
       .map((sessionExercise) => ({
         sessionExercise,
         exercise: exerciseById.get(sessionExercise.exercise_id) ?? null,
       }))
       .filter(
-        (item): item is { sessionExercise: typeof item.sessionExercise; exercise: Exercise } =>
-          Boolean(item.exercise && getBuiltInExerciseDemo(item.exercise.slug)),
+        (item): item is { sessionExercise: typeof item.sessionExercise; exercise: Exercise } => {
+          if (!item.exercise) return false;
+          const bundle = media.bundlesByExerciseId.get(item.exercise.id);
+          return Boolean(bundle?.guide || hasRenderableExerciseMedia(bundle) || item.exercise.media_url);
+        },
       );
-  }, [active.session, exerciseById]);
+  }, [active.session, exerciseById, media.bundlesByExerciseId]);
 
   if (!active.session || available.length === 0) return null;
 
   const nextIncomplete = active.session.exercises.find((exercise) =>
-    exercise.sets.some((set) => !set.is_completed),
+    exercise.sets.some((set) => !set.is_completed && !set.is_skipped),
   );
   const preferredId = selectedId || nextIncomplete?.exercise_id || available[0]?.exercise.id || '';
   const current = available.find((item) => item.exercise.id === preferredId) ?? available[0];
   if (!current) return null;
+
+  const bundle = media.getBundle(current.exercise.id);
+  const coachingCue =
+    bundle?.guide?.coaching_cues[0] ??
+    bundle?.guide?.execution_steps[0] ??
+    current.exercise.instructions[0] ??
+    'Move through a controlled, comfortable range of motion.';
 
   return (
     <>
@@ -160,7 +175,7 @@ export function ActiveWorkoutTechniqueDock() {
         <div className="active-technique-dock-copy">
           <span className="overview-kicker">Form check</span>
           <h3 id="active-technique-dock-heading">{current.exercise.name}</h3>
-          <p>{getBuiltInExerciseDemo(current.exercise.slug)?.cue}</p>
+          <p>{coachingCue}</p>
         </div>
         <div className="active-technique-dock-preview">
           <ExerciseTechniqueMedia exercise={current.exercise} />
@@ -168,7 +183,7 @@ export function ActiveWorkoutTechniqueDock() {
         <div className="active-technique-dock-actions">
           {available.length > 1 ? (
             <label>
-              <span>Exercise demo</span>
+              <span>Exercise guide</span>
               <select value={current.exercise.id} onChange={(event) => setSelectedId(event.target.value)}>
                 {available.map((item) => (
                   <option key={item.exercise.id} value={item.exercise.id}>{item.exercise.name}</option>
