@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { emitWorkoutRoutineSaved } from '../routineEvents';
 import {
   deleteRoutineTree,
   loadRoutineTrees,
@@ -52,6 +53,7 @@ export function useRoutines(userId: string | undefined) {
           return result;
         }
         await refresh();
+        emitWorkoutRoutineSaved(result.data);
         return result;
       } finally {
         setSaving(false);

@@ -1,5 +1,9 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useAuth } from '../auth/AuthProvider';
 import { StarterPlans } from './StarterPlans';
+import { useActiveWorkout } from './hooks/useActiveWorkout';
+import { useRoutines } from './hooks/useRoutines';
+import { subscribeWorkoutRoutineSaved } from './routineEvents';
 import type { WorkoutWorkspaceView } from './WorkoutWorkspace';
 import { useWorkoutProfile } from './WorkoutProfileProvider';
 import { labelForGoal, type TrainingGoal, type WorkoutProfile } from './workoutProfile';
@@ -71,7 +75,13 @@ function recommendationReason(plan: PlanDescriptor, profile: WorkoutProfile): st
 }
 
 export function PersonalizedPlans({ onNavigate }: PersonalizedPlansProps) {
+  const { user } = useAuth();
   const { profile } = useWorkoutProfile();
+  const routineState = useRoutines(user?.id);
+  const active = useActiveWorkout(user?.id);
+  const [recentRoutineId, setRecentRoutineId] = useState<string | null>(null);
+  const [activationError, setActivationError] = useState<string | null>(null);
+  const activationRef = useRef<HTMLElement | null>(null);
 
   const recommendation = useMemo(() => {
     if (!profile) return null;
@@ -80,9 +90,60 @@ export function PersonalizedPlans({ onNavigate }: PersonalizedPlansProps) {
       .sort((left, right) => right.score - left.score)[0]?.plan ?? null;
   }, [profile]);
 
+  useEffect(
+    () =>
+      subscribeWorkoutRoutineSaved(({ routineId }) => {
+        setRecentRoutineId(routineId);
+        setActivationError(null);
+        void routineState.refresh().then(() => {
+          window.setTimeout(() => {
+            activationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 120);
+        });
+      }),
+    [routineState.refresh],
+  );
+
+  const launchRoutine = useMemo(() => {
+    if (recentRoutineId) {
+      const recent = routineState.routines.find((routine) => routine.id === recentRoutineId);
+      if (recent) return recent;
+    }
+    return routineState.routines[0] ?? null;
+  }, [recentRoutineId, routineState.routines]);
+
+  const launchDay = useMemo(
+    () => launchRoutine?.days.find((day) => day.exercises.length > 0) ?? null,
+    [launchRoutine],
+  );
+
+  async function startNextWorkout() {
+    setActivationError(null);
+
+    if (active.session) {
+      onNavigate('train');
+      return;
+    }
+
+    if (!launchDay) {
+      onNavigate('builder');
+      return;
+    }
+
+    const result = await active.start(launchDay.id);
+    if (!result.ok) {
+      setActivationError(result.error);
+      return;
+    }
+
+    onNavigate('train');
+  }
+
   const wrapperClass = recommendation
     ? `personalized-plans personalized-plans--${recommendation.id}`
     : 'personalized-plans personalized-plans--incomplete';
+  const showActivation = Boolean(active.session || launchRoutine);
+  const activationBusy = active.startingDayId !== null;
 
   return (
     <div className={wrapperClass}>
@@ -99,6 +160,55 @@ export function PersonalizedPlans({ onNavigate }: PersonalizedPlansProps) {
           {profile ? 'Review profile' : 'Set up profile'}
         </button>
       </aside>
+
+      {showActivation ? (
+        <section
+          className={recentRoutineId ? 'plan-activation-card plan-activation-card--new' : 'plan-activation-card'}
+          aria-labelledby="plan-activation-heading"
+          aria-live="polite"
+          ref={activationRef}
+        >
+          <div className="plan-activation-copy">
+            <span>{active.session ? 'Workout in progress' : recentRoutineId ? 'Plan activated' : 'Ready to train'}</span>
+            <h2 id="plan-activation-heading">
+              {active.session?.name ?? launchRoutine?.name ?? 'Your training plan'}
+            </h2>
+            <p>
+              {active.session
+                ? 'Your current session is saved and ready to resume.'
+                : launchDay
+                  ? `${launchDay.name} is ready with ${launchDay.exercises.length} programmed exercises.`
+                  : 'Add at least one exercise day before starting this routine.'}
+            </p>
+            {activationError || active.error || routineState.error ? (
+              <small role="alert">{activationError ?? active.error ?? routineState.error}</small>
+            ) : null}
+          </div>
+          <div className="plan-activation-actions">
+            <button
+              className="primary-button"
+              type="button"
+              disabled={activationBusy}
+              onClick={() => void startNextWorkout()}
+            >
+              {active.session
+                ? 'Resume workout'
+                : activationBusy
+                  ? 'Starting…'
+                  : launchDay
+                    ? `Start ${launchDay.name}`
+                    : 'Edit routine'}
+            </button>
+            <button className="secondary-button" type="button" onClick={() => onNavigate('planner')}>
+              Plan my week
+            </button>
+            <button className="text-button" type="button" onClick={() => onNavigate('builder')}>
+              Edit routine
+            </button>
+          </div>
+        </section>
+      ) : null}
+
       <StarterPlans onNavigate={onNavigate} />
     </div>
   );
