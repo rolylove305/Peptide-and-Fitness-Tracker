@@ -17,6 +17,7 @@ import './styles/routine-builder.css';
 import './styles/routine-builder-controls.css';
 import './styles/active-workout.css';
 import './styles/fast-workout.css';
+import './styles/flexible-live-workout.css';
 import './styles/workout-completion.css';
 import './styles/workout-history.css';
 import './styles/workout-insights.css';
