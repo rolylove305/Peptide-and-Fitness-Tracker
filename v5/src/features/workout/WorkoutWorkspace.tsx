@@ -4,6 +4,7 @@ import { ExerciseLibrary } from './ExerciseLibrary';
 import { ProgressionDashboard } from './ProgressionDashboard';
 import { RoutineBuilder } from './RoutineBuilder';
 import { StarterPlans } from './StarterPlans';
+import { WorkoutCompletionExperience } from './WorkoutCompletionExperience';
 import { WorkoutHistory } from './WorkoutHistory';
 import { WorkoutOverview } from './WorkoutOverview';
 
@@ -53,6 +54,8 @@ export function WorkoutWorkspace() {
       {view === 'progression' ? <ProgressionDashboard /> : null}
       {view === 'builder' ? <RoutineBuilder /> : null}
       {view === 'library' ? <ExerciseLibrary /> : null}
+
+      <WorkoutCompletionExperience onNavigate={setView} />
     </div>
   );
 }

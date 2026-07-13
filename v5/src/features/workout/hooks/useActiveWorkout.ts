@@ -8,6 +8,11 @@ import {
   type ActiveWorkoutSession,
   type WorkoutSetInput,
 } from '../repositories/activeWorkoutRepository';
+import {
+  loadExerciseRecords,
+  loadWorkoutHistory,
+} from '../repositories/workoutHistoryRepository';
+import { emitWorkoutCompleted } from '../workoutCompletionEvent';
 
 type ActiveWorkoutStatus = 'loading' | 'idle' | 'active' | 'error';
 
@@ -83,20 +88,42 @@ export function useActiveWorkout(userId: string | undefined) {
 
   const finish = useCallback(async () => {
     if (!session) return { ok: false as const, error: 'No active workout was found.' };
+
+    const sessionSnapshot = session;
+    const historyPromise = userId
+      ? loadWorkoutHistory(userId)
+      : Promise.resolve({ ok: true as const, data: [] });
+    const recordsPromise = userId
+      ? loadExerciseRecords(userId)
+      : Promise.resolve({ ok: true as const, data: [] });
+
     setFinishing(true);
     setError(null);
     try {
-      const result = await completeWorkout(session.id);
+      const result = await completeWorkout(sessionSnapshot.id);
       if (!result.ok) {
         setError(result.error);
         return result;
       }
+
+      const [historyResult, recordsResult] = await Promise.all([
+        historyPromise,
+        recordsPromise,
+      ]);
+
+      emitWorkoutCompleted({
+        session: sessionSnapshot,
+        completedAt: new Date().toISOString(),
+        previousHistory: historyResult.ok ? historyResult.data : [],
+        previousRecords: recordsResult.ok ? recordsResult.data : [],
+      });
+
       await reload(false);
       return result;
     } finally {
       setFinishing(false);
     }
-  }, [reload, session]);
+  }, [reload, session, userId]);
 
   const cancel = useCallback(async () => {
     if (!session) return { ok: false as const, error: 'No active workout was found.' };
