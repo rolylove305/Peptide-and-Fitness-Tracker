@@ -13,13 +13,18 @@ type ExerciseTechniqueMediaProps = {
   expanded?: boolean;
 };
 
+type ResolvedExerciseTechniqueMediaProps = {
+  exercise: Exercise;
+  expanded: boolean;
+};
+
 type AssetSurfaceProps = {
   asset: ExerciseMediaAsset;
   expanded: boolean;
   phaseLabel?: string;
 };
 
-function ExerciseMediaPlaceholder({ exercise, expanded }: ExerciseTechniqueMediaProps) {
+function ExerciseMediaPlaceholder({ exercise, expanded }: ResolvedExerciseTechniqueMediaProps) {
   return (
     <div
       className={expanded
@@ -83,7 +88,7 @@ function AssetSurface({ asset, expanded, phaseLabel }: AssetSurfaceProps) {
   );
 }
 
-function LegacyExerciseMedia({ exercise, expanded }: ExerciseTechniqueMediaProps) {
+function LegacyExerciseMedia({ exercise, expanded }: ResolvedExerciseTechniqueMediaProps) {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -292,8 +297,8 @@ export function ExerciseTechniqueSheet({ exercise, onClose }: { exercise: Exerci
 
           {guide?.breathing || guide?.tempo_guidance || muscleHighlights.length > 0 ? (
             <aside className="exercise-technique-details">
-              {guide.breathing ? <div><strong>Breathing</strong><p>{guide.breathing}</p></div> : null}
-              {guide.tempo_guidance ? <div><strong>Tempo</strong><p>{guide.tempo_guidance}</p></div> : null}
+              {guide?.breathing ? <div><strong>Breathing</strong><p>{guide.breathing}</p></div> : null}
+              {guide?.tempo_guidance ? <div><strong>Tempo</strong><p>{guide.tempo_guidance}</p></div> : null}
               {muscleHighlights.length > 0 ? (
                 <div>
                   <strong>Muscles highlighted</strong>
