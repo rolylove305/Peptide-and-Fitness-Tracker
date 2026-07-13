@@ -1,0 +1,389 @@
+.workout-profile-page,
+.workout-profile-dialog {
+  color: #e6f6ff;
+}
+
+.workout-profile-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.workout-profile-page-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.1rem;
+  border: 1px solid rgba(105, 211, 255, 0.16);
+  border-radius: 1.15rem;
+  background: linear-gradient(145deg, rgba(14, 38, 60, 0.9), rgba(6, 19, 33, 0.92));
+}
+
+.workout-profile-page-header h2,
+.profile-onboarding-header h2,
+.profile-form-heading h3 {
+  margin: 0.18rem 0 0.45rem;
+}
+
+.workout-profile-page-header p:last-child,
+.profile-onboarding-header p:last-child,
+.profile-form-heading p:last-child {
+  margin: 0;
+  color: #91a9bb;
+  line-height: 1.55;
+}
+
+.profile-summary-badge {
+  display: grid;
+  min-width: 13rem;
+  gap: 0.25rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(72, 214, 165, 0.2);
+  border-radius: 0.9rem;
+  background: rgba(72, 214, 165, 0.08);
+}
+
+.profile-summary-badge span {
+  color: #a8f1d5;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.profile-summary-badge strong {
+  color: #dffcf1;
+  font-size: 0.78rem;
+}
+
+.workout-profile-form {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(147, 197, 253, 0.13);
+  border-radius: 1.15rem;
+  background: rgba(5, 17, 30, 0.76);
+}
+
+.profile-form-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.profile-form-heading {
+  max-width: 48rem;
+}
+
+.profile-choice-grid {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.profile-choice-grid--goals {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.profile-choice-grid--experience {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.profile-choice {
+  display: grid;
+  gap: 0.3rem;
+  min-height: 5.5rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(147, 197, 253, 0.14);
+  border-radius: 0.95rem;
+  background: rgba(9, 27, 43, 0.8);
+  color: #d9effa;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profile-choice strong {
+  font-size: 0.84rem;
+}
+
+.profile-choice span {
+  color: #8ca5b7;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.profile-choice--selected {
+  border-color: rgba(72, 214, 165, 0.48);
+  background: linear-gradient(145deg, rgba(27, 88, 70, 0.32), rgba(8, 31, 42, 0.9));
+  box-shadow: inset 0 0 0 1px rgba(72, 214, 165, 0.12);
+}
+
+.profile-choice--selected strong {
+  color: #caffeb;
+}
+
+.profile-number-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.profile-chip-fieldset {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.profile-chip-fieldset legend {
+  margin-bottom: 0.45rem;
+  color: #b9d0df;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.profile-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.profile-chip {
+  min-height: 2.65rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(147, 197, 253, 0.14);
+  border-radius: 999px;
+  background: rgba(9, 27, 43, 0.72);
+  color: #a9bfce;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.profile-chip--selected {
+  border-color: rgba(69, 200, 255, 0.42);
+  background: rgba(69, 200, 255, 0.13);
+  color: #d3f4ff;
+}
+
+.profile-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding-top: 0.25rem;
+}
+
+.profile-form-actions button {
+  min-height: 2.85rem;
+}
+
+.profile-privacy-note {
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(147, 197, 253, 0.11);
+  border-radius: 1rem;
+  background: rgba(7, 20, 34, 0.62);
+}
+
+.profile-privacy-note strong {
+  color: #cde8f6;
+  font-size: 0.78rem;
+}
+
+.profile-privacy-note p {
+  margin: 0.35rem 0 0;
+  color: #8199aa;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.workout-profile-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  align-items: end;
+  background: rgba(1, 7, 14, 0.82);
+  backdrop-filter: blur(14px);
+}
+
+.workout-profile-dialog {
+  width: min(100%, 62rem);
+  max-height: 95dvh;
+  margin: 0 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding:
+    1rem
+    max(1rem, env(safe-area-inset-right))
+    max(1.15rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+  border: 1px solid rgba(105, 211, 255, 0.2);
+  border-bottom: 0;
+  border-radius: 1.45rem 1.45rem 0 0;
+  background:
+    radial-gradient(circle at 88% 2%, rgba(72, 214, 165, 0.12), transparent 28%),
+    radial-gradient(circle at 7% 5%, rgba(69, 200, 255, 0.13), transparent 30%),
+    linear-gradient(160deg, rgba(13, 34, 54, 0.995), rgba(4, 15, 27, 0.995));
+  box-shadow: 0 -30px 90px rgba(0, 0, 0, 0.48);
+}
+
+.profile-onboarding-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: start;
+  margin-bottom: 0.9rem;
+}
+
+.profile-ai-mark {
+  display: grid;
+  width: 2.8rem;
+  height: 2.8rem;
+  place-items: center;
+  border-radius: 0.85rem;
+  background: linear-gradient(145deg, rgba(69, 200, 255, 0.18), rgba(72, 214, 165, 0.14));
+  color: #c7f3ff;
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.workout-profile-dialog .workout-completion-close {
+  position: static;
+  margin: 0;
+}
+
+.workout-profile-form--onboarding {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.profile-step-progress {
+  display: grid;
+  gap: 0.55rem;
+  margin-bottom: 0.2rem;
+}
+
+.profile-step-progress > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  color: #89a2b4;
+  font-size: 0.68rem;
+}
+
+.profile-step-progress strong {
+  color: #cfe6f3;
+}
+
+.profile-progress-track {
+  height: 0.32rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(147, 197, 253, 0.1);
+}
+
+.profile-progress-track span {
+  display: block;
+  width: var(--profile-progress, 33%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #45c8ff, #48d6a5);
+  transition: width 180ms ease;
+}
+
+.starter-personalization-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+  margin-bottom: 0.9rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid rgba(72, 214, 165, 0.18);
+  border-radius: 0.95rem;
+  background: rgba(72, 214, 165, 0.07);
+}
+
+.starter-personalization-note strong,
+.starter-personalization-note span {
+  display: block;
+}
+
+.starter-personalization-note strong {
+  color: #c8fae7;
+  font-size: 0.8rem;
+}
+
+.starter-personalization-note span {
+  margin-top: 0.18rem;
+  color: #88aa9d;
+  font-size: 0.68rem;
+}
+
+.starter-plan-card--recommended {
+  border-color: rgba(72, 214, 165, 0.42);
+  box-shadow: 0 16px 40px rgba(10, 79, 61, 0.16), inset 0 0 0 1px rgba(72, 214, 165, 0.08);
+}
+
+.starter-plan-personal-match {
+  display: inline-flex;
+  margin-bottom: 0.45rem;
+  padding: 0.28rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(72, 214, 165, 0.13);
+  color: #a9efd3;
+  font-size: 0.62rem;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 760px) {
+  .workout-profile-backdrop {
+    align-items: center;
+    padding: 1.5rem;
+  }
+
+  .workout-profile-dialog {
+    max-height: 90dvh;
+    padding: 1.3rem;
+    border-bottom: 1px solid rgba(105, 211, 255, 0.2);
+    border-radius: 1.45rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .workout-profile-page-header,
+  .starter-personalization-note {
+    display: grid;
+  }
+
+  .profile-summary-badge {
+    min-width: 0;
+  }
+
+  .profile-choice-grid--goals,
+  .profile-choice-grid--experience,
+  .profile-number-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-form-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .profile-form-actions button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workout-profile-backdrop {
+    backdrop-filter: none;
+  }
+
+  .profile-progress-track span {
+    transition: none;
+  }
+}
