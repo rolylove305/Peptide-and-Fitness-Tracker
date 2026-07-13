@@ -13,16 +13,14 @@ type SessionDetailsEditorProps = {
 
 export function SessionDetailsEditor({ session, saving, onSave }: SessionDetailsEditorProps) {
   const [bodyWeight, setBodyWeight] = useState(session.body_weight?.toString() ?? '');
-  const [weightUnit, setWeightUnit] = useState<'lb' | 'kg'>(session.weight_unit);
   const [notes, setNotes] = useState(session.notes ?? '');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setBodyWeight(session.body_weight?.toString() ?? '');
-    setWeightUnit(session.weight_unit);
     setNotes(session.notes ?? '');
-  }, [session.body_weight, session.id, session.notes, session.weight_unit]);
+  }, [session.body_weight, session.id, session.notes]);
 
   async function submit() {
     setError(null);
@@ -35,7 +33,7 @@ export function SessionDetailsEditor({ session, saving, onSave }: SessionDetails
 
     const saved = await onSave({
       bodyWeight: parsedWeight,
-      weightUnit,
+      weightUnit: session.weight_unit,
       notes: notes.trim() || null,
     });
     if (saved) setMessage('Workout details saved.');
@@ -53,7 +51,7 @@ export function SessionDetailsEditor({ session, saving, onSave }: SessionDetails
       <div className="live-workout-details-body">
         <div className="live-workout-details-grid">
           <label>
-            <span>Body weight</span>
+            <span>Body weight ({session.weight_unit})</span>
             <input
               type="number"
               min={0}
@@ -65,13 +63,11 @@ export function SessionDetailsEditor({ session, saving, onSave }: SessionDetails
               onChange={(event) => setBodyWeight(event.target.value)}
             />
           </label>
-          <label>
-            <span>Unit</span>
-            <select value={weightUnit} onChange={(event) => setWeightUnit(event.target.value as 'lb' | 'kg')}>
-              <option value="lb">lb</option>
-              <option value="kg">kg</option>
-            </select>
-          </label>
+          <div className="live-workout-unit-note">
+            <span>Workout unit</span>
+            <strong>{session.weight_unit}</strong>
+            <small>Change this in Profile before starting a new session.</small>
+          </div>
         </div>
         <label>
           <span>Session notes</span>
