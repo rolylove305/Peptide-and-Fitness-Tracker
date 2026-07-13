@@ -6,6 +6,7 @@ import './styles/auth.css';
 import './styles/auth-recovery.css';
 import './styles/workout.css';
 import './styles/exercise-library-pro.css';
+import './styles/exercise-technique-visuals.css';
 import './styles/workout-overview.css';
 import './styles/today-command-center.css';
 import './styles/starter-plans.css';
