@@ -236,9 +236,10 @@ export function RoutineBuilder() {
   function duplicateDay(dayId: string) {
     setDraft((current) => {
       const index = current.days.findIndex((day) => day.localId === dayId);
-      if (index < 0) return current;
+      const sourceDay = current.days[index];
+      if (index < 0 || !sourceDay) return current;
       const nextDays = [...current.days];
-      nextDays.splice(index + 1, 0, cloneDay(current.days[index]));
+      nextDays.splice(index + 1, 0, cloneDay(sourceDay));
       return { ...current, days: nextDays };
     });
     setMessage('Day duplicated with the same exercise targets.');
@@ -275,9 +276,10 @@ export function RoutineBuilder() {
       days: current.days.map((day) => {
         if (day.localId !== dayId) return day;
         const index = day.exercises.findIndex((exercise) => exercise.localId === exerciseId);
-        if (index < 0) return day;
+        const sourceExercise = day.exercises[index];
+        if (index < 0 || !sourceExercise) return day;
         const exercises = [...day.exercises];
-        exercises.splice(index + 1, 0, cloneExercise(day.exercises[index]));
+        exercises.splice(index + 1, 0, cloneExercise(sourceExercise));
         return { ...day, exercises };
       }),
     }));
