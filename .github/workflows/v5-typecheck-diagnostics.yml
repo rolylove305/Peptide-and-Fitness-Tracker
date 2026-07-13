@@ -1,9 +1,11 @@
 name: AAA BioTrack V5 Typecheck Diagnostics
 
 on:
-  push:
+  pull_request:
     branches:
       - agent/v5-sync-foundation
+    paths:
+      - '.diagnostics/**'
 
 permissions:
   contents: read
@@ -16,9 +18,10 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          HEAD_BRANCH: ${{ github.head_ref }}
         run: |
           set -o pipefail
-          git clone --quiet --depth 1 --branch agent/v5-sync-foundation \
+          git clone --quiet --depth 1 --branch "${HEAD_BRANCH}" \
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
           cd repo/v5
           npm ci --silent >/dev/null 2>&1
