@@ -1,0 +1,414 @@
+.starter-plans {
+  display: grid;
+  gap: 1rem;
+}
+
+.starter-plans-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.starter-plans-heading > div:first-child {
+  max-width: 47rem;
+}
+
+.starter-plans-heading p:last-child {
+  margin-bottom: 0;
+}
+
+.starter-unit-control {
+  display: grid;
+  min-width: 10.5rem;
+  gap: 0.4rem;
+  color: #d8e8f7;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.starter-unit-control select {
+  min-height: 2.8rem;
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  border-radius: 0.82rem;
+  outline: none;
+  background: rgba(4, 14, 25, 0.92);
+  color: #edf6ff;
+  padding: 0.65rem 0.75rem;
+}
+
+.starter-unit-control select:focus {
+  border-color: rgba(69, 200, 255, 0.72);
+  box-shadow: 0 0 0 0.2rem rgba(69, 200, 255, 0.1);
+}
+
+.starter-plan-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 1.05rem;
+}
+
+.starter-plan-message--success {
+  border: 1px solid rgba(72, 214, 165, 0.32);
+  background: rgba(72, 214, 165, 0.08);
+}
+
+.starter-plan-message strong {
+  color: #b8f8e1;
+}
+
+.starter-plan-message p {
+  margin: 0.22rem 0 0;
+  color: #9fc9bb;
+  font-size: 0.82rem;
+}
+
+.starter-plan-message > div:last-child {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.55rem;
+}
+
+.starter-plan-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.starter-plan-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1.35rem;
+  background:
+    radial-gradient(circle at top right, rgba(69, 200, 255, 0.1), transparent 15rem),
+    linear-gradient(145deg, rgba(16, 34, 55, 0.98), rgba(8, 21, 36, 0.96));
+  box-shadow: var(--shadow);
+}
+
+.starter-plan-card--lean-strong-four-day {
+  background:
+    radial-gradient(circle at top right, rgba(72, 214, 165, 0.12), transparent 15rem),
+    linear-gradient(145deg, rgba(16, 39, 51, 0.98), rgba(8, 22, 33, 0.96));
+}
+
+.starter-plan-card--busy-week-two-day {
+  background:
+    radial-gradient(circle at top right, rgba(248, 202, 101, 0.11), transparent 15rem),
+    linear-gradient(145deg, rgba(37, 35, 45, 0.98), rgba(14, 20, 33, 0.96));
+}
+
+.starter-plan-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.starter-plan-badge {
+  display: inline-flex;
+  margin-bottom: 0.65rem;
+  padding: 0.34rem 0.55rem;
+  border: 1px solid rgba(69, 200, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(69, 200, 255, 0.08);
+  color: #bcecff;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.starter-plan-card--lean-strong-four-day .starter-plan-badge {
+  border-color: rgba(72, 214, 165, 0.24);
+  background: rgba(72, 214, 165, 0.09);
+  color: #b8f8e1;
+}
+
+.starter-plan-card--busy-week-two-day .starter-plan-badge {
+  border-color: rgba(248, 202, 101, 0.24);
+  background: rgba(248, 202, 101, 0.08);
+  color: #ffe6a9;
+}
+
+.starter-plan-card h3 {
+  margin-bottom: 0.42rem;
+  font-size: 1.3rem;
+}
+
+.starter-plan-card-header p {
+  margin-bottom: 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.starter-plan-days {
+  display: grid;
+  width: 3.6rem;
+  height: 3.6rem;
+  flex: 0 0 auto;
+  place-items: center;
+  align-content: center;
+  border: 1px solid rgba(69, 200, 255, 0.24);
+  border-radius: 1rem;
+  background: rgba(69, 200, 255, 0.08);
+  color: #dff6ff;
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.starter-plan-days small {
+  color: #8fb3c8;
+  font-size: 0.58rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.starter-plan-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+}
+
+.starter-plan-meta span {
+  padding: 0.38rem 0.52rem;
+  border-radius: 0.62rem;
+  background: rgba(4, 14, 25, 0.62);
+  color: #a9c1d2;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.starter-plan-highlights {
+  display: grid;
+  gap: 0.42rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.starter-plan-highlights li {
+  position: relative;
+  padding-left: 1.35rem;
+  color: #b8cadd;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.starter-plan-highlights li::before {
+  position: absolute;
+  top: 0.08rem;
+  left: 0;
+  display: grid;
+  width: 0.95rem;
+  height: 0.95rem;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(72, 214, 165, 0.13);
+  color: #8cf0cd;
+  content: '✓';
+  font-size: 0.62rem;
+  font-weight: 900;
+}
+
+.starter-plan-days-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.starter-plan-days-list details {
+  border: 1px solid rgba(147, 197, 253, 0.12);
+  border-radius: 0.9rem;
+  background: rgba(3, 13, 24, 0.58);
+}
+
+.starter-plan-days-list summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.78rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.starter-plan-days-list summary::-webkit-details-marker {
+  display: none;
+}
+
+.starter-plan-days-list summary > span {
+  display: grid;
+  min-width: 0;
+  gap: 0.16rem;
+}
+
+.starter-plan-days-list summary strong {
+  color: #e1f1fb;
+  font-size: 0.82rem;
+}
+
+.starter-plan-days-list summary small {
+  overflow: hidden;
+  color: #8ea7ba;
+  font-size: 0.67rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.starter-plan-days-list summary em {
+  display: grid;
+  width: 1.85rem;
+  height: 1.85rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 0.62rem;
+  background: rgba(69, 200, 255, 0.1);
+  color: #bcecff;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.starter-plan-days-list details[open] summary {
+  border-bottom: 1px solid rgba(147, 197, 253, 0.1);
+}
+
+.starter-plan-days-list ol {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0.2rem 0.78rem 0.7rem;
+  list-style: none;
+}
+
+.starter-plan-days-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(147, 197, 253, 0.07);
+}
+
+.starter-plan-days-list li:last-child {
+  border-bottom: 0;
+}
+
+.starter-plan-days-list li span {
+  min-width: 0;
+  color: #c9dce8;
+  font-size: 0.74rem;
+}
+
+.starter-plan-days-list li small {
+  flex: 0 0 auto;
+  color: #7fa6bd;
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+.starter-plan-unavailable {
+  margin: 0;
+  color: #ffc1c1;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.starter-plan-add {
+  width: 100%;
+  min-height: 3rem;
+  margin-top: auto;
+  border: 1px solid rgba(69, 200, 255, 0.42);
+  border-radius: 0.88rem;
+  background: linear-gradient(135deg, #49caff, #3aa6ff);
+  color: #03111d;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(56, 174, 255, 0.18);
+}
+
+.starter-plan-add--added {
+  border-color: rgba(72, 214, 165, 0.28);
+  background: rgba(72, 214, 165, 0.1);
+  color: #9cefd2;
+  box-shadow: none;
+}
+
+.starter-plan-add:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+
+.starter-plan-note {
+  padding: 1rem;
+  border: 1px solid rgba(248, 202, 101, 0.2);
+  border-radius: 1rem;
+  background: rgba(248, 202, 101, 0.06);
+}
+
+.starter-plan-note strong {
+  color: #ffe5a3;
+}
+
+.starter-plan-note p {
+  margin: 0.3rem 0 0;
+  color: #b8ad91;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.starter-plan-card--loading {
+  min-height: 31rem;
+  background: linear-gradient(90deg, rgba(147, 197, 253, 0.05), rgba(147, 197, 253, 0.13), rgba(147, 197, 253, 0.05));
+  background-size: 220% 100%;
+  animation: starter-plan-pulse 1.4s linear infinite;
+}
+
+@keyframes starter-plan-pulse {
+  from { background-position: 120% 0; }
+  to { background-position: -120% 0; }
+}
+
+@media (min-width: 760px) {
+  .starter-plan-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1080px) {
+  .starter-plan-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .starter-plans-heading,
+  .starter-plan-message {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .starter-unit-control {
+    width: 100%;
+  }
+
+  .starter-plan-message > div:last-child {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .starter-plan-card-header {
+    align-items: flex-start;
+  }
+
+  .starter-plan-card {
+    padding: 0.9rem;
+  }
+}
