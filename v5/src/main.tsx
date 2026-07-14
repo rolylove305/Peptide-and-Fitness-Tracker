@@ -26,6 +26,7 @@ import './styles/fast-workout.css';
 import './styles/flexible-live-workout.css';
 import './styles/workout-completion.css';
 import './styles/workout-history.css';
+import './styles/active-workout-history-notice.css';
 import './styles/workout-insights.css';
 import './styles/progression.css';
 import './styles/progression-approval.css';
