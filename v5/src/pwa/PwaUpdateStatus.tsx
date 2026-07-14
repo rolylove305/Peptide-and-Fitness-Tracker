@@ -14,7 +14,7 @@ import {
 } from '../features/workout/workoutOfflineStore';
 
 type PwaUpdateStatusProps = {
-  userId?: string;
+  userId: string | undefined;
 };
 
 function useOnlineState(): boolean {
