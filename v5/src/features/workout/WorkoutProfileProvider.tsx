@@ -14,6 +14,7 @@ import {
   type WorkoutProfile,
   type WorkoutProfileDraft,
 } from './workoutProfile';
+import { emitWorkoutProfileCompleted } from './workoutProfileEvents';
 
 type WorkoutProfileContextValue = {
   profile: WorkoutProfile | null;
@@ -65,6 +66,7 @@ export function WorkoutProfileProvider({ children }: PropsWithChildren) {
           completedAt: profile?.completedAt ?? now,
           updatedAt: now,
         };
+        const isFirstProfile = profile === null;
 
         setSaving(true);
         setError(null);
@@ -82,6 +84,7 @@ export function WorkoutProfileProvider({ children }: PropsWithChildren) {
           );
           if (!savedProfile) throw new Error('The saved profile could not be verified.');
           setProfile(savedProfile);
+          if (isFirstProfile) emitWorkoutProfileCompleted(savedProfile);
           return true;
         } catch (caughtError) {
           setError(messageFrom(caughtError));
