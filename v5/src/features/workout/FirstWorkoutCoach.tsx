@@ -143,11 +143,12 @@ export function FirstWorkoutCoach() {
 
   useEffect(() => {
     if (!userId || !historyChecked || hasCompletedWorkout || dismissed) return;
+    const activeUserId = userId;
 
     let cancelled = false;
 
     async function refreshSession() {
-      const result = await loadActiveWorkout(userId);
+      const result = await loadActiveWorkout(activeUserId);
       if (cancelled || !result.ok) return;
 
       setSession(result.data);
@@ -214,6 +215,9 @@ export function FirstWorkoutCoach() {
     return null;
   }
 
+  const coachUserId = userId;
+  const activeSession = session;
+
   let currentStep: CoachStep = 'log';
   if (progress.completed > 0) currentStep = 'timer';
   if (progress.completed > 0 && timerSeen) currentStep = 'technique';
@@ -242,7 +246,7 @@ export function FirstWorkoutCoach() {
   ];
 
   function dismissCoach() {
-    writeBoolean(window.localStorage, dismissedKey(userId));
+    writeBoolean(window.localStorage, dismissedKey(coachUserId));
     setDismissed(true);
   }
 
@@ -264,7 +268,7 @@ export function FirstWorkoutCoach() {
         );
         button?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         button?.click();
-        writeBoolean(window.sessionStorage, techniqueKey(session.id));
+        writeBoolean(window.sessionStorage, techniqueKey(activeSession.id));
         setTechniqueSeen(true);
       });
       return;
