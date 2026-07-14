@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
+import { startPwaUpdateManager } from './pwa/pwaUpdateManager';
 import './styles/global.css';
 import './styles/auth.css';
 import './styles/auth-recovery.css';
@@ -16,6 +17,7 @@ import './styles/workout-profile.css';
 import './styles/first-run-handoff.css';
 import './styles/first-workout-coach.css';
 import './styles/workout-sync-status.css';
+import './styles/pwa-update-status.css';
 import './styles/weekly-planner.css';
 import './styles/routine-builder.css';
 import './styles/routine-builder-controls.css';
@@ -31,17 +33,7 @@ import './styles/progression-coach.css';
 import './styles/progression-coach-layout.css';
 import './styles/workspace-mobile.css';
 
-function registerServiceWorker(): void {
-  if (!('serviceWorker' in navigator)) return;
-
-  window.addEventListener('load', () => {
-    void navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch((error: unknown) => {
-      console.warn('BioTrack AI service worker registration failed.', error);
-    });
-  });
-}
-
-registerServiceWorker();
+startPwaUpdateManager();
 
 const rootElement = document.getElementById('root');
 
