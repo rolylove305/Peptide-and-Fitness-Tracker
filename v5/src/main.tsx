@@ -14,6 +14,7 @@ import './styles/starter-plans.css';
 import './styles/personalized-plans.css';
 import './styles/workout-profile.css';
 import './styles/first-run-handoff.css';
+import './styles/first-workout-coach.css';
 import './styles/weekly-planner.css';
 import './styles/routine-builder.css';
 import './styles/routine-builder-controls.css';

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '../features/auth/AuthProvider';
 import { AuthScreen } from '../features/auth/AuthScreen';
+import { FirstWorkoutCoach } from '../features/workout/FirstWorkoutCoach';
 import {
   subscribeWorkoutProfileCompleted,
   type WorkoutProfileCompletedDetail,
@@ -145,6 +146,7 @@ function WorkoutApp() {
           </section>
         ) : null}
 
+        <FirstWorkoutCoach />
         <WorkoutWorkspace />
       </main>
     </div>
