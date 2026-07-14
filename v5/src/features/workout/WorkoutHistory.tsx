@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useAuth } from '../auth/AuthProvider';
+import { ActiveWorkoutHistoryNotice } from './ActiveWorkoutHistoryNotice';
 import { useWorkoutHistory } from './hooks/useWorkoutHistory';
 import type {
   MuscleVolumeDay,
@@ -198,6 +199,8 @@ export function WorkoutHistory() {
       {historyState.error ? (
         <p className="builder-message builder-message--error" role="alert">{historyState.error}</p>
       ) : null}
+
+      <ActiveWorkoutHistoryNotice userId={user?.id} />
 
       <div className="history-overview-grid">
         <article><span>Workouts</span><strong>{overview.workouts}</strong></article>
