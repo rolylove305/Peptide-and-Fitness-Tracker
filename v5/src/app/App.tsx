@@ -8,6 +8,7 @@ import {
   type WorkoutProfileCompletedDetail,
 } from '../features/workout/workoutProfileEvents';
 import { WorkoutWorkspace } from '../features/workout/WorkoutWorkspace';
+import { PwaUpdateStatus } from '../pwa/PwaUpdateStatus';
 
 type ConnectionState = 'online' | 'offline';
 
@@ -118,6 +119,7 @@ function WorkoutApp() {
         </div>
       </header>
 
+      <PwaUpdateStatus userId={user?.id} />
       <WorkoutSyncStatus />
 
       <main>
