@@ -1,0 +1,72 @@
+.history-active-workout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.9rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.95rem;
+  border: 1px solid rgba(69, 200, 255, 0.28);
+  border-radius: 1rem;
+  background: linear-gradient(145deg, rgba(14, 48, 72, 0.96), rgba(7, 27, 44, 0.98));
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+}
+
+.history-active-workout-mark {
+  display: grid;
+  width: 2.6rem;
+  height: 2.6rem;
+  place-items: center;
+  border-radius: 0.82rem;
+  background: rgba(69, 200, 255, 0.14);
+  color: #aeeaff;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.history-active-workout-copy {
+  min-width: 0;
+}
+
+.history-active-workout-copy span,
+.history-active-workout-copy strong {
+  display: block;
+}
+
+.history-active-workout-copy span {
+  margin-bottom: 0.16rem;
+  color: #70d7ff;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.history-active-workout-copy strong {
+  color: #f2f8ff;
+  font-size: 0.92rem;
+}
+
+.history-active-workout-copy p {
+  margin: 0.28rem 0 0;
+  color: #9eb4c7;
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.history-active-workout > button {
+  min-width: 9.6rem;
+  padding-inline: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .history-active-workout {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0.82rem;
+  }
+
+  .history-active-workout > button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
