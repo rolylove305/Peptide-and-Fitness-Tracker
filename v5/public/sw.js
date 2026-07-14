@@ -1,29 +1,59 @@
 const CACHE_PREFIX = 'biotrack-v5-';
-const CACHE_NAME = `${CACHE_PREFIX}shell-v1`;
+const BUILD_ID = '__BIOTRACK_BUILD_ID__';
+const APP_CACHE = `${CACHE_PREFIX}app-${BUILD_ID}`;
+const RUNTIME_CACHE = `${CACHE_PREFIX}runtime-${BUILD_ID}`;
+const ACTIVE_CACHES = new Set([APP_CACHE, RUNTIME_CACHE]);
 const APP_SHELL = ['/', '/manifest.json', '/biotrack-icon.svg', '/apple-touch-icon.png'];
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches
-      .open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting()),
+async function cacheAppShell() {
+  const cache = await caches.open(APP_CACHE);
+  await cache.addAll(APP_SHELL.map((path) => new Request(path, { cache: 'reload' })));
+}
+
+async function deleteOldCaches() {
+  const keys = await caches.keys();
+  await Promise.all(
+    keys
+      .filter((key) => key.startsWith(CACHE_PREFIX) && !ACTIVE_CACHES.has(key))
+      .map((key) => caches.delete(key)),
   );
+}
+
+async function networkFirst(request, cacheName, fallbackKey = request) {
+  const cache = await caches.open(cacheName);
+  try {
+    const response = await fetch(new Request(request, { cache: 'no-store' }));
+    if (response.ok) await cache.put(fallbackKey, response.clone());
+    return response;
+  } catch {
+    return (await cache.match(fallbackKey)) ?? (await caches.match(fallbackKey)) ?? Response.error();
+  }
+}
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(cacheAppShell());
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
-            .map((key) => caches.delete(key)),
-        ),
-      )
-      .then(() => self.clients.claim()),
+    deleteOldCaches()
+      .then(() => self.clients.claim())
+      .then(async () => {
+        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        clients.forEach((client) => client.postMessage({ type: 'PWA_VERSION_ACTIVATED', buildId: BUILD_ID }));
+      }),
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    void self.skipWaiting();
+    return;
+  }
+
+  if (event.data?.type === 'GET_VERSION') {
+    event.ports?.[0]?.postMessage({ buildId: BUILD_ID });
+  }
 });
 
 self.addEventListener('fetch', (event) => {
@@ -34,43 +64,38 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            void caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
-          }
-          return response;
-        })
-        .catch(async () => (await caches.match('/')) ?? Response.error()),
-    );
+    event.respondWith(networkFirst(request, APP_CACHE, '/'));
+    return;
+  }
+
+  if (url.pathname === '/manifest.json') {
+    event.respondWith(networkFirst(request, APP_CACHE));
     return;
   }
 
   const destination = request.destination;
-  const isStaticAsset =
-    destination === 'script' ||
-    destination === 'style' ||
-    destination === 'image' ||
-    destination === 'font' ||
-    url.pathname === '/manifest.json';
+  const isVersionSensitiveAsset = destination === 'script' || destination === 'style' || destination === 'worker';
+  if (isVersionSensitiveAsset) {
+    event.respondWith(networkFirst(request, RUNTIME_CACHE));
+    return;
+  }
 
-  if (!isStaticAsset) return;
+  const isReusableAsset = destination === 'image' || destination === 'font';
+  if (!isReusableAsset) return;
 
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
-      const networkResponse = fetch(request)
-        .then((response) => {
+      const refresh = fetch(request)
+        .then(async (response) => {
           if (response.ok) {
-            const copy = response.clone();
-            void caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+            const cache = await caches.open(RUNTIME_CACHE);
+            await cache.put(request, response.clone());
           }
           return response;
         })
         .catch(() => cachedResponse ?? Response.error());
 
-      return cachedResponse ?? networkResponse;
+      return cachedResponse ?? refresh;
     }),
   );
 });
