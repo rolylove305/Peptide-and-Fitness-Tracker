@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '../features/auth/AuthProvider';
 import { AuthScreen } from '../features/auth/AuthScreen';
 import { FirstWorkoutCoach } from '../features/workout/FirstWorkoutCoach';
+import { WorkoutSyncStatus } from '../features/workout/WorkoutSyncStatus';
 import {
   subscribeWorkoutProfileCompleted,
   type WorkoutProfileCompletedDetail,
@@ -116,6 +117,8 @@ function WorkoutApp() {
           </div>
         </div>
       </header>
+
+      <WorkoutSyncStatus />
 
       <main>
         {error ? (
