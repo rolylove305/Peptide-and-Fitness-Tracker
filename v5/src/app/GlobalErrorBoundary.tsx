@@ -1,6 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { reportClientError } from '../observability/clientErrorReporter';
 
-const CRASH_KEY = 'biotrack-v5-last-render-crash';
 const CACHE_PREFIX = 'biotrack-v5-';
 
 type GlobalErrorBoundaryProps = {
@@ -11,22 +11,6 @@ type GlobalErrorBoundaryState = {
   failed: boolean;
   repairing: boolean;
 };
-
-function rememberCrash(error: unknown, info: ErrorInfo): void {
-  try {
-    const message = error instanceof Error ? error.message : String(error);
-    window.sessionStorage.setItem(
-      CRASH_KEY,
-      JSON.stringify({
-        occurredAt: new Date().toISOString(),
-        message: message.slice(0, 240),
-        componentStack: info.componentStack?.slice(0, 1200) ?? null,
-      }),
-    );
-  } catch {
-    // Recovery must remain available even when browser storage is restricted.
-  }
-}
 
 async function repairCachedAppFiles(): Promise<void> {
   if ('caches' in window) {
@@ -58,7 +42,11 @@ export class GlobalErrorBoundary extends Component<
   }
 
   componentDidCatch(error: unknown, info: ErrorInfo): void {
-    rememberCrash(error, info);
+    void reportClientError({
+      kind: 'render',
+      error,
+      componentStack: info.componentStack,
+    });
     console.error('BioTrack AI recovered from an unexpected render error.', error, info);
   }
 
