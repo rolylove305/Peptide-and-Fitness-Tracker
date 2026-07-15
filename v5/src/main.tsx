@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
 import { GlobalErrorBoundary } from './app/GlobalErrorBoundary';
+import { startClientErrorReporting } from './observability/clientErrorReporter';
 import { startPwaUpdateManager } from './pwa/pwaUpdateManager';
 import './styles/global.css';
 import './styles/global-error-recovery.css';
@@ -36,6 +37,7 @@ import './styles/progression-coach.css';
 import './styles/progression-coach-layout.css';
 import './styles/workspace-mobile.css';
 
+startClientErrorReporting();
 startPwaUpdateManager();
 
 const rootElement = document.getElementById('root');
