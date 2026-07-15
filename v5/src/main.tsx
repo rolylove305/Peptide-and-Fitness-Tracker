@@ -1,8 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
+import { GlobalErrorBoundary } from './app/GlobalErrorBoundary';
 import { startPwaUpdateManager } from './pwa/pwaUpdateManager';
 import './styles/global.css';
+import './styles/global-error-recovery.css';
 import './styles/auth.css';
 import './styles/auth-recovery.css';
 import './styles/workout.css';
@@ -44,6 +46,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <GlobalErrorBoundary>
+      <App />
+    </GlobalErrorBoundary>
   </StrictMode>,
 );
