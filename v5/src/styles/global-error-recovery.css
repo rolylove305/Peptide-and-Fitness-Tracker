@@ -1,0 +1,65 @@
+.global-error-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: max(1.25rem, env(safe-area-inset-top)) 1rem max(1.25rem, env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at top, rgba(69, 200, 255, 0.14), transparent 32rem),
+    linear-gradient(180deg, #071421 0%, #06101d 58%, #050c16 100%);
+}
+
+.global-error-card {
+  width: min(100%, 34rem);
+  padding: clamp(1.3rem, 5vw, 2rem);
+  border: 1px solid rgba(69, 200, 255, 0.24);
+  border-radius: 1.45rem;
+  background: linear-gradient(145deg, rgba(20, 42, 66, 0.98), rgba(8, 21, 36, 0.98));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+}
+
+.global-error-mark {
+  display: grid;
+  width: 3.4rem;
+  height: 3.4rem;
+  margin-bottom: 1rem;
+  place-items: center;
+  border: 1px solid rgba(69, 200, 255, 0.38);
+  border-radius: 1rem;
+  background: rgba(69, 200, 255, 0.12);
+  color: #c6efff;
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.global-error-card h1 {
+  margin-bottom: 0.8rem;
+  font-size: clamp(1.75rem, 7vw, 2.45rem);
+}
+
+.global-error-card > p:not(.eyebrow) {
+  margin-bottom: 1.25rem;
+}
+
+.global-error-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+.global-error-actions button {
+  width: 100%;
+}
+
+.global-error-card small {
+  display: block;
+  margin-top: 1rem;
+  color: #8197ad;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 520px) {
+  .global-error-actions {
+    grid-template-columns: 1fr;
+  }
+}
