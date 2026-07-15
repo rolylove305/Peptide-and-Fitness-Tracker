@@ -1,0 +1,114 @@
+import { Component, type ErrorInfo, type ReactNode } from 'react';
+
+const CRASH_KEY = 'biotrack-v5-last-render-crash';
+const CACHE_PREFIX = 'biotrack-v5-';
+
+type GlobalErrorBoundaryProps = {
+  children: ReactNode;
+};
+
+type GlobalErrorBoundaryState = {
+  failed: boolean;
+  repairing: boolean;
+};
+
+function rememberCrash(error: unknown, info: ErrorInfo): void {
+  try {
+    const message = error instanceof Error ? error.message : String(error);
+    window.sessionStorage.setItem(
+      CRASH_KEY,
+      JSON.stringify({
+        occurredAt: new Date().toISOString(),
+        message: message.slice(0, 240),
+        componentStack: info.componentStack?.slice(0, 1200) ?? null,
+      }),
+    );
+  } catch {
+    // Recovery must remain available even when browser storage is restricted.
+  }
+}
+
+async function repairCachedAppFiles(): Promise<void> {
+  if ('caches' in window) {
+    const cacheKeys = await window.caches.keys();
+    await Promise.all(
+      cacheKeys
+        .filter((key) => key.startsWith(CACHE_PREFIX))
+        .map((key) => window.caches.delete(key)),
+    );
+  }
+
+  if ('serviceWorker' in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map((registration) => registration.unregister()));
+  }
+}
+
+export class GlobalErrorBoundary extends Component<
+  GlobalErrorBoundaryProps,
+  GlobalErrorBoundaryState
+> {
+  state: GlobalErrorBoundaryState = {
+    failed: false,
+    repairing: false,
+  };
+
+  static getDerivedStateFromError(): Partial<GlobalErrorBoundaryState> {
+    return { failed: true };
+  }
+
+  componentDidCatch(error: unknown, info: ErrorInfo): void {
+    rememberCrash(error, info);
+    console.error('BioTrack AI recovered from an unexpected render error.', error, info);
+  }
+
+  private reload = (): void => {
+    window.location.reload();
+  };
+
+  private repairAndReload = async (): Promise<void> => {
+    this.setState({ repairing: true });
+    try {
+      await repairCachedAppFiles();
+    } catch (error: unknown) {
+      console.warn('BioTrack AI could not clear every cached app file.', error);
+    } finally {
+      window.location.reload();
+    }
+  };
+
+  render(): ReactNode {
+    if (!this.state.failed) return this.props.children;
+
+    return (
+      <main className="global-error-shell" role="alert" aria-labelledby="global-error-heading">
+        <section className="global-error-card">
+          <div className="global-error-mark" aria-hidden="true">B</div>
+          <p className="eyebrow">Safe recovery</p>
+          <h1 id="global-error-heading">BioTrack hit an unexpected problem</h1>
+          <p>
+            Your account, active workout copy and pending offline sets remain stored separately from
+            the app files. Reload BioTrack first. Use repair only if the same screen returns.
+          </p>
+          <div className="global-error-actions">
+            <button className="primary-button" type="button" onClick={this.reload}>
+              Reload BioTrack
+            </button>
+            <button
+              className="secondary-button"
+              type="button"
+              disabled={this.state.repairing}
+              onClick={() => void this.repairAndReload()}
+            >
+              {this.state.repairing ? 'Repairing app files…' : 'Repair app files'}
+            </button>
+          </div>
+          <small>
+            Repair removes only BioTrack caches and the current service worker. It does not erase
+            local workout recovery data.
+          </small>
+        </section>
+      </main>
+    );
+  }
+}
