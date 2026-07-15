@@ -1,4 +1,3 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase/client';
 
 const LOCAL_CRASH_KEY = 'biotrack-v5-last-render-crash';
@@ -17,20 +16,11 @@ type ClientErrorEventInsert = {
   occurred_at: string;
 };
 
-type ObservabilityDatabase = {
-  public: {
-    Tables: {
-      client_error_events: {
-        Row: ClientErrorEventInsert & { id: string; created_at: string };
-        Insert: ClientErrorEventInsert;
-        Update: Partial<ClientErrorEventInsert>;
-        Relationships: [];
-      };
-    };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: Record<string, never>;
-    CompositeTypes: Record<string, never>;
+type ObservabilityInsertClient = {
+  from: (table: 'client_error_events') => {
+    insert: (payload: ClientErrorEventInsert) => PromiseLike<{
+      error: { message: string } | null;
+    }>;
   };
 };
 
@@ -71,7 +61,7 @@ function shouldSend(fingerprintValue: string): boolean {
     const now = Date.now();
     const raw = window.sessionStorage.getItem(RECENT_FINGERPRINTS_KEY);
     const parsed = raw ? (JSON.parse(raw) as Record<string, number>) : {};
-    const recent = Object.fromEntries(
+    const recent: Record<string, number> = Object.fromEntries(
       Object.entries(parsed).filter(([, timestamp]) => now - timestamp < FINGERPRINT_WINDOW_MS),
     );
     if (recent[fingerprintValue]) return false;
@@ -157,7 +147,7 @@ export async function reportClientError(report: ClientErrorReport): Promise<void
   rememberLocally(payload);
   if (!userId || !navigator.onLine) return;
 
-  const observabilityClient = supabase as unknown as SupabaseClient<ObservabilityDatabase>;
+  const observabilityClient = supabase as unknown as ObservabilityInsertClient;
   const { error } = await observabilityClient.from('client_error_events').insert(payload);
   if (error) console.warn('BioTrack AI could not upload a client diagnostic.', error.message);
 }
