@@ -45,7 +45,7 @@ export class GlobalErrorBoundary extends Component<
     void reportClientError({
       kind: 'render',
       error,
-      componentStack: info.componentStack,
+      componentStack: info.componentStack ?? null,
     });
     console.error('BioTrack AI recovered from an unexpected render error.', error, info);
   }
