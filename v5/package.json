@@ -16,6 +16,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint .",
+    "test": "vitest run",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "media:generate": "node scripts/exercise-media.mjs generate"
@@ -34,9 +35,11 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
+    "jsdom": "^29.1.1",
     "prettier": "^3.9.5",
     "typescript": "6.0.3",
     "typescript-eslint": "^8.64.0",
-    "vite": "7.3.6"
+    "vite": "7.3.6",
+    "vitest": "^4.1.10"
   }
 }

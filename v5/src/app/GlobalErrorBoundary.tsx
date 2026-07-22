@@ -1,7 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { reportClientError } from '../observability/clientErrorReporter';
-
-const CACHE_PREFIX = 'biotrack-v5-';
+import { repairCachedAppFiles } from './repairCachedAppFiles';
 
 type GlobalErrorBoundaryProps = {
   children: ReactNode;
@@ -11,22 +10,6 @@ type GlobalErrorBoundaryState = {
   failed: boolean;
   repairing: boolean;
 };
-
-async function repairCachedAppFiles(): Promise<void> {
-  if ('caches' in window) {
-    const cacheKeys = await window.caches.keys();
-    await Promise.all(
-      cacheKeys
-        .filter((key) => key.startsWith(CACHE_PREFIX))
-        .map((key) => window.caches.delete(key)),
-    );
-  }
-
-  if ('serviceWorker' in navigator) {
-    const registrations = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(registrations.map((registration) => registration.unregister()));
-  }
-}
 
 export class GlobalErrorBoundary extends Component<
   GlobalErrorBoundaryProps,
