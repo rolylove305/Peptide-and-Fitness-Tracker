@@ -11,8 +11,13 @@ import {
   type StarterExerciseMediaImage,
   type StarterExerciseMediaRole,
 } from './starterExerciseMediaCatalog';
+import {
+  getProfessionalExerciseMedia,
+  type ProfessionalExerciseMediaImage,
+} from './professionalExerciseMediaCatalog';
 
-export type ExerciseVisualSource = 'remote' | 'starter' | 'legacy';
+export type ExerciseVisualSource =
+  'remote' | 'professional' | 'starter' | 'legacy';
 
 export type ExerciseVisual = {
   source: ExerciseVisualSource;
@@ -30,8 +35,20 @@ export type ExerciseVisualSet = {
   finish: ExerciseVisual | null;
 };
 
-const expandedPrimaryRoles: readonly ExerciseMediaRole[] = ['loop', 'hero', 'start', 'finish', 'thumbnail'];
-const previewPrimaryRoles: readonly ExerciseMediaRole[] = ['thumbnail', 'loop', 'hero', 'start', 'finish'];
+const expandedPrimaryRoles: readonly ExerciseMediaRole[] = [
+  'loop',
+  'hero',
+  'start',
+  'finish',
+  'thumbnail',
+];
+const previewPrimaryRoles: readonly ExerciseMediaRole[] = [
+  'thumbnail',
+  'loop',
+  'hero',
+  'start',
+  'finish',
+];
 
 function fromRemoteAsset(asset: ExerciseMediaAsset): ExerciseVisual {
   return {
@@ -52,6 +69,21 @@ function fromStarterImage(image: StarterExerciseMediaImage): ExerciseVisual {
     url: image.url,
     posterUrl: null,
     alt: image.alt,
+    width: image.width,
+    height: image.height,
+  };
+}
+
+function fromProfessionalImage(
+  image: ProfessionalExerciseMediaImage,
+  exercise: Exercise,
+): ExerciseVisual {
+  return {
+    source: 'professional',
+    kind: 'image',
+    url: image.url,
+    posterUrl: null,
+    alt: `${exercise.name} start and finish demonstration with movement direction arrows`,
     width: image.width,
     height: image.height,
   };
@@ -93,14 +125,41 @@ export function resolveExerciseVisuals(
   bundle: ExerciseMediaBundle | null | undefined,
   options: { expanded?: boolean } = {},
 ): ExerciseVisualSet {
-  const primaryRoles = options.expanded ? expandedPrimaryRoles : previewPrimaryRoles;
+  const primaryRoles = options.expanded
+    ? expandedPrimaryRoles
+    : previewPrimaryRoles;
 
   const remotePrimary = selectExerciseMediaAsset(bundle, primaryRoles);
+  const professionalEntry = getProfessionalExerciseMedia(exercise.slug);
   const starterEntry = getStarterExerciseMedia(exercise.slug);
   const primary =
     (remotePrimary ? fromRemoteAsset(remotePrimary) : null) ??
+    (professionalEntry
+      ? fromProfessionalImage(professionalEntry, exercise)
+      : null) ??
     (starterEntry ? fromStarterImage(starterEntry.images.hero) : null) ??
     fromLegacyMedia(exercise);
+
+  if (professionalEntry) {
+    const remoteStart = selectExerciseMediaAsset(bundle, ['start']);
+    const remoteFinish = selectExerciseMediaAsset(bundle, ['finish']);
+    const hasRemotePositionPair = Boolean(
+      remoteStart?.media_role === 'start' &&
+      remoteFinish?.media_role === 'finish',
+    );
+
+    return {
+      primary,
+      start:
+        hasRemotePositionPair && remoteStart
+          ? fromRemoteAsset(remoteStart)
+          : null,
+      finish:
+        hasRemotePositionPair && remoteFinish
+          ? fromRemoteAsset(remoteFinish)
+          : null,
+    };
+  }
 
   return {
     primary,
@@ -115,6 +174,7 @@ export function hasExerciseVisual(
 ): boolean {
   return (
     hasRenderableExerciseMedia(bundle) ||
+    getProfessionalExerciseMedia(exercise.slug) !== null ||
     getStarterExerciseMedia(exercise.slug) !== null ||
     Boolean(exercise.media_url)
   );

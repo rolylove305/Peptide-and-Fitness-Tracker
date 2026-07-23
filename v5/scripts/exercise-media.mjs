@@ -5,8 +5,21 @@ import { fileURLToPath } from 'node:url';
 
 const projectRoot = fileURLToPath(new URL('..', import.meta.url));
 const workoutDirectory = path.join(projectRoot, 'src', 'features', 'workout');
-const generatedDirectory = path.join(projectRoot, 'public', 'exercise-media', 'generated');
-const distExerciseMediaDirectory = path.join(projectRoot, 'dist', 'exercise-media');
+const generatedDirectory = path.join(
+  projectRoot,
+  'public',
+  'exercise-media',
+  'generated',
+);
+const distExerciseMediaDirectory = path.join(
+  projectRoot,
+  'dist',
+  'exercise-media',
+);
+const professionalMediaDirectory = path.join(
+  distExerciseMediaDirectory,
+  'professional',
+);
 const roles = ['hero', 'start', 'finish'];
 const expectedWidth = 800;
 const expectedHeight = 450;
@@ -25,15 +38,25 @@ const individualSlugs = [
 const mediaPacks = [
   {
     name: 'phase2',
-    manifestPath: path.join(workoutDirectory, 'phase2ExerciseMediaManifest.json'),
-    bundlePaths: [path.join(workoutDirectory, 'phase2ExerciseMediaSprites.b64')],
+    manifestPath: path.join(
+      workoutDirectory,
+      'phase2ExerciseMediaManifest.json',
+    ),
+    bundlePaths: [
+      path.join(workoutDirectory, 'phase2ExerciseMediaSprites.b64'),
+    ],
   },
   {
     name: 'phase3',
-    manifestPath: path.join(workoutDirectory, 'phase3ExerciseMediaManifest.json'),
-    bundlePaths: Array.from(
-      { length: 9 },
-      (_, index) => path.join(workoutDirectory, `phase3ExerciseMediaSprites.part${index + 1}.b64`),
+    manifestPath: path.join(
+      workoutDirectory,
+      'phase3ExerciseMediaManifest.json',
+    ),
+    bundlePaths: Array.from({ length: 9 }, (_, index) =>
+      path.join(
+        workoutDirectory,
+        `phase3ExerciseMediaSprites.part${index + 1}.b64`,
+      ),
     ),
   },
 ];
@@ -42,7 +65,9 @@ const expectedExerciseCount = 35;
 
 function assertManifest(value, packName) {
   if (!Array.isArray(value) || value.length === 0) {
-    throw new Error(`${packName} exercise media manifest must be a non-empty array.`);
+    throw new Error(
+      `${packName} exercise media manifest must be a non-empty array.`,
+    );
   }
 
   const seen = new Set();
@@ -50,21 +75,32 @@ function assertManifest(value, packName) {
     if (!entry || typeof entry !== 'object') {
       throw new Error(`${packName} manifest entry ${index} must be an object.`);
     }
-    if (typeof entry.slug !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry.slug)) {
-      throw new Error(`${packName} manifest entry ${index} has an invalid slug.`);
+    if (
+      typeof entry.slug !== 'string' ||
+      !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry.slug)
+    ) {
+      throw new Error(
+        `${packName} manifest entry ${index} has an invalid slug.`,
+      );
     }
     if (seen.has(entry.slug)) {
-      throw new Error(`Duplicate ${packName} exercise media slug: ${entry.slug}`);
+      throw new Error(
+        `Duplicate ${packName} exercise media slug: ${entry.slug}`,
+      );
     }
     seen.add(entry.slug);
 
     if (!entry.alts || typeof entry.alts !== 'object') {
-      throw new Error(`${packName} manifest entry ${entry.slug} is missing alt text.`);
+      throw new Error(
+        `${packName} manifest entry ${entry.slug} is missing alt text.`,
+      );
     }
     for (const role of roles) {
       const alt = entry.alts[role];
       if (typeof alt !== 'string' || alt.trim().length < 20) {
-        throw new Error(`${packName} manifest entry ${entry.slug} has invalid ${role} alt text.`);
+        throw new Error(
+          `${packName} manifest entry ${entry.slug} has invalid ${role} alt text.`,
+        );
       }
     }
   }
@@ -75,7 +111,9 @@ function assertManifest(value, packName) {
 async function readPack(pack) {
   const [manifestRaw, encodedParts] = await Promise.all([
     readFile(pack.manifestPath, 'utf8'),
-    Promise.all(pack.bundlePaths.map((bundlePath) => readFile(bundlePath, 'utf8'))),
+    Promise.all(
+      pack.bundlePaths.map((bundlePath) => readFile(bundlePath, 'utf8')),
+    ),
   ]);
 
   const manifest = assertManifest(JSON.parse(manifestRaw), pack.name);
@@ -84,7 +122,9 @@ async function readPack(pack) {
   const sprites = JSON.parse(decoded);
 
   if (!sprites || typeof sprites !== 'object' || Array.isArray(sprites)) {
-    throw new Error(`${pack.name} exercise media bundle must decode to a slug map.`);
+    throw new Error(
+      `${pack.name} exercise media bundle must decode to a slug map.`,
+    );
   }
 
   const expectedSlugs = new Set(manifest.map((entry) => entry.slug));
@@ -95,7 +135,9 @@ async function readPack(pack) {
   }
   for (const slug of Object.keys(sprites)) {
     if (!expectedSlugs.has(slug)) {
-      throw new Error(`${pack.name} exercise media bundle contains unexpected slug ${slug}.`);
+      throw new Error(
+        `${pack.name} exercise media bundle contains unexpected slug ${slug}.`,
+      );
     }
   }
 
@@ -109,7 +151,9 @@ async function readAllPacks() {
   for (const pack of packs) {
     for (const entry of pack.manifest) {
       if (allSlugs.has(entry.slug)) {
-        throw new Error(`Duplicate exercise media slug across packs: ${entry.slug}`);
+        throw new Error(
+          `Duplicate exercise media slug across packs: ${entry.slug}`,
+        );
       }
       allSlugs.add(entry.slug);
     }
@@ -130,7 +174,9 @@ function extractPanels(sprite, slug) {
   const panels = Array.from(sprite.matchAll(pattern), (match) => match[1]);
 
   if (panels.length !== roles.length) {
-    throw new Error(`${slug} contains ${panels.length} panels; expected ${roles.length}.`);
+    throw new Error(
+      `${slug} contains ${panels.length} panels; expected ${roles.length}.`,
+    );
   }
 
   return panels;
@@ -168,10 +214,13 @@ async function generate() {
   }
 
   const expectedGeneratedCount =
-    packs.reduce((count, pack) => count + pack.manifest.length, 0) * roles.length;
+    packs.reduce((count, pack) => count + pack.manifest.length, 0) *
+    roles.length;
 
   if (generatedCount !== expectedGeneratedCount) {
-    throw new Error(`Generated ${generatedCount} files; expected ${expectedGeneratedCount}.`);
+    throw new Error(
+      `Generated ${generatedCount} files; expected ${expectedGeneratedCount}.`,
+    );
   }
 
   console.log(
@@ -203,19 +252,39 @@ async function verifyDist() {
     for (const entry of pack.manifest) {
       for (const role of roles) {
         await assertBuiltAsset(
-          path.join(distExerciseMediaDirectory, 'generated', entry.slug, `${role}.svg`),
+          path.join(
+            distExerciseMediaDirectory,
+            'generated',
+            entry.slug,
+            `${role}.svg`,
+          ),
         );
         verifiedCount += 1;
       }
     }
   }
 
-  const expectedCount = expectedExerciseCount * roles.length;
-  if (verifiedCount !== expectedCount) {
-    throw new Error(`Verified ${verifiedCount} files; expected ${expectedCount}.`);
+  const professionalSlugs = [
+    ...individualSlugs,
+    ...packs.flatMap((pack) => pack.manifest.map((entry) => entry.slug)),
+  ];
+  for (const slug of professionalSlugs) {
+    await assertBuiltAsset(
+      path.join(professionalMediaDirectory, slug, 'hero.jpg'),
+    );
+    verifiedCount += 1;
   }
 
-  console.log(`Verified ${verifiedCount} built exercise media files across all 35 exercises.`);
+  const expectedCount = expectedExerciseCount * (roles.length + 1);
+  if (verifiedCount !== expectedCount) {
+    throw new Error(
+      `Verified ${verifiedCount} files; expected ${expectedCount}.`,
+    );
+  }
+
+  console.log(
+    `Verified ${verifiedCount} built exercise media files across all 35 exercises.`,
+  );
 }
 
 const command = process.argv[2] ?? 'generate';
