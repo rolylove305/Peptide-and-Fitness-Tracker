@@ -12,18 +12,24 @@ import type {
 } from '../../types/database';
 import {
   createPeptideProtocol,
+  deletePeptideAdministration,
   loadPeptideTracker,
   recordPeptideAdministration,
   updatePeptideProtocol,
   type PeptideProtocolDraft,
 } from './peptideRepository';
-import { describePeptideFrequency, peptideWeekDays } from './peptideSchedule';
+import {
+  buildPeptideWeek,
+  describePeptideFrequency,
+  peptideWeekDays,
+  toLocalDateKey,
+} from './peptideSchedule';
 
 type Frequency = PeptideProtocol['frequency_type'];
 type DoseUnit = PeptideProtocol['dose_unit'];
 
 function today(): string {
-  return new Date().toISOString().slice(0, 10);
+  return toLocalDateKey(new Date());
 }
 
 function formatAmount(value: number): string {
@@ -50,6 +56,9 @@ export function PeptideWorkspace() {
   >('loading');
   const [message, setMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [editingProtocolId, setEditingProtocolId] = useState<string | null>(
+    null,
+  );
   const [name, setName] = useState('');
   const [dose, setDose] = useState('');
   const [unit, setUnit] = useState<DoseUnit>('mcg');
@@ -82,6 +91,23 @@ export function PeptideWorkspace() {
     () => protocols.filter((protocol) => protocol.is_active),
     [protocols],
   );
+  const week = useMemo(
+    () => buildPeptideWeek(activeProtocols),
+    [activeProtocols],
+  );
+  const todaySchedule = week[0]?.protocols ?? [];
+  const todayRecords = useMemo(() => {
+    const dateKey = today();
+    const latest = new Map<string, PeptideAdministration>();
+    for (const administration of administrations) {
+      if (toLocalDateKey(new Date(administration.recorded_at)) !== dateKey)
+        continue;
+      if (!latest.has(administration.protocol_id)) {
+        latest.set(administration.protocol_id, administration);
+      }
+    }
+    return latest;
+  }, [administrations]);
 
   function resetForm() {
     setName('');
@@ -92,10 +118,31 @@ export function PeptideWorkspace() {
     setSelectedDays([]);
     setIntervalDays('2');
     setStartDate(today());
+    setEditingProtocolId(null);
     setShowForm(false);
   }
 
-  async function handleCreate(event: FormEvent<HTMLFormElement>) {
+  function beginEdit(protocol: PeptideProtocol) {
+    setEditingProtocolId(protocol.id);
+    setName(protocol.peptide_name);
+    setDose(formatAmount(protocol.dose_amount));
+    setUnit(protocol.dose_unit);
+    setFrequency(protocol.frequency_type);
+    setTimeOfDay(protocol.time_of_day?.slice(0, 5) ?? '08:00');
+    setSelectedDays(protocol.days_of_week);
+    setIntervalDays(String(protocol.interval_days ?? 2));
+    setStartDate(protocol.start_date);
+    setMessage('');
+    setShowForm(true);
+    window.requestAnimationFrame(() => {
+      document.getElementById('peptide-schedule-form')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  }
+
+  async function handleSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!user) return;
 
@@ -131,15 +178,23 @@ export function PeptideWorkspace() {
     };
 
     setStatus('saving');
-    const result = await createPeptideProtocol(user.id, draft);
+    const result = editingProtocolId
+      ? await updatePeptideProtocol(user.id, editingProtocolId, draft)
+      : await createPeptideProtocol(user.id, draft);
     if (!result.ok) {
       setStatus('error');
       setMessage(result.error);
       return;
     }
-    setProtocols((current) => [result.data, ...current]);
+    setProtocols((current) =>
+      editingProtocolId
+        ? current.map((protocol) =>
+            protocol.id === result.data.id ? result.data : protocol,
+          )
+        : [result.data, ...current],
+    );
     setStatus('ready');
-    setMessage('Schedule saved.');
+    setMessage(editingProtocolId ? 'Schedule updated.' : 'Schedule saved.');
     resetForm();
   }
 
@@ -182,6 +237,30 @@ export function PeptideWorkspace() {
     );
     setStatus('ready');
     setMessage('Schedule archived. Its history remains available.');
+  }
+
+  async function handleDeleteAdministration(
+    administration: PeptideAdministration,
+  ) {
+    if (!user) return;
+    if (!window.confirm('Remove this dose record? This cannot be undone.'))
+      return;
+
+    setStatus('saving');
+    const result = await deletePeptideAdministration(
+      user.id,
+      administration.id,
+    );
+    if (!result.ok) {
+      setStatus('error');
+      setMessage(result.error);
+      return;
+    }
+    setAdministrations((current) =>
+      current.filter((item) => item.id !== administration.id),
+    );
+    setStatus('ready');
+    setMessage('Dose record removed.');
   }
 
   return (
@@ -227,13 +306,20 @@ export function PeptideWorkspace() {
 
       {showForm ? (
         <form
+          id="peptide-schedule-form"
           className="peptide-form"
-          onSubmit={(event) => void handleCreate(event)}
+          onSubmit={(event) => void handleSave(event)}
         >
           <div className="peptide-section-heading">
             <div>
-              <span>New schedule</span>
-              <h3>What do you want to track?</h3>
+              <span>
+                {editingProtocolId ? 'Edit schedule' : 'New schedule'}
+              </span>
+              <h3>
+                {editingProtocolId
+                  ? 'Update your recorded plan'
+                  : 'What do you want to track?'}
+              </h3>
             </div>
             <button
               type="button"
@@ -359,10 +445,124 @@ export function PeptideWorkspace() {
             disabled={status === 'saving'}
             type="submit"
           >
-            {status === 'saving' ? 'Saving…' : 'Save schedule'}
+            {status === 'saving'
+              ? 'Saving…'
+              : editingProtocolId
+                ? 'Update schedule'
+                : 'Save schedule'}
           </button>
         </form>
       ) : null}
+
+      <section className="peptide-section peptide-today">
+        <div className="peptide-section-heading">
+          <div>
+            <span>Today</span>
+            <h3>
+              {todaySchedule.length === 0
+                ? 'No scheduled doses'
+                : `${todaySchedule.length} scheduled dose${todaySchedule.length === 1 ? '' : 's'}`}
+            </h3>
+          </div>
+          <time dateTime={today()}>{week[0]?.dateLabel}</time>
+        </div>
+        {todaySchedule.length === 0 ? (
+          <div className="peptide-empty">
+            <strong>Your schedule is clear today</strong>
+            <p>
+              Record-only protocols remain available under Active schedules.
+            </p>
+          </div>
+        ) : (
+          <div className="peptide-today-list">
+            {todaySchedule.map((protocol) => {
+              const record = todayRecords.get(protocol.id);
+              return (
+                <article key={protocol.id}>
+                  <div>
+                    <span>
+                      {protocol.time_of_day?.slice(0, 5) ?? 'Any time'}
+                    </span>
+                    <strong>{protocol.peptide_name}</strong>
+                    <small>
+                      {formatAmount(protocol.dose_amount)} {protocol.dose_unit}
+                    </small>
+                  </div>
+                  {record ? (
+                    <span
+                      className={`peptide-history-status peptide-history-status--${record.status}`}
+                    >
+                      {record.status === 'taken' ? 'Recorded' : 'Skipped'}
+                    </span>
+                  ) : (
+                    <div className="peptide-card-actions">
+                      <button
+                        className="primary-button"
+                        disabled={status === 'saving'}
+                        type="button"
+                        onClick={() => void handleRecord(protocol, 'taken')}
+                      >
+                        Record
+                      </button>
+                      <button
+                        className="secondary-button"
+                        disabled={status === 'saving'}
+                        type="button"
+                        onClick={() => void handleRecord(protocol, 'skipped')}
+                      >
+                        Skip
+                      </button>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      <section className="peptide-section">
+        <div className="peptide-section-heading">
+          <div>
+            <span>Next 7 days</span>
+            <h3>Your weekly schedule</h3>
+          </div>
+        </div>
+        <div
+          className="peptide-calendar"
+          aria-label="Seven-day peptide schedule"
+        >
+          {week.map((day) => (
+            <article
+              className={
+                day.isToday
+                  ? 'peptide-calendar-day peptide-calendar-day--today'
+                  : 'peptide-calendar-day'
+              }
+              key={day.dateKey}
+            >
+              <div>
+                <strong>{day.dayLabel}</strong>
+                <time dateTime={day.dateKey}>{day.dateLabel}</time>
+              </div>
+              {day.protocols.length === 0 ? (
+                <span className="peptide-calendar-empty">Clear</span>
+              ) : (
+                <ul>
+                  {day.protocols.map((protocol) => (
+                    <li key={protocol.id}>
+                      <strong>{protocol.peptide_name}</strong>
+                      <small>
+                        {protocol.time_of_day?.slice(0, 5) ?? 'Any time'}
+                      </small>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="peptide-section">
         <div className="peptide-section-heading">
@@ -433,6 +633,14 @@ export function PeptideWorkspace() {
                   Skip
                 </button>
                 <button
+                  className="secondary-button"
+                  disabled={status === 'saving'}
+                  type="button"
+                  onClick={() => beginEdit(protocol)}
+                >
+                  Edit
+                </button>
+                <button
                   className="peptide-text-button"
                   disabled={status === 'saving'}
                   type="button"
@@ -475,6 +683,17 @@ export function PeptideWorkspace() {
                   {formatAmount(administration.dose_amount_snapshot)}{' '}
                   {administration.dose_unit_snapshot}
                 </b>
+                <button
+                  className="peptide-history-delete"
+                  disabled={status === 'saving'}
+                  type="button"
+                  aria-label={`Remove ${administration.peptide_name_snapshot} record from ${formatDateTime(administration.recorded_at)}`}
+                  onClick={() =>
+                    void handleDeleteAdministration(administration)
+                  }
+                >
+                  Remove
+                </button>
               </article>
             ))}
           </div>

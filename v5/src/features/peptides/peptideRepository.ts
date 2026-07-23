@@ -159,3 +159,26 @@ export async function recordPeptideAdministration(
     };
   }
 }
+
+export async function deletePeptideAdministration(
+  userId: string,
+  administrationId: string,
+): Promise<RepositoryResult<null>> {
+  if (!supabase) return unavailable();
+
+  try {
+    const { error } = await supabase
+      .from('peptide_administrations')
+      .delete()
+      .eq('id', administrationId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+    return { ok: true, data: null };
+  } catch (error) {
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not remove this dose record.'),
+    };
+  }
+}

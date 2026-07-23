@@ -128,6 +128,116 @@
   margin: 0.2rem 0 0;
 }
 
+.peptide-section-heading time {
+  color: #c8efff;
+  font-weight: 800;
+}
+
+.peptide-today {
+  border-color: rgba(69, 200, 255, 0.3);
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(69, 200, 255, 0.14),
+      transparent 22rem
+    ),
+    linear-gradient(145deg, rgba(17, 40, 61, 0.98), rgba(8, 23, 38, 0.96));
+}
+
+.peptide-today-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.peptide-today-list article {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(147, 197, 253, 0.16);
+  border-radius: 0.9rem;
+  background: rgba(5, 17, 30, 0.66);
+}
+
+.peptide-today-list article > div:first-child {
+  display: grid;
+  gap: 0.16rem;
+  min-width: 0;
+}
+
+.peptide-today-list article > div:first-child span,
+.peptide-today-list article > div:first-child small {
+  color: var(--muted);
+}
+
+.peptide-calendar {
+  display: grid;
+  grid-auto-columns: minmax(9rem, 1fr);
+  grid-auto-flow: column;
+  gap: 0.65rem;
+  padding-bottom: 0.35rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: inline proximity;
+}
+
+.peptide-calendar-day {
+  min-height: 8.5rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(147, 197, 253, 0.14);
+  border-radius: 0.9rem;
+  background: rgba(5, 17, 30, 0.58);
+  scroll-snap-align: start;
+}
+
+.peptide-calendar-day--today {
+  border-color: rgba(69, 200, 255, 0.42);
+  background: rgba(69, 200, 255, 0.1);
+}
+
+.peptide-calendar-day > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.peptide-calendar-day time,
+.peptide-calendar-empty {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.peptide-calendar-day ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.peptide-calendar-day li {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.45rem;
+  border-radius: 0.55rem;
+  background: rgba(69, 200, 255, 0.08);
+}
+
+.peptide-calendar-day li strong {
+  overflow: hidden;
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.peptide-calendar-day li small {
+  color: #a9c6da;
+}
+
 .peptide-form-grid,
 .peptide-protocol-grid {
   display: grid;
@@ -286,13 +396,22 @@
 
 .peptide-history-list article {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 0.8rem;
   padding: 0.85rem;
   border: 1px solid rgba(147, 197, 253, 0.12);
   border-radius: 0.85rem;
   background: rgba(5, 17, 30, 0.55);
+}
+
+.peptide-history-delete {
+  border: 0;
+  background: transparent;
+  color: #f0a8ad;
+  font-size: 0.75rem;
+  font-weight: 750;
+  cursor: pointer;
 }
 
 .peptide-history-list article div {
@@ -342,5 +461,15 @@
   .peptide-history-status {
     width: fit-content;
     grid-column: 1 / -1;
+  }
+
+  .peptide-today-list article {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .peptide-today-list .peptide-card-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
