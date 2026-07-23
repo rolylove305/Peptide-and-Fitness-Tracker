@@ -111,9 +111,26 @@ export function applyPwaUpdate(): boolean {
   return true;
 }
 
-export function startPwaUpdateManager(): void {
+async function removeDevelopmentServiceWorkers(): Promise<void> {
+  if (!('serviceWorker' in navigator)) return;
+
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map((item) => item.unregister()));
+  } catch (error: unknown) {
+    console.warn('BioTrack AI could not remove a development service worker.', error);
+  }
+}
+
+export function startPwaUpdateManager(enabled = true): void {
   if (started) return;
   started = true;
+
+  if (!enabled) {
+    publish({ status: 'unsupported', buildId: null, error: null });
+    void removeDevelopmentServiceWorkers();
+    return;
+  }
 
   if (!('serviceWorker' in navigator)) {
     publish({ status: 'unsupported', buildId: null, error: null });

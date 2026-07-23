@@ -38,7 +38,7 @@ import './styles/progression-coach-layout.css';
 import './styles/workspace-mobile.css';
 
 startClientErrorReporting();
-startPwaUpdateManager();
+startPwaUpdateManager(import.meta.env.PROD);
 
 const rootElement = document.getElementById('root');
 

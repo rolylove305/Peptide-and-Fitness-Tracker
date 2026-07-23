@@ -22,6 +22,29 @@ beforeEach(() => {
 });
 
 describe('safe PWA updates', () => {
+  it('removes stale service workers without registering one during development', async () => {
+    const unregister = vi.fn().mockResolvedValue(true);
+    const serviceWorker = {
+      getRegistrations: vi.fn().mockResolvedValue([{ unregister }]),
+      register: vi.fn(),
+      addEventListener: vi.fn(),
+    };
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: serviceWorker,
+    });
+    const manager = await import('./pwaUpdateManager');
+
+    manager.startPwaUpdateManager(false);
+    await vi.waitFor(() => expect(unregister).toHaveBeenCalledOnce());
+
+    expect(serviceWorker.register).not.toHaveBeenCalled();
+    expect(manager.getPwaUpdateState()).toMatchObject({
+      status: 'unsupported',
+      error: null,
+    });
+  });
+
   it('announces a waiting version and applies it without reloading early', async () => {
     const waitingWorker = {
       postMessage: vi.fn(
