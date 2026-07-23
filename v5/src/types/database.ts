@@ -65,6 +65,107 @@ export type Database = {
         };
         Relationships: [];
       };
+      peptide_protocols: {
+        Row: {
+          id: string;
+          user_id: string;
+          peptide_name: string;
+          dose_amount: number;
+          dose_unit: 'mcg' | 'mg' | 'mL' | 'units';
+          frequency_type:
+            'daily' | 'selected_days' | 'interval_days' | 'as_needed';
+          time_of_day: string | null;
+          days_of_week: number[];
+          interval_days: number | null;
+          start_date: string;
+          end_date: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          peptide_name: string;
+          dose_amount: number;
+          dose_unit: 'mcg' | 'mg' | 'mL' | 'units';
+          frequency_type:
+            'daily' | 'selected_days' | 'interval_days' | 'as_needed';
+          time_of_day?: string | null;
+          days_of_week?: number[];
+          interval_days?: number | null;
+          start_date?: string;
+          end_date?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          peptide_name?: string;
+          dose_amount?: number;
+          dose_unit?: 'mcg' | 'mg' | 'mL' | 'units';
+          frequency_type?:
+            'daily' | 'selected_days' | 'interval_days' | 'as_needed';
+          time_of_day?: string | null;
+          days_of_week?: number[];
+          interval_days?: number | null;
+          start_date?: string;
+          end_date?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      peptide_administrations: {
+        Row: {
+          id: string;
+          user_id: string;
+          protocol_id: string;
+          peptide_name_snapshot: string;
+          dose_amount_snapshot: number;
+          dose_unit_snapshot: 'mcg' | 'mg' | 'mL' | 'units';
+          status: 'taken' | 'skipped';
+          scheduled_for: string | null;
+          recorded_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          protocol_id: string;
+          peptide_name_snapshot: string;
+          dose_amount_snapshot: number;
+          dose_unit_snapshot: 'mcg' | 'mg' | 'mL' | 'units';
+          status?: 'taken' | 'skipped';
+          scheduled_for?: string | null;
+          recorded_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          protocol_id?: string;
+          peptide_name_snapshot?: string;
+          dose_amount_snapshot?: number;
+          dose_unit_snapshot?: 'mcg' | 'mg' | 'mL' | 'units';
+          status?: 'taken' | 'skipped';
+          scheduled_for?: string | null;
+          recorded_at?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'peptide_administrations_protocol_id_fkey';
+            columns: ['protocol_id'];
+            isOneToOne: false;
+            referencedRelation: 'peptide_protocols';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       workout_routines: {
         Row: {
           id: string;
@@ -473,11 +574,16 @@ export type Database = {
 };
 
 export type TableName = keyof Database['public']['Tables'];
-export type TableRow<T extends TableName> = Database['public']['Tables'][T]['Row'];
-export type TableInsert<T extends TableName> = Database['public']['Tables'][T]['Insert'];
-export type TableUpdate<T extends TableName> = Database['public']['Tables'][T]['Update'];
+export type TableRow<T extends TableName> =
+  Database['public']['Tables'][T]['Row'];
+export type TableInsert<T extends TableName> =
+  Database['public']['Tables'][T]['Insert'];
+export type TableUpdate<T extends TableName> =
+  Database['public']['Tables'][T]['Update'];
 
 export type Exercise = TableRow<'exercise_library'>;
+export type PeptideProtocol = TableRow<'peptide_protocols'>;
+export type PeptideAdministration = TableRow<'peptide_administrations'>;
 export type WorkoutRoutine = TableRow<'workout_routines'>;
 export type WorkoutRoutineDay = TableRow<'workout_routine_days'>;
 export type WorkoutRoutineExercise = TableRow<'workout_routine_exercises'>;

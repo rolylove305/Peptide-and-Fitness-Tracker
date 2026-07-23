@@ -36,6 +36,7 @@ import './styles/progression-approval.css';
 import './styles/progression-coach.css';
 import './styles/progression-coach-layout.css';
 import './styles/workspace-mobile.css';
+import './styles/peptides.css';
 
 startClientErrorReporting();
 startPwaUpdateManager(import.meta.env.PROD);
@@ -43,7 +44,9 @@ startPwaUpdateManager(import.meta.env.PROD);
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
-  throw new Error('BioTrack AI V5 could not find the root application element.');
+  throw new Error(
+    'BioTrack AI V5 could not find the root application element.',
+  );
 }
 
 createRoot(rootElement).render(
