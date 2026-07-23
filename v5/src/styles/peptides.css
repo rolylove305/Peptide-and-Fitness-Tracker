@@ -50,12 +50,17 @@
 
 .peptide-workspace {
   display: grid;
+  min-width: 0;
+  max-width: 100%;
   gap: 1.2rem;
 }
 
 .peptide-hero,
+.peptide-safety-note,
 .peptide-section,
 .peptide-form {
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid var(--border);
   border-radius: 1.35rem;
   background: linear-gradient(
@@ -95,6 +100,7 @@
 .peptide-safety-note span {
   color: #c7d5e3;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .peptide-section,
@@ -174,6 +180,9 @@
 
 .peptide-calendar {
   display: grid;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   grid-auto-columns: minmax(9rem, 1fr);
   grid-auto-flow: column;
   gap: 0.65rem;
