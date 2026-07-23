@@ -238,6 +238,7 @@ export function WorkoutInsights() {
   const [error, setError] = useState<string | null>(null);
   const [requestVersion, setRequestVersion] = useState(0);
   const [rangeWeeks, setRangeWeeks] = useState<RangeWeeks>(8);
+  const [renderedAt] = useState(() => Date.now());
   const [weightUnit, setWeightUnit] = useState<WeightUnit>(profile?.weightUnit ?? 'lb');
 
   useEffect(() => {
@@ -374,10 +375,10 @@ export function WorkoutInsights() {
           key,
           date,
           count: activityByDate.get(key) ?? 0,
-          future: date.getTime() > Date.now(),
+          future: date.getTime() > renderedAt,
         };
       }),
-    [activityByDate, rangeStart, rangeWeeks],
+    [activityByDate, rangeStart, rangeWeeks, renderedAt],
   );
 
   const muscles = useMemo(() => {

@@ -16,6 +16,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint .",
+    "lint:ci": "eslint . --max-warnings 5",
     "test": "vitest run",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

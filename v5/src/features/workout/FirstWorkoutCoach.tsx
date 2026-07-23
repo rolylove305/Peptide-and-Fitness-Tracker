@@ -180,7 +180,7 @@ export function FirstWorkoutCoach() {
 
     setTimerSeen(restTimerIsActive(session.id));
     setTechniqueSeen(readBoolean(window.sessionStorage, techniqueKey(session.id)));
-  }, [session?.id]);
+  }, [session]);
 
   const progress = useMemo(() => {
     if (!session) {

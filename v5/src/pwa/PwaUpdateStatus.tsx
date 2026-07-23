@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   applyPwaUpdate,
   checkForPwaUpdate,
@@ -38,7 +38,7 @@ export function PwaUpdateStatus({ userId }: PwaUpdateStatusProps) {
   const online = useOnlineState();
   const [update, setUpdate] = useState<PwaUpdateState>(() => getPwaUpdateState());
   const [syncState, setSyncState] = useState<WorkoutSyncState>(() => getWorkoutSyncState(userId));
-  const [safetyRevision, setSafetyRevision] = useState(0);
+  const [, setSafetyRevision] = useState(0);
 
   useEffect(() => subscribePwaUpdateState(setUpdate), []);
 
@@ -62,10 +62,7 @@ export function PwaUpdateStatus({ userId }: PwaUpdateStatusProps) {
     };
   }, [update.status, userId]);
 
-  const hasActiveWorkout = useMemo(
-    () => Boolean(userId && readCachedActiveWorkout(userId)),
-    [safetyRevision, syncState, userId],
-  );
+  const hasActiveWorkout = Boolean(userId && readCachedActiveWorkout(userId));
 
   if (update.status === 'idle' || update.status === 'checking' || update.status === 'unsupported') {
     return null;

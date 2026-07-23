@@ -530,7 +530,7 @@ export function ActiveWorkout() {
     setTimerNow(Date.now());
     const timer = window.setInterval(() => setTimerNow(Date.now()), 250);
     return () => window.clearInterval(timer);
-  }, [restTimer?.endsAt]);
+  }, [restTimer]);
 
   useEffect(() => {
     try {
@@ -549,7 +549,7 @@ export function ActiveWorkout() {
     if (!active.session || restTimer.sessionId !== active.session.id) {
       setRestTimer(null);
     }
-  }, [active.session?.id, active.status, restTimer?.sessionId]);
+  }, [active.session, active.status, restTimer]);
 
   useEffect(() => {
     if (!restTimer || restTimerRemaining !== 0 || announcedTimerRef.current === restTimer.endsAt) return;

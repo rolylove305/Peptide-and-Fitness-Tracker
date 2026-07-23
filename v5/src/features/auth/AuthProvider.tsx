@@ -34,11 +34,6 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 const recoveryStorageKey = 'biotrack-password-recovery';
 
-function messageFrom(error: unknown): string {
-  if (error instanceof Error && error.message) return error.message;
-  return 'Something went wrong. Please try again.';
-}
-
 function readRecoveryFlag(): boolean {
   if (typeof window === 'undefined') return false;
 

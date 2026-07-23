@@ -79,6 +79,7 @@ export function PersonalizedPlans({ onNavigate }: PersonalizedPlansProps) {
   const { profile } = useWorkoutProfile();
   const routineState = useRoutines(user?.id);
   const active = useActiveWorkout(user?.id);
+  const refreshRoutines = routineState.refresh;
   const [recentRoutineId, setRecentRoutineId] = useState<string | null>(null);
   const [activationError, setActivationError] = useState<string | null>(null);
   const activationRef = useRef<HTMLElement | null>(null);
@@ -95,13 +96,13 @@ export function PersonalizedPlans({ onNavigate }: PersonalizedPlansProps) {
       subscribeWorkoutRoutineSaved(({ routineId }) => {
         setRecentRoutineId(routineId);
         setActivationError(null);
-        void routineState.refresh().then(() => {
+        void refreshRoutines().then(() => {
           window.setTimeout(() => {
             activationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }, 120);
         });
       }),
-    [routineState.refresh],
+    [refreshRoutines],
   );
 
   const launchRoutine = useMemo(() => {

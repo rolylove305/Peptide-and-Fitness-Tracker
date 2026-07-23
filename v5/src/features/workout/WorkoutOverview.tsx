@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { useActiveWorkout } from './hooks/useActiveWorkout';
 import { useRoutines } from './hooks/useRoutines';
@@ -62,6 +62,7 @@ function formatUpcomingDate(date: Date, daysAway: number): string {
 }
 
 export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
+  const [now] = useState(() => new Date());
   const { user } = useAuth();
   const active = useActiveWorkout(user?.id);
   const routines = useRoutines(user?.id);
@@ -98,7 +99,6 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
     (dayId) => Boolean(dayId && dayById.has(dayId)),
   );
 
-  const now = new Date();
   const todayKey = weekdayKeyForDate(now);
   const scheduledTodayId = schedule[todayKey] ?? null;
   const scheduledToday = scheduledTodayId ? dayById.get(scheduledTodayId) ?? null : null;
