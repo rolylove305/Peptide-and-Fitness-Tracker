@@ -1,19 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { ActiveWorkout } from './ActiveWorkout';
-import { ExerciseLibrary } from './ExerciseLibrary';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { ExerciseMediaProvider } from './ExerciseMediaProvider';
-import {
-  ActiveWorkoutTechniqueDock,
-  ExerciseVisualGallery,
-} from './ExerciseVisualGallery';
-import { PersonalizedPlans } from './PersonalizedPlans';
-import { ProgressionCoach } from './ProgressionCoach';
-import { ProgressionDashboard } from './ProgressionDashboard';
-import { RoutineBuilder } from './RoutineBuilder';
-import { WeeklyPlanner } from './WeeklyPlanner';
 import { WorkoutCompletionExperience } from './WorkoutCompletionExperience';
-import { WorkoutHistory } from './WorkoutHistory';
-import { WorkoutInsights } from './WorkoutInsights';
 import { WorkoutOverview } from './WorkoutOverview';
 import {
   WorkoutProfileOnboarding,
@@ -21,6 +8,61 @@ import {
 } from './WorkoutProfileExperience';
 import { WorkoutProfileProvider } from './WorkoutProfileProvider';
 
+const ActiveWorkout = lazy(() =>
+  import('./ActiveWorkout').then((module) => ({
+    default: module.ActiveWorkout,
+  })),
+);
+const ExerciseLibrary = lazy(() =>
+  import('./ExerciseLibrary').then((module) => ({
+    default: module.ExerciseLibrary,
+  })),
+);
+const ExerciseVisualGallery = lazy(() =>
+  import('./ExerciseVisualGallery').then((module) => ({
+    default: module.ExerciseVisualGallery,
+  })),
+);
+const ActiveWorkoutTechniqueDock = lazy(() =>
+  import('./ExerciseVisualGallery').then((module) => ({
+    default: module.ActiveWorkoutTechniqueDock,
+  })),
+);
+const PersonalizedPlans = lazy(() =>
+  import('./PersonalizedPlans').then((module) => ({
+    default: module.PersonalizedPlans,
+  })),
+);
+const ProgressionCoach = lazy(() =>
+  import('./ProgressionCoach').then((module) => ({
+    default: module.ProgressionCoach,
+  })),
+);
+const ProgressionDashboard = lazy(() =>
+  import('./ProgressionDashboard').then((module) => ({
+    default: module.ProgressionDashboard,
+  })),
+);
+const RoutineBuilder = lazy(() =>
+  import('./RoutineBuilder').then((module) => ({
+    default: module.RoutineBuilder,
+  })),
+);
+const WeeklyPlanner = lazy(() =>
+  import('./WeeklyPlanner').then((module) => ({
+    default: module.WeeklyPlanner,
+  })),
+);
+const WorkoutHistory = lazy(() =>
+  import('./WorkoutHistory').then((module) => ({
+    default: module.WorkoutHistory,
+  })),
+);
+const WorkoutInsights = lazy(() =>
+  import('./WorkoutInsights').then((module) => ({
+    default: module.WorkoutInsights,
+  })),
+);
 export type WorkoutWorkspaceView =
   | 'overview'
   | 'planner'
@@ -225,7 +267,9 @@ type WorkspaceNavigationProps = {
 function WorkspaceNavigation({ view, onNavigate }: WorkspaceNavigationProps) {
   const [moreOpen, setMoreOpen] = useState(false);
   const navigationRef = useRef<HTMLElement>(null);
-  const secondaryActive = secondaryNavigation.some((item) => item.view === view);
+  const secondaryActive = secondaryNavigation.some(
+    (item) => item.view === view,
+  );
 
   useEffect(() => {
     setMoreOpen(false);
@@ -272,7 +316,11 @@ function WorkspaceNavigation({ view, onNavigate }: WorkspaceNavigationProps) {
           return (
             <button
               type="button"
-              className={active ? 'workspace-nav-button workspace-nav-button--active' : 'workspace-nav-button'}
+              className={
+                active
+                  ? 'workspace-nav-button workspace-nav-button--active'
+                  : 'workspace-nav-button'
+              }
               aria-current={active ? 'page' : undefined}
               aria-label={`${item.label}: ${item.description}`}
               onClick={() => navigate(item.view)}
@@ -288,9 +336,11 @@ function WorkspaceNavigation({ view, onNavigate }: WorkspaceNavigationProps) {
 
         <button
           type="button"
-          className={secondaryActive || moreOpen
-            ? 'workspace-nav-button workspace-nav-button--more workspace-nav-button--active'
-            : 'workspace-nav-button workspace-nav-button--more'}
+          className={
+            secondaryActive || moreOpen
+              ? 'workspace-nav-button workspace-nav-button--more workspace-nav-button--active'
+              : 'workspace-nav-button workspace-nav-button--more'
+          }
           aria-expanded={moreOpen}
           aria-controls="workspace-more-panel"
           aria-label="More Workout AI tools"
@@ -300,7 +350,9 @@ function WorkspaceNavigation({ view, onNavigate }: WorkspaceNavigationProps) {
             <NavigationIcon name="more" />
           </span>
           <span>More</span>
-          {secondaryActive ? <i className="workspace-nav-status-dot" aria-hidden="true" /> : null}
+          {secondaryActive ? (
+            <i className="workspace-nav-status-dot" aria-hidden="true" />
+          ) : null}
         </button>
       </div>
 
@@ -327,7 +379,11 @@ function WorkspaceNavigation({ view, onNavigate }: WorkspaceNavigationProps) {
                 <button
                   type="button"
                   role="menuitem"
-                  className={active ? 'workspace-more-item workspace-more-item--active' : 'workspace-more-item'}
+                  className={
+                    active
+                      ? 'workspace-more-item workspace-more-item--active'
+                      : 'workspace-more-item'
+                  }
                   aria-current={active ? 'page' : undefined}
                   onClick={() => navigate(item.view)}
                   key={item.view}
@@ -357,31 +413,49 @@ function WorkoutWorkspaceContent() {
       <WorkspaceNavigation view={view} onNavigate={setView} />
 
       <div className="workspace-view-shell" id="workout-workspace-view">
-        {view === 'overview' ? <WorkoutOverview onNavigate={setView} /> : null}
-        {view === 'planner' ? <WeeklyPlanner onNavigate={setView} /> : null}
-        {view === 'plans' ? <PersonalizedPlans onNavigate={setView} /> : null}
-        {view === 'train' ? (
-          <div className="live-training-stack">
-            <ActiveWorkout />
-            <ActiveWorkoutTechniqueDock />
-          </div>
-        ) : null}
-        {view === 'history' ? <WorkoutHistory /> : null}
-        {view === 'insights' ? <WorkoutInsights /> : null}
-        {view === 'progression' ? (
-          <div className="progression-workspace-stack">
-            <ProgressionCoach />
-            <ProgressionDashboard />
-          </div>
-        ) : null}
-        {view === 'builder' ? <RoutineBuilder /> : null}
-        {view === 'library' ? (
-          <div className="exercise-library-visual-stack">
-            <ExerciseVisualGallery />
-            <ExerciseLibrary />
-          </div>
-        ) : null}
-        {view === 'profile' ? <WorkoutProfilePanel /> : null}
+        <Suspense
+          fallback={
+            <div
+              className="workspace-view-loading"
+              role="status"
+              aria-live="polite"
+            >
+              <span
+                className="workspace-view-loading__pulse"
+                aria-hidden="true"
+              />
+              <span>Preparing your workspace…</span>
+            </div>
+          }
+        >
+          {view === 'overview' ? (
+            <WorkoutOverview onNavigate={setView} />
+          ) : null}
+          {view === 'planner' ? <WeeklyPlanner onNavigate={setView} /> : null}
+          {view === 'plans' ? <PersonalizedPlans onNavigate={setView} /> : null}
+          {view === 'train' ? (
+            <div className="live-training-stack">
+              <ActiveWorkout />
+              <ActiveWorkoutTechniqueDock />
+            </div>
+          ) : null}
+          {view === 'history' ? <WorkoutHistory /> : null}
+          {view === 'insights' ? <WorkoutInsights /> : null}
+          {view === 'progression' ? (
+            <div className="progression-workspace-stack">
+              <ProgressionCoach />
+              <ProgressionDashboard />
+            </div>
+          ) : null}
+          {view === 'builder' ? <RoutineBuilder /> : null}
+          {view === 'library' ? (
+            <div className="exercise-library-visual-stack">
+              <ExerciseVisualGallery />
+              <ExerciseLibrary />
+            </div>
+          ) : null}
+          {view === 'profile' ? <WorkoutProfilePanel /> : null}
+        </Suspense>
       </div>
 
       <WorkoutCompletionExperience onNavigate={setView} />
