@@ -1,6 +1,7 @@
 import { supabase } from '../../lib/supabase/client';
 import type {
   PeptideAdministration,
+  PeptideInventoryLot,
   PeptideProtocol,
   TableInsert,
   TableUpdate,
@@ -11,6 +12,11 @@ export type RepositoryResult<T> =
 
 export type PeptideProtocolDraft = Omit<
   TableInsert<'peptide_protocols'>,
+  'id' | 'user_id' | 'created_at' | 'updated_at'
+>;
+
+export type PeptideInventoryDraft = Omit<
+  TableInsert<'peptide_inventory_lots'>,
   'id' | 'user_id' | 'created_at' | 'updated_at'
 >;
 
@@ -31,34 +37,44 @@ export async function loadPeptideTracker(userId: string): Promise<
   RepositoryResult<{
     protocols: PeptideProtocol[];
     administrations: PeptideAdministration[];
+    inventoryLots: PeptideInventoryLot[];
   }>
 > {
   if (!supabase) return unavailable();
 
   try {
-    const [protocolResult, administrationResult] = await Promise.all([
-      supabase
-        .from('peptide_protocols')
-        .select('*')
-        .eq('user_id', userId)
-        .order('is_active', { ascending: false })
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('peptide_administrations')
-        .select('*')
-        .eq('user_id', userId)
-        .order('recorded_at', { ascending: false })
-        .limit(100),
-    ]);
+    const [protocolResult, administrationResult, inventoryResult] =
+      await Promise.all([
+        supabase
+          .from('peptide_protocols')
+          .select('*')
+          .eq('user_id', userId)
+          .order('is_active', { ascending: false })
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('peptide_administrations')
+          .select('*')
+          .eq('user_id', userId)
+          .order('recorded_at', { ascending: false })
+          .limit(100),
+        supabase
+          .from('peptide_inventory_lots')
+          .select('*')
+          .eq('user_id', userId)
+          .order('is_active', { ascending: false })
+          .order('expires_on', { ascending: true, nullsFirst: false }),
+      ]);
 
     if (protocolResult.error) throw protocolResult.error;
     if (administrationResult.error) throw administrationResult.error;
+    if (inventoryResult.error) throw inventoryResult.error;
 
     return {
       ok: true,
       data: {
         protocols: protocolResult.data ?? [],
         administrations: administrationResult.data ?? [],
+        inventoryLots: inventoryResult.data ?? [],
       },
     };
   } catch (error) {
@@ -67,6 +83,58 @@ export async function loadPeptideTracker(userId: string): Promise<
       error: messageFrom(
         error,
         'BioTrack could not load your peptide records.',
+      ),
+    };
+  }
+}
+
+export async function createPeptideInventoryLot(
+  userId: string,
+  draft: PeptideInventoryDraft,
+): Promise<RepositoryResult<PeptideInventoryLot>> {
+  if (!supabase) return unavailable();
+
+  try {
+    const { data, error } = await supabase
+      .from('peptide_inventory_lots')
+      .insert({ ...draft, user_id: userId })
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return { ok: true, data };
+  } catch (error) {
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not save this inventory lot.'),
+    };
+  }
+}
+
+export async function updatePeptideInventoryLot(
+  userId: string,
+  lotId: string,
+  update: TableUpdate<'peptide_inventory_lots'>,
+): Promise<RepositoryResult<PeptideInventoryLot>> {
+  if (!supabase) return unavailable();
+
+  try {
+    const { data, error } = await supabase
+      .from('peptide_inventory_lots')
+      .update(update)
+      .eq('id', lotId)
+      .eq('user_id', userId)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return { ok: true, data };
+  } catch (error) {
+    return {
+      ok: false,
+      error: messageFrom(
+        error,
+        'BioTrack could not update this inventory lot.',
       ),
     };
   }

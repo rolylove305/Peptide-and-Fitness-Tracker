@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../auth/AuthProvider';
 import type {
   PeptideAdministration,
+  PeptideInventoryLot,
   PeptideProtocol,
 } from '../../types/database';
 import {
@@ -24,6 +25,7 @@ import {
   peptideWeekDays,
   toLocalDateKey,
 } from './peptideSchedule';
+import { PeptideInventoryPanel } from './PeptideInventoryPanel';
 
 type Frequency = PeptideProtocol['frequency_type'];
 type DoseUnit = PeptideProtocol['dose_unit'];
@@ -51,6 +53,7 @@ export function PeptideWorkspace() {
   const [administrations, setAdministrations] = useState<
     PeptideAdministration[]
   >([]);
+  const [inventoryLots, setInventoryLots] = useState<PeptideInventoryLot[]>([]);
   const [status, setStatus] = useState<
     'loading' | 'ready' | 'saving' | 'error'
   >('loading');
@@ -79,6 +82,7 @@ export function PeptideWorkspace() {
     }
     setProtocols(result.data.protocols);
     setAdministrations(result.data.administrations);
+    setInventoryLots(result.data.inventoryLots);
     setStatus('ready');
     setMessage('');
   }, [user]);
@@ -563,6 +567,15 @@ export function PeptideWorkspace() {
           ))}
         </div>
       </section>
+
+      {user ? (
+        <PeptideInventoryPanel
+          userId={user.id}
+          protocols={activeProtocols}
+          lots={inventoryLots}
+          onLotsChange={setInventoryLots}
+        />
+      ) : null}
 
       <section className="peptide-section">
         <div className="peptide-section-heading">

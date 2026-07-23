@@ -267,7 +267,9 @@
 }
 
 .peptide-form input,
-.peptide-form select {
+.peptide-form select,
+.peptide-inventory-form input,
+.peptide-inventory-form select {
   min-width: 0;
   min-height: 3rem;
   padding: 0.7rem 0.8rem;
@@ -279,7 +281,9 @@
 }
 
 .peptide-form input:focus,
-.peptide-form select:focus {
+.peptide-form select:focus,
+.peptide-inventory-form input:focus,
+.peptide-inventory-form select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 0.2rem rgba(69, 200, 255, 0.12);
 }
@@ -449,6 +453,141 @@
   color: #ffe09a;
 }
 
+.peptide-inventory {
+  border-color: rgba(72, 214, 165, 0.24);
+}
+
+.peptide-inventory-form {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(72, 214, 165, 0.2);
+  border-radius: 1rem;
+  background: rgba(4, 15, 27, 0.62);
+}
+
+.peptide-inventory-form label {
+  display: grid;
+  gap: 0.45rem;
+  color: #dbeeff;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.peptide-inventory-alerts {
+  margin-bottom: 1rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(248, 202, 101, 0.26);
+  border-radius: 0.9rem;
+  background: rgba(248, 202, 101, 0.07);
+}
+
+.peptide-inventory-alerts > strong {
+  display: block;
+  margin-bottom: 0.7rem;
+  color: #ffe3a2;
+}
+
+.peptide-inventory-alerts ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.peptide-inventory-alerts li {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.15rem 0.6rem;
+}
+
+.peptide-inventory-alerts li small {
+  grid-column: 2;
+  color: var(--muted);
+}
+
+.peptide-alert {
+  padding: 0.25rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.67rem;
+  font-weight: 850;
+}
+
+.peptide-alert--expired {
+  background: rgba(240, 106, 113, 0.16);
+  color: #ffc0c4;
+}
+
+.peptide-alert--expiring {
+  background: rgba(248, 202, 101, 0.14);
+  color: #ffe09a;
+}
+
+.peptide-alert--low {
+  background: rgba(69, 200, 255, 0.13);
+  color: #bcecff;
+}
+
+.peptide-inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 0.9rem;
+}
+
+.peptide-inventory-card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid rgba(147, 197, 253, 0.16);
+  border-radius: 1rem;
+  background: rgba(5, 17, 30, 0.65);
+}
+
+.peptide-inventory-card > div:first-child {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.peptide-inventory-card > div:first-child span {
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.peptide-inventory-card > div:first-child h3 {
+  margin: 0;
+}
+
+.peptide-inventory-card > div:first-child strong {
+  color: #9df1d2;
+}
+
+.peptide-inventory-card dl {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.peptide-inventory-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.peptide-inventory-card dt {
+  color: var(--muted);
+}
+
+.peptide-inventory-card dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
 @media (max-width: 560px) {
   .peptide-hero {
     align-items: stretch;
@@ -480,5 +619,17 @@
   .peptide-today-list .peptide-card-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .peptide-inventory-alerts li {
+    grid-template-columns: 1fr;
+  }
+
+  .peptide-inventory-alerts li small {
+    grid-column: 1;
+  }
+
+  .peptide-alert {
+    width: fit-content;
   }
 }

@@ -166,6 +166,62 @@ export type Database = {
           },
         ];
       };
+      peptide_inventory_lots: {
+        Row: {
+          id: string;
+          user_id: string;
+          protocol_id: string | null;
+          peptide_name: string;
+          lot_number: string | null;
+          quantity_remaining: number;
+          quantity_unit: 'vials' | 'mg' | 'mL' | 'units';
+          low_stock_threshold: number | null;
+          opened_on: string | null;
+          expires_on: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          protocol_id?: string | null;
+          peptide_name: string;
+          lot_number?: string | null;
+          quantity_remaining: number;
+          quantity_unit: 'vials' | 'mg' | 'mL' | 'units';
+          low_stock_threshold?: number | null;
+          opened_on?: string | null;
+          expires_on?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          protocol_id?: string | null;
+          peptide_name?: string;
+          lot_number?: string | null;
+          quantity_remaining?: number;
+          quantity_unit?: 'vials' | 'mg' | 'mL' | 'units';
+          low_stock_threshold?: number | null;
+          opened_on?: string | null;
+          expires_on?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'peptide_inventory_lots_protocol_id_fkey';
+            columns: ['protocol_id'];
+            isOneToOne: false;
+            referencedRelation: 'peptide_protocols';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       workout_routines: {
         Row: {
           id: string;
@@ -584,6 +640,7 @@ export type TableUpdate<T extends TableName> =
 export type Exercise = TableRow<'exercise_library'>;
 export type PeptideProtocol = TableRow<'peptide_protocols'>;
 export type PeptideAdministration = TableRow<'peptide_administrations'>;
+export type PeptideInventoryLot = TableRow<'peptide_inventory_lots'>;
 export type WorkoutRoutine = TableRow<'workout_routines'>;
 export type WorkoutRoutineDay = TableRow<'workout_routine_days'>;
 export type WorkoutRoutineExercise = TableRow<'workout_routine_exercises'>;
