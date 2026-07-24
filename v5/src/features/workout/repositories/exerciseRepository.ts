@@ -2,8 +2,7 @@ import { supabase } from '../../../lib/supabase/client';
 import type { Exercise } from '../../../types/database';
 
 export type RepositoryResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string };
+  { ok: true; data: T } | { ok: false; error: string };
 
 function errorMessage(error: unknown): string {
   if (error instanceof Error && error.message) return error.message;
@@ -21,7 +20,9 @@ function errorMessage(error: unknown): string {
   return 'BioTrack could not load the exercise library.';
 }
 
-export async function loadExerciseLibrary(): Promise<RepositoryResult<Exercise[]>> {
+export async function loadExerciseLibrary(): Promise<
+  RepositoryResult<Exercise[]>
+> {
   if (!supabase) {
     return {
       ok: false,

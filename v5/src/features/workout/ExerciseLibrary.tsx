@@ -26,31 +26,48 @@ function readFavoriteIds(): string[] {
     const saved = window.localStorage.getItem(favoritesStorageKey);
     if (!saved) return [];
     const parsed: unknown = JSON.parse(saved);
-    return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string') : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((value): value is string => typeof value === 'string')
+      : [];
   } catch {
     return [];
   }
 }
 
-function getSubstitutions(exercise: Exercise, exercises: Exercise[]): Exercise[] {
+function getSubstitutions(
+  exercise: Exercise,
+  exercises: Exercise[],
+): Exercise[] {
   const targetEquipment = new Set(exercise.equipment);
   const targetSecondary = new Set(exercise.secondary_muscle_groups);
 
   return exercises
     .filter(
       (candidate) =>
-        candidate.id !== exercise.id && candidate.primary_muscle_group === exercise.primary_muscle_group,
+        candidate.id !== exercise.id &&
+        candidate.primary_muscle_group === exercise.primary_muscle_group,
     )
     .map((candidate) => {
-      const sharedEquipment = candidate.equipment.filter((item) => targetEquipment.has(item)).length;
-      const sharedSecondary = candidate.secondary_muscle_groups.filter((item) => targetSecondary.has(item)).length;
+      const sharedEquipment = candidate.equipment.filter((item) =>
+        targetEquipment.has(item),
+      ).length;
+      const sharedSecondary = candidate.secondary_muscle_groups.filter((item) =>
+        targetSecondary.has(item),
+      ).length;
       const difficultyDistance = Math.abs(
-        difficultyOrder[candidate.difficulty] - difficultyOrder[exercise.difficulty],
+        difficultyOrder[candidate.difficulty] -
+          difficultyOrder[exercise.difficulty],
       );
-      const score = sharedEquipment * 5 + sharedSecondary * 2 + (2 - Math.min(2, difficultyDistance));
+      const score =
+        sharedEquipment * 5 +
+        sharedSecondary * 2 +
+        (2 - Math.min(2, difficultyDistance));
       return { candidate, score };
     })
-    .sort((a, b) => b.score - a.score || a.candidate.name.localeCompare(b.candidate.name))
+    .sort(
+      (a, b) =>
+        b.score - a.score || a.candidate.name.localeCompare(b.candidate.name),
+    )
     .slice(0, 4)
     .map(({ candidate }) => candidate);
 }
@@ -63,8 +80,15 @@ type ExerciseCardProps = {
   onOpen: (exercise: Exercise) => void;
 };
 
-function ExerciseCard({ exercise, favorite, hasDemo, onToggleFavorite, onOpen }: ExerciseCardProps) {
-  const firstInstruction = exercise.instructions[0] ?? 'Open the guide for setup and technique cues.';
+function ExerciseCard({
+  exercise,
+  favorite,
+  hasDemo,
+  onToggleFavorite,
+  onOpen,
+}: ExerciseCardProps) {
+  const firstInstruction =
+    exercise.instructions[0] ?? 'Open the guide for setup and technique cues.';
 
   return (
     <article className="exercise-card exercise-card--interactive">
@@ -77,13 +101,27 @@ function ExerciseCard({ exercise, favorite, hasDemo, onToggleFavorite, onOpen }:
         >
           <ExerciseTechniqueMedia exercise={exercise} />
         </button>
-        <span className={hasDemo ? 'exercise-media-status exercise-media-status--ready' : 'exercise-media-status'}>
+        <span
+          className={
+            hasDemo
+              ? 'exercise-media-status exercise-media-status--ready'
+              : 'exercise-media-status'
+          }
+        >
           {hasDemo ? 'Demo available' : 'Guide available'}
         </span>
         <button
-          className={favorite ? 'exercise-favorite-button exercise-favorite-button--active' : 'exercise-favorite-button'}
+          className={
+            favorite
+              ? 'exercise-favorite-button exercise-favorite-button--active'
+              : 'exercise-favorite-button'
+          }
           type="button"
-          aria-label={favorite ? `Remove ${exercise.name} from favorites` : `Add ${exercise.name} to favorites`}
+          aria-label={
+            favorite
+              ? `Remove ${exercise.name} from favorites`
+              : `Add ${exercise.name} to favorites`
+          }
           aria-pressed={favorite}
           onClick={() => onToggleFavorite(exercise.id)}
         >
@@ -104,14 +142,22 @@ function ExerciseCard({ exercise, favorite, hasDemo, onToggleFavorite, onOpen }:
 
         <div className="exercise-tags" aria-label="Equipment">
           {exercise.equipment.length > 0 ? (
-            exercise.equipment.slice(0, 3).map((item) => <span key={item}>{item}</span>)
+            exercise.equipment
+              .slice(0, 3)
+              .map((item) => <span key={item}>{item}</span>)
           ) : (
             <span>No equipment</span>
           )}
-          {exercise.equipment.length > 3 ? <span>+{exercise.equipment.length - 3}</span> : null}
+          {exercise.equipment.length > 3 ? (
+            <span>+{exercise.equipment.length - 3}</span>
+          ) : null}
         </div>
 
-        <button className="exercise-guide-button" type="button" onClick={() => onOpen(exercise)}>
+        <button
+          className="exercise-guide-button"
+          type="button"
+          onClick={() => onOpen(exercise)}
+        >
           Open exercise guide
           <span aria-hidden="true">→</span>
         </button>
@@ -135,7 +181,10 @@ function ExerciseGuide({
   onSelect: (exercise: Exercise) => void;
   onToggleFavorite: (exerciseId: string) => void;
 }) {
-  const substitutions = useMemo(() => getSubstitutions(exercise, exercises), [exercise, exercises]);
+  const substitutions = useMemo(
+    () => getSubstitutions(exercise, exercises),
+    [exercise, exercises],
+  );
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -173,15 +222,28 @@ function ExerciseGuide({
           </div>
           <div className="exercise-guide-header-actions">
             <button
-              className={favorite ? 'exercise-favorite-button exercise-favorite-button--active' : 'exercise-favorite-button'}
+              className={
+                favorite
+                  ? 'exercise-favorite-button exercise-favorite-button--active'
+                  : 'exercise-favorite-button'
+              }
               type="button"
-              aria-label={favorite ? `Remove ${exercise.name} from favorites` : `Add ${exercise.name} to favorites`}
+              aria-label={
+                favorite
+                  ? `Remove ${exercise.name} from favorites`
+                  : `Add ${exercise.name} to favorites`
+              }
               aria-pressed={favorite}
               onClick={() => onToggleFavorite(exercise.id)}
             >
               <span aria-hidden="true">{favorite ? '★' : '☆'}</span>
             </button>
-            <button className="exercise-guide-close" type="button" aria-label="Close exercise guide" onClick={onClose}>
+            <button
+              className="exercise-guide-close"
+              type="button"
+              aria-label="Close exercise guide"
+              onClick={onClose}
+            >
               ×
             </button>
           </div>
@@ -193,9 +255,18 @@ function ExerciseGuide({
           </div>
 
           <div className="exercise-guide-meta" aria-label="Exercise details">
-            <span><strong>Level</strong>{exercise.difficulty}</span>
-            <span><strong>Primary</strong>{exercise.primary_muscle_group}</span>
-            <span><strong>Equipment</strong>{exercise.equipment.join(', ') || 'None'}</span>
+            <span>
+              <strong>Level</strong>
+              {exercise.difficulty}
+            </span>
+            <span>
+              <strong>Primary</strong>
+              {exercise.primary_muscle_group}
+            </span>
+            <span>
+              <strong>Equipment</strong>
+              {exercise.equipment.join(', ') || 'None'}
+            </span>
           </div>
 
           <div className="exercise-guide-layout">
@@ -212,7 +283,9 @@ function ExerciseGuide({
                   ))}
                 </ol>
               ) : (
-                <p>Detailed instructions are being prepared for this exercise.</p>
+                <p>
+                  Detailed instructions are being prepared for this exercise.
+                </p>
               )}
             </article>
 
@@ -220,41 +293,68 @@ function ExerciseGuide({
               <span className="overview-kicker">Training focus</span>
               <h3>Muscles and setup</h3>
               <dl className="exercise-guide-list">
-                <div><dt>Primary muscle</dt><dd>{exercise.primary_muscle_group}</dd></div>
+                <div>
+                  <dt>Primary muscle</dt>
+                  <dd>{exercise.primary_muscle_group}</dd>
+                </div>
                 <div>
                   <dt>Also trains</dt>
-                  <dd>{exercise.secondary_muscle_groups.join(', ') || 'No secondary muscles listed'}</dd>
+                  <dd>
+                    {exercise.secondary_muscle_groups.join(', ') ||
+                      'No secondary muscles listed'}
+                  </dd>
                 </div>
-                <div><dt>Equipment</dt><dd>{exercise.equipment.join(', ') || 'Bodyweight'}</dd></div>
-                <div><dt>Difficulty</dt><dd>{exercise.difficulty}</dd></div>
+                <div>
+                  <dt>Equipment</dt>
+                  <dd>{exercise.equipment.join(', ') || 'Bodyweight'}</dd>
+                </div>
+                <div>
+                  <dt>Difficulty</dt>
+                  <dd>{exercise.difficulty}</dd>
+                </div>
               </dl>
               <p className="exercise-safety-note">
-                Use a controlled range of motion and stop if you feel sharp pain. Adjust the load or choose a substitute when needed.
+                Use a controlled range of motion and stop if you feel sharp
+                pain. Adjust the load or choose a substitute when needed.
               </p>
             </aside>
           </div>
 
-          <section className="exercise-substitution-section" aria-labelledby="substitution-heading">
+          <section
+            className="exercise-substitution-section"
+            aria-labelledby="substitution-heading"
+          >
             <div className="exercise-guide-section-heading">
               <div>
                 <span className="overview-kicker">Exercise swap</span>
                 <h3 id="substitution-heading">Compatible substitutions</h3>
               </div>
-              <p>Same primary muscle, ranked by similar equipment and difficulty.</p>
+              <p>
+                Same primary muscle, ranked by similar equipment and difficulty.
+              </p>
             </div>
 
             {substitutions.length > 0 ? (
               <div className="exercise-substitution-grid">
                 {substitutions.map((candidate) => (
-                  <button type="button" key={candidate.id} onClick={() => onSelect(candidate)}>
+                  <button
+                    type="button"
+                    key={candidate.id}
+                    onClick={() => onSelect(candidate)}
+                  >
                     <span>{candidate.primary_muscle_group}</span>
                     <strong>{candidate.name}</strong>
-                    <small>{candidate.equipment.join(' · ') || 'Bodyweight'} · {candidate.difficulty}</small>
+                    <small>
+                      {candidate.equipment.join(' · ') || 'Bodyweight'} ·{' '}
+                      {candidate.difficulty}
+                    </small>
                   </button>
                 ))}
               </div>
             ) : (
-              <p className="exercise-substitution-empty">No close substitutes are available in the current library.</p>
+              <p className="exercise-substitution-empty">
+                No close substitutes are available in the current library.
+              </p>
             )}
           </section>
         </div>
@@ -290,28 +390,35 @@ export function ExerciseLibrary() {
   const [sort, setSort] = useState<SortOption>('name');
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [onlyWithMedia, setOnlyWithMedia] = useState(false);
-  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => readFavoriteIds());
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(() =>
+    readFavoriteIds(),
+  );
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
+    null,
+  );
 
   useEffect(() => {
-    window.localStorage.setItem(favoritesStorageKey, JSON.stringify(favoriteIds));
+    window.localStorage.setItem(
+      favoritesStorageKey,
+      JSON.stringify(favoriteIds),
+    );
   }, [favoriteIds]);
 
   const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
 
   const muscleGroups = useMemo(
     () =>
-      Array.from(new Set(exercises.map((exercise) => exercise.primary_muscle_group))).sort((a, b) =>
-        a.localeCompare(b),
-      ),
+      Array.from(
+        new Set(exercises.map((exercise) => exercise.primary_muscle_group)),
+      ).sort((a, b) => a.localeCompare(b)),
     [exercises],
   );
 
   const equipmentOptions = useMemo(
     () =>
-      Array.from(new Set(exercises.flatMap((exercise) => exercise.equipment))).sort((a, b) =>
-        a.localeCompare(b),
-      ),
+      Array.from(
+        new Set(exercises.flatMap((exercise) => exercise.equipment)),
+      ).sort((a, b) => a.localeCompare(b)),
     [exercises],
   );
 
@@ -324,28 +431,66 @@ export function ExerciseLibrary() {
           searchTerm.length === 0 ||
           normalize(exercise.name).includes(searchTerm) ||
           normalize(exercise.primary_muscle_group).includes(searchTerm) ||
-          exercise.secondary_muscle_groups.some((item) => normalize(item).includes(searchTerm)) ||
-          exercise.equipment.some((item) => normalize(item).includes(searchTerm)) ||
-          exercise.instructions.some((item) => normalize(item).includes(searchTerm));
-        const matchesMuscle = muscleGroup === allOption || exercise.primary_muscle_group === muscleGroup;
-        const matchesEquipment = equipment === allOption || exercise.equipment.includes(equipment);
-        const matchesDifficulty = difficulty === allOption || exercise.difficulty === difficulty;
+          exercise.secondary_muscle_groups.some((item) =>
+            normalize(item).includes(searchTerm),
+          ) ||
+          exercise.equipment.some((item) =>
+            normalize(item).includes(searchTerm),
+          ) ||
+          exercise.instructions.some((item) =>
+            normalize(item).includes(searchTerm),
+          );
+        const matchesMuscle =
+          muscleGroup === allOption ||
+          exercise.primary_muscle_group === muscleGroup;
+        const matchesEquipment =
+          equipment === allOption || exercise.equipment.includes(equipment);
+        const matchesDifficulty =
+          difficulty === allOption || exercise.difficulty === difficulty;
         const matchesFavorites = !onlyFavorites || favoriteSet.has(exercise.id);
         const matchesMedia =
-          !onlyWithMedia || hasExerciseVisual(exercise, media.bundlesByExerciseId.get(exercise.id));
+          !onlyWithMedia ||
+          hasExerciseVisual(
+            exercise,
+            media.bundlesByExerciseId.get(exercise.id),
+          );
 
-        return matchesSearch && matchesMuscle && matchesEquipment && matchesDifficulty && matchesFavorites && matchesMedia;
+        return (
+          matchesSearch &&
+          matchesMuscle &&
+          matchesEquipment &&
+          matchesDifficulty &&
+          matchesFavorites &&
+          matchesMedia
+        );
       })
       .sort((a, b) => {
         if (sort === 'muscle') {
-          return a.primary_muscle_group.localeCompare(b.primary_muscle_group) || a.name.localeCompare(b.name);
+          return (
+            a.primary_muscle_group.localeCompare(b.primary_muscle_group) ||
+            a.name.localeCompare(b.name)
+          );
         }
         if (sort === 'difficulty') {
-          return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty] || a.name.localeCompare(b.name);
+          return (
+            difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty] ||
+            a.name.localeCompare(b.name)
+          );
         }
         return a.name.localeCompare(b.name);
       });
-  }, [difficulty, equipment, exercises, favoriteSet, media.bundlesByExerciseId, muscleGroup, onlyFavorites, onlyWithMedia, search, sort]);
+  }, [
+    difficulty,
+    equipment,
+    exercises,
+    favoriteSet,
+    media.bundlesByExerciseId,
+    muscleGroup,
+    onlyFavorites,
+    onlyWithMedia,
+    search,
+    sort,
+  ]);
 
   const activeFilterCount = [
     search.trim().length > 0,
@@ -375,19 +520,30 @@ export function ExerciseLibrary() {
   }
 
   return (
-    <section className="exercise-library" aria-labelledby="exercise-library-heading">
+    <section
+      className="exercise-library"
+      aria-labelledby="exercise-library-heading"
+    >
       <div className="section-heading exercise-library-heading">
         <div>
           <p className="eyebrow">Workout AI</p>
           <h2 id="exercise-library-heading">Exercise library</h2>
-          <p>Find an exercise, review technique and compare compatible substitutions before training.</p>
+          <p>
+            Find an exercise, review technique and compare compatible
+            substitutions before training.
+          </p>
         </div>
         <span className="library-count" aria-live="polite">
-          {status === 'ready' ? `${filteredExercises.length} of ${exercises.length}` : 'Loading'}
+          {status === 'ready'
+            ? `${filteredExercises.length} of ${exercises.length}`
+            : 'Loading'}
         </span>
       </div>
 
-      <div className="exercise-filters exercise-filters--advanced" aria-label="Exercise filters">
+      <div
+        className="exercise-filters exercise-filters--advanced"
+        aria-label="Exercise filters"
+      >
         <label className="exercise-search">
           <span>Search</span>
           <input
@@ -401,17 +557,31 @@ export function ExerciseLibrary() {
 
         <label>
           <span>Muscle group</span>
-          <select value={muscleGroup} onChange={(event) => setMuscleGroup(event.target.value)}>
+          <select
+            value={muscleGroup}
+            onChange={(event) => setMuscleGroup(event.target.value)}
+          >
             <option value={allOption}>All muscle groups</option>
-            {muscleGroups.map((item) => <option value={item} key={item}>{item}</option>)}
+            {muscleGroups.map((item) => (
+              <option value={item} key={item}>
+                {item}
+              </option>
+            ))}
           </select>
         </label>
 
         <label>
           <span>Equipment</span>
-          <select value={equipment} onChange={(event) => setEquipment(event.target.value)}>
+          <select
+            value={equipment}
+            onChange={(event) => setEquipment(event.target.value)}
+          >
             <option value={allOption}>All equipment</option>
-            {equipmentOptions.map((item) => <option value={item} key={item}>{item}</option>)}
+            {equipmentOptions.map((item) => (
+              <option value={item} key={item}>
+                {item}
+              </option>
+            ))}
           </select>
         </label>
 
@@ -419,7 +589,9 @@ export function ExerciseLibrary() {
           <span>Difficulty</span>
           <select
             value={difficulty}
-            onChange={(event) => setDifficulty(event.target.value as DifficultyFilter)}
+            onChange={(event) =>
+              setDifficulty(event.target.value as DifficultyFilter)
+            }
           >
             <option value={allOption}>All levels</option>
             <option value="beginner">Beginner</option>
@@ -430,7 +602,10 @@ export function ExerciseLibrary() {
 
         <label>
           <span>Sort</span>
-          <select value={sort} onChange={(event) => setSort(event.target.value as SortOption)}>
+          <select
+            value={sort}
+            onChange={(event) => setSort(event.target.value as SortOption)}
+          >
             <option value="name">Name</option>
             <option value="muscle">Muscle group</option>
             <option value="difficulty">Beginner first</option>
@@ -441,16 +616,26 @@ export function ExerciseLibrary() {
       <div className="exercise-library-toolbar">
         <div className="exercise-filter-toggles">
           <button
-            className={onlyFavorites ? 'exercise-toggle-button exercise-toggle-button--active' : 'exercise-toggle-button'}
+            className={
+              onlyFavorites
+                ? 'exercise-toggle-button exercise-toggle-button--active'
+                : 'exercise-toggle-button'
+            }
             type="button"
             aria-pressed={onlyFavorites}
             onClick={() => setOnlyFavorites((current) => !current)}
           >
             <span aria-hidden="true">★</span> Favorites
-            {favoriteIds.length > 0 ? <small>{favoriteIds.length}</small> : null}
+            {favoriteIds.length > 0 ? (
+              <small>{favoriteIds.length}</small>
+            ) : null}
           </button>
           <button
-            className={onlyWithMedia ? 'exercise-toggle-button exercise-toggle-button--active' : 'exercise-toggle-button'}
+            className={
+              onlyWithMedia
+                ? 'exercise-toggle-button exercise-toggle-button--active'
+                : 'exercise-toggle-button'
+            }
             type="button"
             aria-pressed={onlyWithMedia}
             onClick={() => setOnlyWithMedia((current) => !current)}
@@ -459,8 +644,13 @@ export function ExerciseLibrary() {
           </button>
         </div>
         {activeFilterCount > 0 ? (
-          <button className="exercise-clear-button" type="button" onClick={clearFilters}>
-            Clear {activeFilterCount} {activeFilterCount === 1 ? 'filter' : 'filters'}
+          <button
+            className="exercise-clear-button"
+            type="button"
+            onClick={clearFilters}
+          >
+            Clear {activeFilterCount}{' '}
+            {activeFilterCount === 1 ? 'filter' : 'filters'}
           </button>
         ) : null}
       </div>
@@ -471,22 +661,36 @@ export function ExerciseLibrary() {
         <div className="exercise-state-card" role="alert">
           <h3>Exercise library unavailable</h3>
           <p>{error ?? 'Please check your connection and try again.'}</p>
-          <button className="secondary-button" type="button" onClick={refresh}>Try again</button>
+          <button className="secondary-button" type="button" onClick={refresh}>
+            Try again
+          </button>
         </div>
       ) : null}
 
       {status === 'empty' ? (
         <div className="exercise-state-card">
           <h3>No exercises yet</h3>
-          <p>The database is connected, but the shared exercise library has not been seeded.</p>
+          <p>
+            The database is connected, but the shared exercise library has not
+            been seeded.
+          </p>
         </div>
       ) : null}
 
       {status === 'ready' && filteredExercises.length === 0 ? (
         <div className="exercise-state-card">
           <h3>No matching exercises</h3>
-          <p>Clear a filter, remove the favorites-only option or try a broader search.</p>
-          <button className="secondary-button" type="button" onClick={clearFilters}>Clear filters</button>
+          <p>
+            Clear a filter, remove the favorites-only option or try a broader
+            search.
+          </p>
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={clearFilters}
+          >
+            Clear filters
+          </button>
         </div>
       ) : null}
 
@@ -496,7 +700,10 @@ export function ExerciseLibrary() {
             <ExerciseCard
               exercise={exercise}
               favorite={favoriteSet.has(exercise.id)}
-              hasDemo={hasExerciseVisual(exercise, media.bundlesByExerciseId.get(exercise.id))}
+              hasDemo={hasExerciseVisual(
+                exercise,
+                media.bundlesByExerciseId.get(exercise.id),
+              )}
               onToggleFavorite={toggleFavorite}
               onOpen={setSelectedExercise}
               key={exercise.id}
@@ -513,7 +720,9 @@ export function ExerciseLibrary() {
           onClose={() => setSelectedExercise(null)}
           onSelect={(exercise) => {
             setSelectedExercise(exercise);
-            document.querySelector('.exercise-guide-scroll')?.scrollTo({ top: 0, behavior: 'smooth' });
+            document
+              .querySelector('.exercise-guide-scroll')
+              ?.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           onToggleFavorite={toggleFavorite}
         />

@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react';
 import type { Exercise } from '../../types/database';
 import { useAuth } from '../auth/AuthProvider';
-import { ExerciseTechniqueMedia, ExerciseTechniqueSheet } from './ExerciseTechniqueMedia';
+import {
+  ExerciseTechniqueMedia,
+  ExerciseTechniqueSheet,
+} from './ExerciseTechniqueMedia';
 import { useExerciseMediaLibrary } from './ExerciseMediaProvider';
 import { getTechniqueSummary } from './exerciseMedia';
 import { hasExerciseVisual } from './exerciseVisuals';
@@ -42,25 +45,45 @@ function demoOrder(exercise: Exercise): number {
 export function ExerciseVisualGallery() {
   const library = useExerciseLibrary();
   const media = useExerciseMediaLibrary();
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
+    null,
+  );
   const [showAll, setShowAll] = useState(false);
 
   const visualExercises = useMemo(
     () =>
       library.exercises
-        .filter((exercise) => hasExerciseVisual(exercise, media.bundlesByExerciseId.get(exercise.id)))
-        .sort((left, right) => demoOrder(left) - demoOrder(right) || left.name.localeCompare(right.name)),
+        .filter((exercise) =>
+          hasExerciseVisual(
+            exercise,
+            media.bundlesByExerciseId.get(exercise.id),
+          ),
+        )
+        .sort(
+          (left, right) =>
+            demoOrder(left) - demoOrder(right) ||
+            left.name.localeCompare(right.name),
+        ),
     [library.exercises, media.bundlesByExerciseId],
   );
 
   if (library.status === 'loading' || media.status === 'loading') {
     return (
-      <section className="visual-demo-gallery visual-demo-gallery--loading" aria-live="polite" aria-busy="true">
+      <section
+        className="visual-demo-gallery visual-demo-gallery--loading"
+        aria-live="polite"
+        aria-busy="true"
+      >
         <div className="visual-demo-gallery-heading">
-          <div><p className="eyebrow">Technique media</p><h2>Loading professional movement demos…</h2></div>
+          <div>
+            <p className="eyebrow">Technique media</p>
+            <h2>Loading professional movement demos…</h2>
+          </div>
         </div>
         <div className="visual-demo-skeleton-row">
-          {Array.from({ length: 3 }, (_, index) => <span key={index} />)}
+          {Array.from({ length: 3 }, (_, index) => (
+            <span key={index} />
+          ))}
         </div>
       </section>
     );
@@ -72,13 +95,19 @@ export function ExerciseVisualGallery() {
 
   return (
     <>
-      <section className="visual-demo-gallery" aria-labelledby="visual-demo-gallery-heading">
+      <section
+        className="visual-demo-gallery"
+        aria-labelledby="visual-demo-gallery-heading"
+      >
         <div className="visual-demo-gallery-heading">
           <div>
             <p className="eyebrow">Technique media</p>
-            <h2 id="visual-demo-gallery-heading">See the movement before you train</h2>
+            <h2 id="visual-demo-gallery-heading">
+              See the movement before you train
+            </h2>
             <p>
-              BioTrack uses rights-cleared professional images, movement loops and short videos stored in its own media catalog.
+              BioTrack uses rights-cleared professional images, movement loops
+              and short videos stored in its own media catalog.
             </p>
           </div>
           <span>{visualExercises.length} professional demos</span>
@@ -87,18 +116,29 @@ export function ExerciseVisualGallery() {
         <div className="visual-demo-grid">
           {displayed.map((exercise) => {
             const bundle = media.getBundle(exercise.id);
-            const summary = getTechniqueSummary(bundle) ?? exercise.instructions[0] ?? 'Open the complete technique guide.';
+            const summary =
+              getTechniqueSummary(bundle) ??
+              exercise.instructions[0] ??
+              'Open the complete technique guide.';
 
             return (
               <article className="visual-demo-card" key={exercise.id}>
-                <button type="button" onClick={() => setSelectedExercise(exercise)} aria-label={`Open ${exercise.name} technique demo`}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedExercise(exercise)}
+                  aria-label={`Open ${exercise.name} technique demo`}
+                >
                   <ExerciseTechniqueMedia exercise={exercise} />
                 </button>
                 <div>
                   <span>{exercise.primary_muscle_group}</span>
                   <h3>{exercise.name}</h3>
                   <p>{summary}</p>
-                  <button className="exercise-guide-button" type="button" onClick={() => setSelectedExercise(exercise)}>
+                  <button
+                    className="exercise-guide-button"
+                    type="button"
+                    onClick={() => setSelectedExercise(exercise)}
+                  >
                     View technique
                     <span aria-hidden="true">→</span>
                   </button>
@@ -109,14 +149,23 @@ export function ExerciseVisualGallery() {
         </div>
 
         {visualExercises.length > 8 ? (
-          <button className="visual-demo-toggle" type="button" onClick={() => setShowAll((current) => !current)}>
-            {showAll ? 'Show featured demos' : `Show all ${visualExercises.length} demos`}
+          <button
+            className="visual-demo-toggle"
+            type="button"
+            onClick={() => setShowAll((current) => !current)}
+          >
+            {showAll
+              ? 'Show featured demos'
+              : `Show all ${visualExercises.length} demos`}
           </button>
         ) : null}
       </section>
 
       {selectedExercise ? (
-        <ExerciseTechniqueSheet exercise={selectedExercise} onClose={() => setSelectedExercise(null)} />
+        <ExerciseTechniqueSheet
+          exercise={selectedExercise}
+          onClose={() => setSelectedExercise(null)}
+        />
       ) : null}
     </>
   );
@@ -127,7 +176,9 @@ export function ActiveWorkoutTechniqueDock() {
   const active = useActiveWorkout(user?.id);
   const library = useExerciseLibrary();
   const media = useExerciseMediaLibrary();
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
+    null,
+  );
   const [selectedId, setSelectedId] = useState('');
 
   const exerciseById = useMemo(
@@ -144,10 +195,17 @@ export function ActiveWorkoutTechniqueDock() {
         exercise: exerciseById.get(sessionExercise.exercise_id) ?? null,
       }))
       .filter(
-        (item): item is { sessionExercise: typeof item.sessionExercise; exercise: Exercise } => {
+        (
+          item,
+        ): item is {
+          sessionExercise: typeof item.sessionExercise;
+          exercise: Exercise;
+        } => {
           if (!item.exercise) return false;
           const bundle = media.bundlesByExerciseId.get(item.exercise.id);
-          return Boolean(bundle?.guide) || hasExerciseVisual(item.exercise, bundle);
+          return (
+            Boolean(bundle?.guide) || hasExerciseVisual(item.exercise, bundle)
+          );
         },
       );
   }, [active.session, exerciseById, media.bundlesByExerciseId]);
@@ -157,8 +215,13 @@ export function ActiveWorkoutTechniqueDock() {
   const nextIncomplete = active.session.exercises.find((exercise) =>
     exercise.sets.some((set) => !set.is_completed && !set.is_skipped),
   );
-  const preferredId = selectedId || nextIncomplete?.exercise_id || available[0]?.exercise.id || '';
-  const current = available.find((item) => item.exercise.id === preferredId) ?? available[0];
+  const preferredId =
+    selectedId ||
+    nextIncomplete?.exercise_id ||
+    available[0]?.exercise.id ||
+    '';
+  const current =
+    available.find((item) => item.exercise.id === preferredId) ?? available[0];
   if (!current) return null;
 
   const bundle = media.getBundle(current.exercise.id);
@@ -170,7 +233,10 @@ export function ActiveWorkoutTechniqueDock() {
 
   return (
     <>
-      <aside className="active-technique-dock" aria-labelledby="active-technique-dock-heading">
+      <aside
+        className="active-technique-dock"
+        aria-labelledby="active-technique-dock-heading"
+      >
         <div className="active-technique-dock-copy">
           <span className="overview-kicker">Form check</span>
           <h3 id="active-technique-dock-heading">{current.exercise.name}</h3>
@@ -183,21 +249,33 @@ export function ActiveWorkoutTechniqueDock() {
           {available.length > 1 ? (
             <label>
               <span>Exercise guide</span>
-              <select value={current.exercise.id} onChange={(event) => setSelectedId(event.target.value)}>
+              <select
+                value={current.exercise.id}
+                onChange={(event) => setSelectedId(event.target.value)}
+              >
                 {available.map((item) => (
-                  <option key={item.exercise.id} value={item.exercise.id}>{item.exercise.name}</option>
+                  <option key={item.exercise.id} value={item.exercise.id}>
+                    {item.exercise.name}
+                  </option>
                 ))}
               </select>
             </label>
           ) : null}
-          <button className="primary-button" type="button" onClick={() => setSelectedExercise(current.exercise)}>
+          <button
+            className="primary-button"
+            type="button"
+            onClick={() => setSelectedExercise(current.exercise)}
+          >
             Open full technique guide
           </button>
         </div>
       </aside>
 
       {selectedExercise ? (
-        <ExerciseTechniqueSheet exercise={selectedExercise} onClose={() => setSelectedExercise(null)} />
+        <ExerciseTechniqueSheet
+          exercise={selectedExercise}
+          onClose={() => setSelectedExercise(null)}
+        />
       ) : null}
     </>
   );

@@ -37,10 +37,12 @@ type PersistSetWrite = (
 ) => Promise<{ ok: true; data: null } | { ok: false; error: string }>;
 
 type FlushResult =
-  | { ok: true; synced: number }
-  | { ok: false; error: string; synced: number };
+  { ok: true; synced: number } | { ok: false; error: string; synced: number };
 
-const runtimeStateByUser = new Map<string, Omit<WorkoutSyncState, 'pendingCount'>>();
+const runtimeStateByUser = new Map<
+  string,
+  Omit<WorkoutSyncState, 'pendingCount'>
+>();
 const syncPromiseByUser = new Map<string, Promise<FlushResult>>();
 
 function cacheKey(userId: string): string {
@@ -63,7 +65,10 @@ function isWorkoutSetInput(value: unknown): value is WorkoutSetInput {
   );
 }
 
-function isPendingWrite(value: unknown, userId: string): value is PendingWorkoutSetWrite {
+function isPendingWrite(
+  value: unknown,
+  userId: string,
+): value is PendingWorkoutSetWrite {
   if (!value || typeof value !== 'object') return false;
   const entry = value as Partial<PendingWorkoutSetWrite>;
   return (
@@ -111,14 +116,22 @@ function setRuntimeState(
   userId: string,
   patch: Partial<Omit<WorkoutSyncState, 'pendingCount'>>,
 ): void {
-  const current = runtimeStateByUser.get(userId) ?? { syncing: false, error: null };
+  const current = runtimeStateByUser.get(userId) ?? {
+    syncing: false,
+    error: null,
+  };
   runtimeStateByUser.set(userId, { ...current, ...patch });
   emitSyncState(userId);
 }
 
-export function getWorkoutSyncState(userId: string | undefined): WorkoutSyncState {
+export function getWorkoutSyncState(
+  userId: string | undefined,
+): WorkoutSyncState {
   if (!userId) return { pendingCount: 0, syncing: false, error: null };
-  const runtime = runtimeStateByUser.get(userId) ?? { syncing: false, error: null };
+  const runtime = runtimeStateByUser.get(userId) ?? {
+    syncing: false,
+    error: null,
+  };
   return {
     pendingCount: readOutbox(userId).length,
     syncing: runtime.syncing,
@@ -161,18 +174,27 @@ export function subscribeWorkoutSyncRequests(
   return () => window.removeEventListener(SYNC_REQUEST_EVENT, handler);
 }
 
-export function cacheActiveWorkout(userId: string, session: ActiveWorkoutSession): void {
+export function cacheActiveWorkout(
+  userId: string,
+  session: ActiveWorkoutSession,
+): void {
   try {
     window.localStorage.setItem(
       cacheKey(userId),
-      JSON.stringify({ version: 1, session, cachedAt: new Date().toISOString() }),
+      JSON.stringify({
+        version: 1,
+        session,
+        cachedAt: new Date().toISOString(),
+      }),
     );
   } catch {
     // Offline recovery remains best effort when private storage is unavailable.
   }
 }
 
-export function readCachedActiveWorkout(userId: string): ActiveWorkoutSession | null {
+export function readCachedActiveWorkout(
+  userId: string,
+): ActiveWorkoutSession | null {
   try {
     const raw = window.localStorage.getItem(cacheKey(userId));
     if (!raw) return null;
@@ -218,7 +240,10 @@ export function queueWorkoutSetWrite(
     input,
     queuedAt: new Date().toISOString(),
   };
-  const next = [...readOutbox(userId).filter((item) => item.setId !== setId), entry];
+  const next = [
+    ...readOutbox(userId).filter((item) => item.setId !== setId),
+    entry,
+  ];
   writeOutbox(userId, next);
   setRuntimeState(userId, { error: null });
 }
@@ -227,7 +252,9 @@ export function applyPendingWorkoutSetWrites(
   session: ActiveWorkoutSession,
   userId: string,
 ): ActiveWorkoutSession {
-  const entries = readOutbox(userId).filter((entry) => entry.sessionId === session.id);
+  const entries = readOutbox(userId).filter(
+    (entry) => entry.sessionId === session.id,
+  );
   if (entries.length === 0) return session;
 
   const pendingBySetId = new Map(entries.map((entry) => [entry.setId, entry]));
@@ -261,7 +288,9 @@ export function applyPendingWorkoutSetWrites(
 export function isConnectivityError(message: string): boolean {
   return (
     !navigator.onLine ||
-    /failed to fetch|network request failed|networkerror|load failed|connection|offline/i.test(message)
+    /failed to fetch|network request failed|networkerror|load failed|connection|offline/i.test(
+      message,
+    )
   );
 }
 
@@ -298,7 +327,8 @@ export async function flushPendingWorkoutSetWrites(
       writeOutbox(
         userId,
         current.filter(
-          (item) => !(item.setId === entry.setId && item.queuedAt === entry.queuedAt),
+          (item) =>
+            !(item.setId === entry.setId && item.queuedAt === entry.queuedAt),
         ),
       );
       synced += 1;

@@ -30,13 +30,16 @@ function formatStartedAt(value: string): string {
   }).format(date);
 }
 
-function useCachedActiveWorkout(userId: string | undefined): ActiveWorkoutSession | null {
+function useCachedActiveWorkout(
+  userId: string | undefined,
+): ActiveWorkoutSession | null {
   const [session, setSession] = useState<ActiveWorkoutSession | null>(() =>
     userId ? readCachedActiveWorkout(userId) : null,
   );
 
   useEffect(() => {
-    const refresh = () => setSession(userId ? readCachedActiveWorkout(userId) : null);
+    const refresh = () =>
+      setSession(userId ? readCachedActiveWorkout(userId) : null);
     const refreshWhenVisible = () => {
       if (!document.hidden) refresh();
     };
@@ -56,7 +59,9 @@ function useCachedActiveWorkout(userId: string | undefined): ActiveWorkoutSessio
   return session;
 }
 
-export function ActiveWorkoutHistoryNotice({ userId }: ActiveWorkoutHistoryNoticeProps) {
+export function ActiveWorkoutHistoryNotice({
+  userId,
+}: ActiveWorkoutHistoryNoticeProps) {
   const session = useCachedActiveWorkout(userId);
   const progress = useMemo(() => {
     if (!session) return null;
@@ -85,15 +90,23 @@ export function ActiveWorkoutHistoryNotice({ userId }: ActiveWorkoutHistoryNotic
   }
 
   return (
-    <section className="history-active-workout" aria-labelledby="history-active-workout-heading">
-      <div className="history-active-workout-mark" aria-hidden="true">▶</div>
+    <section
+      className="history-active-workout"
+      aria-labelledby="history-active-workout-heading"
+    >
+      <div className="history-active-workout-mark" aria-hidden="true">
+        ▶
+      </div>
       <div className="history-active-workout-copy">
         <span>Workout still in progress</span>
         <strong id="history-active-workout-heading">{session.name}</strong>
         <p>
-          History only shows completed sessions. This workout started {formatStartedAt(session.started_at)}
-          {' · '}{progress.completed} completed
-          {' · '}{progress.remaining} remaining
+          History only shows completed sessions. This workout started{' '}
+          {formatStartedAt(session.started_at)}
+          {' · '}
+          {progress.completed} completed
+          {' · '}
+          {progress.remaining} remaining
           {progress.skipped > 0 ? ` · ${progress.skipped} skipped` : ''}.
         </p>
       </div>

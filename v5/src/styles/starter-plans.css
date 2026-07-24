@@ -87,20 +87,32 @@
   border: 1px solid var(--border);
   border-radius: 1.35rem;
   background:
-    radial-gradient(circle at top right, rgba(69, 200, 255, 0.1), transparent 15rem),
+    radial-gradient(
+      circle at top right,
+      rgba(69, 200, 255, 0.1),
+      transparent 15rem
+    ),
     linear-gradient(145deg, rgba(16, 34, 55, 0.98), rgba(8, 21, 36, 0.96));
   box-shadow: var(--shadow);
 }
 
 .starter-plan-card--lean-strong-four-day {
   background:
-    radial-gradient(circle at top right, rgba(72, 214, 165, 0.12), transparent 15rem),
+    radial-gradient(
+      circle at top right,
+      rgba(72, 214, 165, 0.12),
+      transparent 15rem
+    ),
     linear-gradient(145deg, rgba(16, 39, 51, 0.98), rgba(8, 22, 33, 0.96));
 }
 
 .starter-plan-card--busy-week-two-day {
   background:
-    radial-gradient(circle at top right, rgba(248, 202, 101, 0.11), transparent 15rem),
+    radial-gradient(
+      circle at top right,
+      rgba(248, 202, 101, 0.11),
+      transparent 15rem
+    ),
     linear-gradient(145deg, rgba(37, 35, 45, 0.98), rgba(14, 20, 33, 0.96));
 }
 
@@ -366,14 +378,23 @@
 
 .starter-plan-card--loading {
   min-height: 31rem;
-  background: linear-gradient(90deg, rgba(147, 197, 253, 0.05), rgba(147, 197, 253, 0.13), rgba(147, 197, 253, 0.05));
+  background: linear-gradient(
+    90deg,
+    rgba(147, 197, 253, 0.05),
+    rgba(147, 197, 253, 0.13),
+    rgba(147, 197, 253, 0.05)
+  );
   background-size: 220% 100%;
   animation: starter-plan-pulse 1.4s linear infinite;
 }
 
 @keyframes starter-plan-pulse {
-  from { background-position: 120% 0; }
-  to { background-position: -120% 0; }
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
 }
 
 @media (min-width: 760px) {

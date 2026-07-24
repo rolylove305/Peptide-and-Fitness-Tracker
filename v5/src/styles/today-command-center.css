@@ -1,21 +1,33 @@
 .overview-hero--scheduled {
   border-color: rgba(69, 200, 255, 0.38);
   background:
-    radial-gradient(circle at 90% 12%, rgba(69, 200, 255, 0.24), transparent 15rem),
+    radial-gradient(
+      circle at 90% 12%,
+      rgba(69, 200, 255, 0.24),
+      transparent 15rem
+    ),
     linear-gradient(145deg, rgba(17, 48, 76, 0.99), rgba(7, 21, 36, 0.98));
 }
 
 .overview-hero--complete {
   border-color: rgba(72, 214, 165, 0.34);
   background:
-    radial-gradient(circle at 90% 10%, rgba(72, 214, 165, 0.2), transparent 15rem),
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(72, 214, 165, 0.2),
+      transparent 15rem
+    ),
     linear-gradient(145deg, rgba(14, 53, 57, 0.98), rgba(7, 23, 34, 0.98));
 }
 
 .overview-hero--rest {
   border-color: rgba(167, 139, 250, 0.26);
   background:
-    radial-gradient(circle at 90% 10%, rgba(167, 139, 250, 0.16), transparent 15rem),
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(167, 139, 250, 0.16),
+      transparent 15rem
+    ),
     linear-gradient(145deg, rgba(27, 39, 65, 0.98), rgba(8, 20, 35, 0.98));
 }
 
@@ -49,7 +61,11 @@
   border: 1px solid rgba(69, 200, 255, 0.18);
   border-radius: 1.2rem;
   background:
-    radial-gradient(circle at 12% 0%, rgba(69, 200, 255, 0.1), transparent 14rem),
+    radial-gradient(
+      circle at 12% 0%,
+      rgba(69, 200, 255, 0.1),
+      transparent 14rem
+    ),
     rgba(8, 23, 39, 0.92);
 }
 

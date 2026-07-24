@@ -111,22 +111,33 @@ export function WeeklyPlanner({ onNavigate }: WeeklyPlannerProps) {
     active.status === 'loading';
 
   return (
-    <section className="weekly-planner" aria-labelledby="weekly-planner-heading">
+    <section
+      className="weekly-planner"
+      aria-labelledby="weekly-planner-heading"
+    >
       <header className="weekly-planner-heading">
         <div>
           <p className="eyebrow">Weekly Planner</p>
-          <h2 id="weekly-planner-heading">Turn your routine into a real week</h2>
+          <h2 id="weekly-planner-heading">
+            Turn your routine into a real week
+          </h2>
           <p>
-            Assign saved routine days, start today’s session and adjust the week without
-            changing completed history.
+            Assign saved routine days, start today’s session and adjust the week
+            without changing completed history.
           </p>
         </div>
         <span>{formatWeekRange()}</span>
       </header>
 
       <div className="weekly-planner-summary">
-        <article><span>Planned</span><strong>{plannedCount}</strong></article>
-        <article><span>Completed as planned</span><strong>{completedPlannedCount}</strong></article>
+        <article>
+          <span>Planned</span>
+          <strong>{plannedCount}</strong>
+        </article>
+        <article>
+          <span>Completed as planned</span>
+          <strong>{completedPlannedCount}</strong>
+        </article>
         <article>
           <span>Weekly adherence</span>
           <strong>
@@ -138,7 +149,9 @@ export function WeeklyPlanner({ onNavigate }: WeeklyPlannerProps) {
       </div>
 
       {message ? (
-        <p className="builder-message builder-message--success" role="status">{message}</p>
+        <p className="builder-message builder-message--success" role="status">
+          {message}
+        </p>
       ) : null}
       {error || routines.error || history.error || active.error ? (
         <p className="builder-message builder-message--error" role="alert">
@@ -154,7 +167,11 @@ export function WeeklyPlanner({ onNavigate }: WeeklyPlannerProps) {
         <div className="weekly-planner-empty">
           <h3>Create or add a routine first</h3>
           <p>The planner needs at least one active routine day.</p>
-          <button className="primary-button" type="button" onClick={() => onNavigate('plans')}>
+          <button
+            className="primary-button"
+            type="button"
+            onClick={() => onNavigate('plans')}
+          >
             Browse plans
           </button>
         </div>
@@ -179,8 +196,15 @@ export function WeeklyPlanner({ onNavigate }: WeeklyPlannerProps) {
                 key={weekday.key}
               >
                 <header>
-                  <div><strong>{weekday.short}</strong><span>{date.getDate()}</span></div>
-                  {completed ? <em>Completed</em> : isToday ? <em>Today</em> : null}
+                  <div>
+                    <strong>{weekday.short}</strong>
+                    <span>{date.getDate()}</span>
+                  </div>
+                  {completed ? (
+                    <em>Completed</em>
+                  ) : isToday ? (
+                    <em>Today</em>
+                  ) : null}
                 </header>
                 <label>
                   <span className="sr-only">Workout for {weekday.label}</span>
@@ -189,7 +213,8 @@ export function WeeklyPlanner({ onNavigate }: WeeklyPlannerProps) {
                     disabled={saving}
                     onChange={(event) => {
                       const next = { ...schedule };
-                      if (event.target.value) next[weekday.key] = event.target.value;
+                      if (event.target.value)
+                        next[weekday.key] = event.target.value;
                       else delete next[weekday.key];
                       void saveSchedule(next);
                     }}
@@ -215,7 +240,9 @@ export function WeeklyPlanner({ onNavigate }: WeeklyPlannerProps) {
                         className="primary-button"
                         type="button"
                         disabled={active.startingDayId === selectedDay.id}
-                        onClick={() => void startScheduledWorkout(selectedDay.id)}
+                        onClick={() =>
+                          void startScheduledWorkout(selectedDay.id)
+                        }
                       >
                         {active.startingDayId === selectedDay.id
                           ? 'Starting…'
@@ -237,8 +264,8 @@ export function WeeklyPlanner({ onNavigate }: WeeklyPlannerProps) {
       <aside className="weekly-planner-note">
         <strong>Flexible by design.</strong>
         <span>
-          Moving a session changes only your recurring weekly plan. Completed workouts stay
-          attached to the date they were performed.
+          Moving a session changes only your recurring weekly plan. Completed
+          workouts stay attached to the date they were performed.
         </span>
       </aside>
     </section>

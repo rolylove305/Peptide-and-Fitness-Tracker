@@ -9,8 +9,16 @@
   border: 1px solid rgba(72, 214, 165, 0.34);
   border-radius: 1.2rem;
   background:
-    radial-gradient(circle at 8% 10%, rgba(69, 200, 255, 0.14), transparent 18rem),
-    radial-gradient(circle at 92% 5%, rgba(72, 214, 165, 0.12), transparent 16rem),
+    radial-gradient(
+      circle at 8% 10%,
+      rgba(69, 200, 255, 0.14),
+      transparent 18rem
+    ),
+    radial-gradient(
+      circle at 92% 5%,
+      rgba(72, 214, 165, 0.12),
+      transparent 16rem
+    ),
     linear-gradient(145deg, rgba(10, 31, 48, 0.985), rgba(4, 16, 29, 0.985));
   box-shadow:
     0 18px 55px rgba(0, 0, 0, 0.34),
@@ -37,7 +45,11 @@
   place-items: center;
   border: 1px solid rgba(69, 200, 255, 0.24);
   border-radius: 0.82rem;
-  background: linear-gradient(145deg, rgba(69, 200, 255, 0.16), rgba(72, 214, 165, 0.13));
+  background: linear-gradient(
+    145deg,
+    rgba(69, 200, 255, 0.16),
+    rgba(72, 214, 165, 0.13)
+  );
   color: #c7f5ff;
   font-size: 0.72rem;
   font-weight: 950;

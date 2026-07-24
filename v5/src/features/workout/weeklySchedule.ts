@@ -23,7 +23,11 @@ export function readWeeklySchedule(value: unknown): WeeklySchedule {
 
   const result: WeeklySchedule = {};
   Object.entries(value).forEach(([key, dayId]) => {
-    if (validKeys.has(key as WeekdayKey) && typeof dayId === 'string' && dayId.trim()) {
+    if (
+      validKeys.has(key as WeekdayKey) &&
+      typeof dayId === 'string' &&
+      dayId.trim()
+    ) {
       result[key as WeekdayKey] = dayId;
     }
   });
@@ -55,7 +59,10 @@ export function startOfWeek(date = new Date()): Date {
   return result;
 }
 
-export function dateForWeekday(weekdayKey: WeekdayKey, anchor = new Date()): Date {
+export function dateForWeekday(
+  weekdayKey: WeekdayKey,
+  anchor = new Date(),
+): Date {
   const monday = startOfWeek(anchor);
   const offset = weekdayKey === '0' ? 6 : Number(weekdayKey) - 1;
   const result = new Date(monday);
@@ -67,7 +74,10 @@ export function formatWeekRange(anchor = new Date()): string {
   const monday = startOfWeek(anchor);
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
-  const formatter = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+  const formatter = new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
   return `${formatter.format(monday)} – ${formatter.format(sunday)}`;
 }
 
@@ -75,14 +85,20 @@ export function findNextScheduledDay(
   schedule: WeeklySchedule,
   validDayIds: ReadonlySet<string>,
   fromDate = new Date(),
-): { weekdayKey: WeekdayKey; dayId: string; date: Date; daysAway: number } | null {
+): {
+  weekdayKey: WeekdayKey;
+  dayId: string;
+  date: Date;
+  daysAway: number;
+} | null {
   for (let daysAway = 1; daysAway <= 7; daysAway += 1) {
     const date = new Date(fromDate);
     date.setHours(0, 0, 0, 0);
     date.setDate(date.getDate() + daysAway);
     const weekdayKey = weekdayKeyForDate(date);
     const dayId = schedule[weekdayKey];
-    if (dayId && validDayIds.has(dayId)) return { weekdayKey, dayId, date, daysAway };
+    if (dayId && validDayIds.has(dayId))
+      return { weekdayKey, dayId, date, daysAway };
   }
   return null;
 }

@@ -8,14 +8,22 @@
   padding: 0.82rem 0.92rem;
   border: 1px solid rgba(124, 174, 255, 0.28);
   border-radius: 1rem;
-  background: linear-gradient(145deg, rgba(20, 42, 78, 0.96), rgba(8, 23, 43, 0.98));
+  background: linear-gradient(
+    145deg,
+    rgba(20, 42, 78, 0.96),
+    rgba(8, 23, 43, 0.98)
+  );
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.2);
   color: #e8f2ff;
 }
 
 .pwa-update-status--error {
   border-color: rgba(255, 126, 126, 0.34);
-  background: linear-gradient(145deg, rgba(67, 27, 31, 0.96), rgba(27, 20, 27, 0.98));
+  background: linear-gradient(
+    145deg,
+    rgba(67, 27, 31, 0.96),
+    rgba(27, 20, 27, 0.98)
+  );
 }
 
 .pwa-update-status-mark {
@@ -82,7 +90,9 @@
 }
 
 @keyframes pwa-update-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 640px) {

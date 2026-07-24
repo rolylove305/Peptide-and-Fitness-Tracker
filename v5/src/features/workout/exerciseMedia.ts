@@ -10,14 +10,28 @@ export const exerciseMediaRoles = [
   'muscle_map',
   'mistake',
 ] as const;
-export const exerciseMediaRightsStatuses = ['owned', 'licensed', 'generated'] as const;
-export const exerciseTechniqueStatuses = ['draft', 'published', 'retired'] as const;
-export const exerciseTechniqueSources = ['editorial', 'imported', 'ai_assisted'] as const;
+export const exerciseMediaRightsStatuses = [
+  'owned',
+  'licensed',
+  'generated',
+] as const;
+export const exerciseTechniqueStatuses = [
+  'draft',
+  'published',
+  'retired',
+] as const;
+export const exerciseTechniqueSources = [
+  'editorial',
+  'imported',
+  'ai_assisted',
+] as const;
 
 export type ExerciseMediaKind = (typeof exerciseMediaKinds)[number];
 export type ExerciseMediaRole = (typeof exerciseMediaRoles)[number];
-export type ExerciseMediaRightsStatus = (typeof exerciseMediaRightsStatuses)[number];
-export type ExerciseTechniqueStatus = (typeof exerciseTechniqueStatuses)[number];
+export type ExerciseMediaRightsStatus =
+  (typeof exerciseMediaRightsStatuses)[number];
+export type ExerciseTechniqueStatus =
+  (typeof exerciseTechniqueStatuses)[number];
 export type ExerciseTechniqueSource = (typeof exerciseTechniqueSources)[number];
 
 export type ExerciseMediaAsset = {
@@ -80,7 +94,10 @@ export function selectExerciseMediaAsset(
     .filter((asset) => asset.is_active)
     .sort((left, right) => {
       if (left.is_primary !== right.is_primary) return left.is_primary ? -1 : 1;
-      return left.sort_order - right.sort_order || left.created_at.localeCompare(right.created_at);
+      return (
+        left.sort_order - right.sort_order ||
+        left.created_at.localeCompare(right.created_at)
+      );
     });
 
   for (const role of preferredRoles) {
@@ -91,11 +108,17 @@ export function selectExerciseMediaAsset(
   return activeAssets[0] ?? null;
 }
 
-export function hasRenderableExerciseMedia(bundle: ExerciseMediaBundle | null | undefined): boolean {
-  return Boolean(bundle?.assets.some((asset) => asset.is_active && asset.url.length > 0));
+export function hasRenderableExerciseMedia(
+  bundle: ExerciseMediaBundle | null | undefined,
+): boolean {
+  return Boolean(
+    bundle?.assets.some((asset) => asset.is_active && asset.url.length > 0),
+  );
 }
 
-export function getTechniqueSummary(bundle: ExerciseMediaBundle | null | undefined): string | null {
+export function getTechniqueSummary(
+  bundle: ExerciseMediaBundle | null | undefined,
+): string | null {
   const guide = bundle?.guide;
   if (!guide) return null;
 

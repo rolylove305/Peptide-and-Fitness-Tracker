@@ -11,7 +11,9 @@ export function useProgressionRecommendations(exerciseIds?: string[]) {
     .sort()
     .join(',');
   const [status, setStatus] = useState<ProgressionStatus>('loading');
-  const [recommendations, setRecommendations] = useState<ProgressionRecommendation[]>([]);
+  const [recommendations, setRecommendations] = useState<
+    ProgressionRecommendation[]
+  >([]);
   const [error, setError] = useState<string | null>(null);
   const [requestVersion, setRequestVersion] = useState(0);
 

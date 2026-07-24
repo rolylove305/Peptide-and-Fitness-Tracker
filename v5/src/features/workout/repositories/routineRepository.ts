@@ -8,8 +8,7 @@ import type {
 } from '../../../types/database';
 
 export type RepositoryResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string };
+  { ok: true; data: T } | { ok: false; error: string };
 
 export type WeightUnit = 'lb' | 'kg';
 
@@ -48,7 +47,10 @@ export type RoutineExerciseWithLoad = WorkoutRoutineExercise & {
 };
 
 export type RoutineExerciseTree = RoutineExerciseWithLoad & {
-  exercise: Pick<Exercise, 'id' | 'name' | 'primary_muscle_group' | 'equipment'> | null;
+  exercise: Pick<
+    Exercise,
+    'id' | 'name' | 'primary_muscle_group' | 'equipment'
+  > | null;
 };
 
 export type RoutineDayTree = WorkoutRoutineDay & {
@@ -83,15 +85,21 @@ function messageFrom(error: unknown, fallback: string): string {
   return fallback;
 }
 
-export async function loadRoutineTrees(userId: string): Promise<RepositoryResult<RoutineTree[]>> {
+export async function loadRoutineTrees(
+  userId: string,
+): Promise<RepositoryResult<RoutineTree[]>> {
   if (!supabase) {
-    return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
   }
 
   try {
     const { data, error } = await supabase
       .from('workout_routines')
-      .select(`
+      .select(
+        `
         *,
         workout_routine_days (
           *,
@@ -105,32 +113,38 @@ export async function loadRoutineTrees(userId: string): Promise<RepositoryResult
             )
           )
         )
-      `)
+      `,
+      )
       .eq('user_id', userId)
       .order('updated_at', { ascending: false });
 
     if (error) throw error;
 
-    const routines = ((data ?? []) as unknown as RoutineQueryRow[]).map((routine) => ({
-      ...routine,
-      days: [...routine.workout_routine_days]
-        .sort((a, b) => a.day_order - b.day_order)
-        .map((day) => ({
-          ...day,
-          exercises: [...day.workout_routine_exercises]
-            .sort((a, b) => a.exercise_order - b.exercise_order)
-            .map((exercise) => ({
-              ...exercise,
-              exercise: exercise.exercise_library,
-            })),
-        })),
-    }));
+    const routines = ((data ?? []) as unknown as RoutineQueryRow[]).map(
+      (routine) => ({
+        ...routine,
+        days: [...routine.workout_routine_days]
+          .sort((a, b) => a.day_order - b.day_order)
+          .map((day) => ({
+            ...day,
+            exercises: [...day.workout_routine_exercises]
+              .sort((a, b) => a.exercise_order - b.exercise_order)
+              .map((exercise) => ({
+                ...exercise,
+                exercise: exercise.exercise_library,
+              })),
+          })),
+      }),
+    );
 
     return { ok: true, data: routines };
   } catch (error) {
     return {
       ok: false,
-      error: messageFrom(error, 'BioTrack could not load your workout routines.'),
+      error: messageFrom(
+        error,
+        'BioTrack could not load your workout routines.',
+      ),
     };
   }
 }
@@ -140,7 +154,10 @@ export async function saveRoutineTree(
   routineId: string | null,
 ): Promise<RepositoryResult<string>> {
   if (!supabase) {
-    return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
   }
 
   const payload: Json = {
@@ -173,7 +190,8 @@ export async function saveRoutineTree(
     });
 
     if (error) throw error;
-    if (!data) throw new Error('The routine was saved, but no routine ID was returned.');
+    if (!data)
+      throw new Error('The routine was saved, but no routine ID was returned.');
 
     return { ok: true, data };
   } catch (error) {
@@ -189,7 +207,10 @@ export async function deleteRoutineTree(
   routineId: string,
 ): Promise<RepositoryResult<null>> {
   if (!supabase) {
-    return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
   }
 
   try {

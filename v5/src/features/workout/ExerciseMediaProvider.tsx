@@ -7,7 +7,10 @@ import {
   useState,
   type PropsWithChildren,
 } from 'react';
-import type { ExerciseMediaBundle, ExerciseMediaLibrary } from './exerciseMedia';
+import type {
+  ExerciseMediaBundle,
+  ExerciseMediaLibrary,
+} from './exerciseMedia';
 import { hasRenderableExerciseMedia } from './exerciseMedia';
 import { loadExerciseMediaLibrary } from './repositories/exerciseMediaRepository';
 
@@ -24,12 +27,15 @@ type ExerciseMediaContextValue = {
 
 const emptyLibrary: ExerciseMediaLibrary = new Map();
 
-const ExerciseMediaContext = createContext<ExerciseMediaContextValue | null>(null);
+const ExerciseMediaContext = createContext<ExerciseMediaContextValue | null>(
+  null,
+);
 
 export function ExerciseMediaProvider({ children }: PropsWithChildren) {
   const [status, setStatus] = useState<ExerciseMediaStatus>('loading');
   const [error, setError] = useState<string | null>(null);
-  const [bundlesByExerciseId, setBundlesByExerciseId] = useState<ExerciseMediaLibrary>(emptyLibrary);
+  const [bundlesByExerciseId, setBundlesByExerciseId] =
+    useState<ExerciseMediaLibrary>(emptyLibrary);
 
   const refresh = useCallback(async () => {
     setStatus('loading');
@@ -73,7 +79,8 @@ export function ExerciseMediaProvider({ children }: PropsWithChildren) {
   );
 
   const hasRenderableMedia = useCallback(
-    (exerciseId: string) => hasRenderableExerciseMedia(bundlesByExerciseId.get(exerciseId)),
+    (exerciseId: string) =>
+      hasRenderableExerciseMedia(bundlesByExerciseId.get(exerciseId)),
     [bundlesByExerciseId],
   );
 
@@ -86,20 +93,35 @@ export function ExerciseMediaProvider({ children }: PropsWithChildren) {
       hasRenderableMedia,
       refresh,
     }),
-    [bundlesByExerciseId, error, getBundle, hasRenderableMedia, refresh, status],
+    [
+      bundlesByExerciseId,
+      error,
+      getBundle,
+      hasRenderableMedia,
+      refresh,
+      status,
+    ],
   );
 
-  return <ExerciseMediaContext.Provider value={value}>{children}</ExerciseMediaContext.Provider>;
+  return (
+    <ExerciseMediaContext.Provider value={value}>
+      {children}
+    </ExerciseMediaContext.Provider>
+  );
 }
 
 export function useExerciseMediaLibrary(): ExerciseMediaContextValue {
   const context = useContext(ExerciseMediaContext);
   if (!context) {
-    throw new Error('useExerciseMediaLibrary must be used inside ExerciseMediaProvider.');
+    throw new Error(
+      'useExerciseMediaLibrary must be used inside ExerciseMediaProvider.',
+    );
   }
   return context;
 }
 
-export function useExerciseMedia(exerciseId: string): ExerciseMediaBundle | null {
+export function useExerciseMedia(
+  exerciseId: string,
+): ExerciseMediaBundle | null {
   return useExerciseMediaLibrary().getBundle(exerciseId);
 }

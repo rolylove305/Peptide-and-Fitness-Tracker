@@ -13,8 +13,12 @@ export type WorkoutCompletedEventDetail = {
   previousRecords: ExerciseRecord[];
 };
 
-export function emitWorkoutCompleted(detail: WorkoutCompletedEventDetail): void {
+export function emitWorkoutCompleted(
+  detail: WorkoutCompletedEventDetail,
+): void {
   window.dispatchEvent(
-    new CustomEvent<WorkoutCompletedEventDetail>(WORKOUT_COMPLETED_EVENT, { detail }),
+    new CustomEvent<WorkoutCompletedEventDetail>(WORKOUT_COMPLETED_EVENT, {
+      detail,
+    }),
   );
 }

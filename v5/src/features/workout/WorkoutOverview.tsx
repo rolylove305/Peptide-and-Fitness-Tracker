@@ -37,7 +37,9 @@ function dateDaysAgo(days: number): Date {
 }
 
 function formatNumber(value: number, maximumFractionDigits = 0): string {
-  return new Intl.NumberFormat(undefined, { maximumFractionDigits }).format(value);
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits }).format(
+    value,
+  );
 }
 
 function formatDuration(totalSeconds: number): string {
@@ -95,19 +97,21 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
     () => readWeeklySchedule(user?.user_metadata?.workout_weekly_schedule),
     [user?.user_metadata?.workout_weekly_schedule],
   );
-  const hasSchedule = Object.values(schedule).some(
-    (dayId) => Boolean(dayId && dayById.has(dayId)),
+  const hasSchedule = Object.values(schedule).some((dayId) =>
+    Boolean(dayId && dayById.has(dayId)),
   );
 
   const todayKey = weekdayKeyForDate(now);
   const scheduledTodayId = schedule[todayKey] ?? null;
-  const scheduledToday = scheduledTodayId ? dayById.get(scheduledTodayId) ?? null : null;
+  const scheduledToday = scheduledTodayId
+    ? (dayById.get(scheduledTodayId) ?? null)
+    : null;
   const todayCompletedSession = scheduledToday
-    ? history.history.find(
+    ? (history.history.find(
         (session) =>
           session.routine_day_id === scheduledToday.id &&
           sameLocalDay(session.completed_at, now),
-      ) ?? null
+      ) ?? null)
     : null;
 
   const nextScheduled = useMemo(
@@ -115,7 +119,7 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
     [schedule, validDayIds],
   );
   const nextScheduledDay = nextScheduled
-    ? dayById.get(nextScheduled.dayId) ?? null
+    ? (dayById.get(nextScheduled.dayId) ?? null)
     : null;
 
   const lastWorkout = history.history[0] ?? null;
@@ -125,16 +129,26 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
     const sessions = history.history.filter(
       (session) => new Date(session.completed_at).getTime() >= weekStart,
     );
-    const weightUnit = sessions[0]?.weight_unit ?? lastWorkout?.weight_unit ?? 'lb';
+    const weightUnit =
+      sessions[0]?.weight_unit ?? lastWorkout?.weight_unit ?? 'lb';
     const compatibleSessions = sessions.filter(
       (session) => session.weight_unit === weightUnit,
     );
 
     return {
       workouts: sessions.length,
-      sets: sessions.reduce((sum, session) => sum + session.completed_set_count, 0),
-      duration: sessions.reduce((sum, session) => sum + session.duration_seconds, 0),
-      volume: compatibleSessions.reduce((sum, session) => sum + session.total_volume, 0),
+      sets: sessions.reduce(
+        (sum, session) => sum + session.completed_set_count,
+        0,
+      ),
+      duration: sessions.reduce(
+        (sum, session) => sum + session.duration_seconds,
+        0,
+      ),
+      volume: compatibleSessions.reduce(
+        (sum, session) => sum + session.total_volume,
+        0,
+      ),
       weightUnit,
     };
   }, [history.history, lastWorkout?.weight_unit]);
@@ -144,7 +158,9 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
       weekdays.map((weekday) => {
         const date = dateForWeekday(weekday.key);
         const scheduledId = schedule[weekday.key] ?? null;
-        const scheduled = scheduledId ? dayById.get(scheduledId) ?? null : null;
+        const scheduled = scheduledId
+          ? (dayById.get(scheduledId) ?? null)
+          : null;
         const completed = scheduled
           ? history.history.some(
               (session) =>
@@ -244,7 +260,10 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
         <div className="overview-skeleton overview-skeleton--hero" />
         <div className="overview-stat-grid">
           {Array.from({ length: 4 }, (_, index) => (
-            <div className="overview-skeleton overview-skeleton--stat" key={index} />
+            <div
+              className="overview-skeleton overview-skeleton--stat"
+              key={index}
+            />
           ))}
         </div>
       </section>
@@ -252,13 +271,17 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
   }
 
   return (
-    <section className="workout-overview" aria-labelledby="workout-overview-heading">
+    <section
+      className="workout-overview"
+      aria-labelledby="workout-overview-heading"
+    >
       <div className="overview-heading">
         <div>
           <p className="eyebrow">Today</p>
           <h2 id="workout-overview-heading">Your training command center</h2>
           <p>
-            One clear next action, your current week and the evidence behind your progress.
+            One clear next action, your current week and the evidence behind
+            your progress.
           </p>
         </div>
         <button
@@ -275,7 +298,9 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
       </div>
 
       {error ? (
-        <p className="builder-message builder-message--error" role="alert">{error}</p>
+        <p className="builder-message builder-message--error" role="alert">
+          {error}
+        </p>
       ) : null}
 
       {active.session ? (
@@ -284,8 +309,8 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
             <span className="overview-kicker">Workout in progress</span>
             <h3>{active.session.name}</h3>
             <p>
-              {activeProgress.completed} of {activeProgress.total} sets completed. Your workout
-              is saved as you go.
+              {activeProgress.completed} of {activeProgress.total} sets
+              completed. Your workout is saved as you go.
             </p>
             <div
               className="overview-progress"
@@ -296,7 +321,11 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
           </div>
           <div className="overview-hero-action">
             <strong>{activeProgress.percent}%</strong>
-            <button className="primary-button" type="button" onClick={() => onNavigate('train')}>
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => onNavigate('train')}
+            >
               Resume workout
             </button>
           </div>
@@ -320,7 +349,9 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
             </div>
           </div>
           <div className="overview-hero-action">
-            <span className="overview-action-mark" aria-hidden="true">T</span>
+            <span className="overview-action-mark" aria-hidden="true">
+              T
+            </span>
             <button
               className="primary-button"
               type="button"
@@ -340,19 +371,31 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
             <h3>{scheduledToday.dayName} is done</h3>
             <p>
               {todayCompletedSession.completed_set_count} sets and{' '}
-              {todayCompletedSession.total_reps} repetitions were recorded today.
+              {todayCompletedSession.total_reps} repetitions were recorded
+              today.
             </p>
             {nextScheduled && nextScheduledDay ? (
               <div className="today-next-session">
                 <span>Next</span>
-                <strong>{formatUpcomingDate(nextScheduled.date, nextScheduled.daysAway)}</strong>
+                <strong>
+                  {formatUpcomingDate(
+                    nextScheduled.date,
+                    nextScheduled.daysAway,
+                  )}
+                </strong>
                 <small>{nextScheduledDay.dayName}</small>
               </div>
             ) : null}
           </div>
           <div className="overview-hero-action">
-            <span className="overview-action-mark" aria-hidden="true">✓</span>
-            <button className="primary-button" type="button" onClick={() => onNavigate('history')}>
+            <span className="overview-action-mark" aria-hidden="true">
+              ✓
+            </span>
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => onNavigate('history')}
+            >
               Review workout
             </button>
           </div>
@@ -363,7 +406,8 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
             <span className="overview-kicker">Open day</span>
             <h3>No workout is scheduled today</h3>
             <p>
-              Your next planned session is <strong>{nextScheduledDay.dayName}</strong> on{' '}
+              Your next planned session is{' '}
+              <strong>{nextScheduledDay.dayName}</strong> on{' '}
               {formatUpcomingDate(nextScheduled.date, nextScheduled.daysAway)}.
             </p>
             <div className="overview-meta-row">
@@ -372,8 +416,14 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
             </div>
           </div>
           <div className="overview-hero-action">
-            <span className="overview-action-mark" aria-hidden="true">R</span>
-            <button className="primary-button" type="button" onClick={() => onNavigate('planner')}>
+            <span className="overview-action-mark" aria-hidden="true">
+              R
+            </span>
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => onNavigate('planner')}
+            >
               Review this week
             </button>
           </div>
@@ -384,13 +434,19 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
             <span className="overview-kicker">Set your rhythm</span>
             <h3>Turn your routine into a weekly plan</h3>
             <p>
-              Assign routine days to Monday through Sunday so BioTrack can tell you exactly
-              what comes next.
+              Assign routine days to Monday through Sunday so BioTrack can tell
+              you exactly what comes next.
             </p>
           </div>
           <div className="overview-hero-action">
-            <span className="overview-action-mark" aria-hidden="true">W</span>
-            <button className="primary-button" type="button" onClick={() => onNavigate('planner')}>
+            <span className="overview-action-mark" aria-hidden="true">
+              W
+            </span>
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => onNavigate('planner')}
+            >
               Plan my week
             </button>
           </div>
@@ -401,13 +457,19 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
             <span className="overview-kicker">First step</span>
             <h3>Choose your first training plan</h3>
             <p>
-              Start with a complete plan or build your own routine. BioTrack will turn it into
-              a live workout.
+              Start with a complete plan or build your own routine. BioTrack
+              will turn it into a live workout.
             </p>
           </div>
           <div className="overview-hero-action">
-            <span className="overview-action-mark" aria-hidden="true">+</span>
-            <button className="primary-button" type="button" onClick={() => onNavigate('plans')}>
+            <span className="overview-action-mark" aria-hidden="true">
+              +
+            </span>
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => onNavigate('plans')}
+            >
               Browse plans
             </button>
           </div>
@@ -420,27 +482,47 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
             <span className="overview-kicker">This week</span>
             <h3 id="today-week-heading">Plan and adherence</h3>
           </div>
-          <button className="text-button" type="button" onClick={() => onNavigate('planner')}>
+          <button
+            className="text-button"
+            type="button"
+            onClick={() => onNavigate('planner')}
+          >
             Edit week
           </button>
         </div>
 
         <div className="today-week-summary">
-          <span><strong>{completedAsPlanned}</strong> completed</span>
-          <span><strong>{plannedThisWeek}</strong> planned</span>
-          <span><strong>{adherence === null ? '—' : `${adherence}%`}</strong> adherence</span>
+          <span>
+            <strong>{completedAsPlanned}</strong> completed
+          </span>
+          <span>
+            <strong>{plannedThisWeek}</strong> planned
+          </span>
+          <span>
+            <strong>{adherence === null ? '—' : `${adherence}%`}</strong>{' '}
+            adherence
+          </span>
         </div>
 
-        <div className="today-week-strip" aria-label="Current weekly training plan">
+        <div
+          className="today-week-strip"
+          aria-label="Current weekly training plan"
+        >
           {weekPlan.map((day) => (
             <div
               className={`today-week-day${day.isToday ? ' today-week-day--today' : ''}${day.completed ? ' today-week-day--complete' : ''}${day.scheduled ? ' today-week-day--planned' : ''}`}
               key={day.key}
-              title={day.scheduled ? `${day.label}: ${day.scheduled.dayName}` : `${day.label}: open day`}
+              title={
+                day.scheduled
+                  ? `${day.label}: ${day.scheduled.dayName}`
+                  : `${day.label}: open day`
+              }
             >
               <span>{day.short.slice(0, 2)}</span>
               <strong>{day.date.getDate()}</strong>
-              <i aria-hidden="true">{day.completed ? '✓' : day.scheduled ? '•' : ''}</i>
+              <i aria-hidden="true">
+                {day.completed ? '✓' : day.scheduled ? '•' : ''}
+              </i>
               <small>{day.scheduled?.dayName ?? 'Open'}</small>
             </div>
           ))}
@@ -477,16 +559,29 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
               <span className="overview-kicker">Consistency</span>
               <h3>Last 7 days</h3>
             </div>
-            <strong>{consistencyDays.filter((day) => day.count > 0).length}/7</strong>
+            <strong>
+              {consistencyDays.filter((day) => day.count > 0).length}/7
+            </strong>
           </div>
-          <div className="consistency-strip" aria-label="Workout activity during the last seven days">
+          <div
+            className="consistency-strip"
+            aria-label="Workout activity during the last seven days"
+          >
             {consistencyDays.map((day) => (
               <div
-                className={day.isToday ? 'consistency-day consistency-day--today' : 'consistency-day'}
+                className={
+                  day.isToday
+                    ? 'consistency-day consistency-day--today'
+                    : 'consistency-day'
+                }
                 key={day.key}
               >
                 <span
-                  className={day.count > 0 ? 'consistency-dot consistency-dot--complete' : 'consistency-dot'}
+                  className={
+                    day.count > 0
+                      ? 'consistency-dot consistency-dot--complete'
+                      : 'consistency-dot'
+                  }
                 >
                   {day.count > 1 ? day.count : ''}
                 </span>
@@ -500,28 +595,48 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
           <div className="overview-panel-heading">
             <div>
               <span className="overview-kicker">Recent training</span>
-              <h3>{lastWorkout ? lastWorkout.name : 'No completed workouts yet'}</h3>
+              <h3>
+                {lastWorkout ? lastWorkout.name : 'No completed workouts yet'}
+              </h3>
             </div>
-            {lastWorkout ? <span>{formatWorkoutDate(lastWorkout.completed_at)}</span> : null}
+            {lastWorkout ? (
+              <span>{formatWorkoutDate(lastWorkout.completed_at)}</span>
+            ) : null}
           </div>
           {lastWorkout ? (
             <>
               <div className="overview-session-metrics">
-                <span><strong>{lastWorkout.completed_set_count}</strong> sets</span>
-                <span><strong>{lastWorkout.total_reps}</strong> reps</span>
-                <span><strong>{formatDuration(lastWorkout.duration_seconds)}</strong></span>
+                <span>
+                  <strong>{lastWorkout.completed_set_count}</strong> sets
+                </span>
+                <span>
+                  <strong>{lastWorkout.total_reps}</strong> reps
+                </span>
+                <span>
+                  <strong>
+                    {formatDuration(lastWorkout.duration_seconds)}
+                  </strong>
+                </span>
               </div>
-              <button className="text-button" type="button" onClick={() => onNavigate('history')}>
+              <button
+                className="text-button"
+                type="button"
+                onClick={() => onNavigate('history')}
+              >
                 View workout history
               </button>
             </>
           ) : (
             <>
               <p>
-                Complete your first session to unlock workout summaries, records and
-                muscle-group volume.
+                Complete your first session to unlock workout summaries, records
+                and muscle-group volume.
               </p>
-              <button className="text-button" type="button" onClick={() => onNavigate('train')}>
+              <button
+                className="text-button"
+                type="button"
+                onClick={() => onNavigate('train')}
+              >
                 Go to training
               </button>
             </>
@@ -534,7 +649,11 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
               <span className="overview-kicker">Muscle focus</span>
               <h3>Last 30 days</h3>
             </div>
-            <button className="text-button" type="button" onClick={() => onNavigate('progression')}>
+            <button
+              className="text-button"
+              type="button"
+              onClick={() => onNavigate('progression')}
+            >
               Details
             </button>
           </div>
@@ -542,11 +661,19 @@ export function WorkoutOverview({ onNavigate }: WorkoutOverviewProps) {
             <div className="muscle-focus-list">
               {muscleFocus.map((item, index) => {
                 const maximum = muscleFocus[0]?.sets ?? 1;
-                const percent = Math.max(8, Math.round((item.sets / maximum) * 100));
+                const percent = Math.max(
+                  8,
+                  Math.round((item.sets / maximum) * 100),
+                );
                 return (
                   <div className="muscle-focus-row" key={item.muscle}>
-                    <div><span>{item.muscle}</span><strong>{item.sets} sets</strong></div>
-                    <div className="muscle-focus-track"><span style={{ width: `${percent}%` }} /></div>
+                    <div>
+                      <span>{item.muscle}</span>
+                      <strong>{item.sets} sets</strong>
+                    </div>
+                    <div className="muscle-focus-track">
+                      <span style={{ width: `${percent}%` }} />
+                    </div>
                     <small>#{index + 1}</small>
                   </div>
                 );

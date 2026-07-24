@@ -45,12 +45,15 @@ function getMediaClient(): SupabaseClient<ExerciseMediaDatabase> | null {
   return supabase as SupabaseClient<ExerciseMediaDatabase> | null;
 }
 
-export async function loadExerciseMediaLibrary(): Promise<RepositoryResult<ExerciseMediaLibrary>> {
+export async function loadExerciseMediaLibrary(): Promise<
+  RepositoryResult<ExerciseMediaLibrary>
+> {
   const client = getMediaClient();
   if (!client) {
     return {
       ok: false,
-      error: 'Supabase is not configured for the BioTrack Exercise Media Engine.',
+      error:
+        'Supabase is not configured for the BioTrack Exercise Media Engine.',
     };
   }
 

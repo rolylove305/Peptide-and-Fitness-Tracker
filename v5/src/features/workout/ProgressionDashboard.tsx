@@ -37,7 +37,9 @@ const filters: Array<{ value: ProgressionFilter; label: string }> = [
 ];
 
 function formatNumber(value: number, maximumFractionDigits = 1): string {
-  return new Intl.NumberFormat(undefined, { maximumFractionDigits }).format(value);
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits }).format(
+    value,
+  );
 }
 
 function formatDate(value: string): string {
@@ -85,7 +87,8 @@ function formatRoutineTarget(
   minimum: number | null,
   maximum: number | null,
 ): string {
-  const weightLabel = weight === null ? 'No preset load' : `${formatNumber(weight)} ${unit}`;
+  const weightLabel =
+    weight === null ? 'No preset load' : `${formatNumber(weight)} ${unit}`;
   const repLabel =
     minimum === null || maximum === null
       ? 'custom reps'
@@ -97,7 +100,9 @@ function formatRoutineTarget(
 
 function isApplicable(
   recommendation: ProgressionRecommendation,
-): recommendation is ProgressionRecommendation & { recommendation_type: ApplicableRecommendationType } {
+): recommendation is ProgressionRecommendation & {
+  recommendation_type: ApplicableRecommendationType;
+} {
   return (
     recommendation.recommendation_type === 'increase_load' ||
     recommendation.recommendation_type === 'increase_reps'
@@ -131,7 +136,11 @@ function EvidenceRow({
       </div>
       <div>
         <span>Average RPE</span>
-        <strong>{evidence.average_rpe === null ? 'Not recorded' : formatNumber(evidence.average_rpe)}</strong>
+        <strong>
+          {evidence.average_rpe === null
+            ? 'Not recorded'
+            : formatNumber(evidence.average_rpe)}
+        </strong>
       </div>
     </div>
   );
@@ -151,7 +160,10 @@ function ApprovalPanel({
   onApply: (input: ApplyProgressionChangeInput) => Promise<boolean>;
 }) {
   const [selectedId, setSelectedId] = useState(locations[0]?.id ?? '');
-  const selected = locations.find((location) => location.id === selectedId) ?? locations[0] ?? null;
+  const selected =
+    locations.find((location) => location.id === selectedId) ??
+    locations[0] ??
+    null;
   const [proposedWeight, setProposedWeight] = useState('');
   const [proposedRepsMin, setProposedRepsMin] = useState('');
   const [proposedRepsMax, setProposedRepsMax] = useState('');
@@ -161,21 +173,28 @@ function ApprovalPanel({
     if (!selected) return;
     const loadStep = recommendation.weight_unit === 'lb' ? 5 : 2.5;
     const latestWeight = recommendation.latest_weight ?? selected.targetWeight;
-    const nextWeight = latestWeight === null ? null : Math.round((latestWeight + loadStep) * 100) / 100;
+    const nextWeight =
+      latestWeight === null
+        ? null
+        : Math.round((latestWeight + loadStep) * 100) / 100;
 
     setProposedWeight(
       recommendation.recommendation_type === 'increase_load'
-        ? nextWeight?.toString() ?? ''
-        : selected.targetWeight?.toString() ?? '',
+        ? (nextWeight?.toString() ?? '')
+        : (selected.targetWeight?.toString() ?? ''),
     );
     setProposedRepsMin(
       recommendation.recommendation_type === 'increase_reps'
-        ? String((selected.targetRepsMin ?? recommendation.target_reps_min ?? 0) + 1)
+        ? String(
+            (selected.targetRepsMin ?? recommendation.target_reps_min ?? 0) + 1,
+          )
         : String(selected.targetRepsMin ?? ''),
     );
     setProposedRepsMax(
       recommendation.recommendation_type === 'increase_reps'
-        ? String((selected.targetRepsMax ?? recommendation.target_reps_max ?? 0) + 1)
+        ? String(
+            (selected.targetRepsMax ?? recommendation.target_reps_max ?? 0) + 1,
+          )
         : String(selected.targetRepsMax ?? ''),
     );
     setError(null);
@@ -186,8 +205,9 @@ function ApprovalPanel({
       <div className="progression-approval progression-approval--unavailable">
         <strong>No matching saved routine target</strong>
         <p>
-          The analyzed repetition range or weight unit no longer matches an active routine. Refresh the plans or
-          edit the target in Routine Builder before applying this suggestion.
+          The analyzed repetition range or weight unit no longer matches an
+          active routine. Refresh the plans or edit the target in Routine
+          Builder before applying this suggestion.
         </p>
       </div>
     );
@@ -201,15 +221,23 @@ function ApprovalPanel({
     }
 
     setError(null);
-    const parsedWeight = proposedWeight.trim() === '' ? null : Number(proposedWeight);
+    const parsedWeight =
+      proposedWeight.trim() === '' ? null : Number(proposedWeight);
     const parsedMinimum = Number(proposedRepsMin);
     const parsedMaximum = Number(proposedRepsMax);
 
-    if (parsedWeight !== null && (!Number.isFinite(parsedWeight) || parsedWeight < 0)) {
+    if (
+      parsedWeight !== null &&
+      (!Number.isFinite(parsedWeight) || parsedWeight < 0)
+    ) {
       setError('Enter a valid non-negative target weight.');
       return;
     }
-    if (!Number.isInteger(parsedMinimum) || !Number.isInteger(parsedMaximum) || parsedMinimum < 1) {
+    if (
+      !Number.isInteger(parsedMinimum) ||
+      !Number.isInteger(parsedMaximum) ||
+      parsedMinimum < 1
+    ) {
       setError('Enter valid whole-number repetition targets.');
       return;
     }
@@ -223,7 +251,9 @@ function ApprovalPanel({
         recommendation.latest_weight === null ||
         parsedWeight <= recommendation.latest_weight)
     ) {
-      setError('The approved load must be higher than the latest comparable weight.');
+      setError(
+        'The approved load must be higher than the latest comparable weight.',
+      );
       return;
     }
 
@@ -250,12 +280,18 @@ function ApprovalPanel({
       proposedRepsMax: parsedMaximum,
     });
 
-    if (!success) setError('The change was not applied. Review the message above and recalculate if needed.');
+    if (!success)
+      setError(
+        'The change was not applied. Review the message above and recalculate if needed.',
+      );
   }
 
-  const proposedWeightValue = proposedWeight.trim() === '' ? null : Number(proposedWeight);
-  const proposedMinimumValue = proposedRepsMin.trim() === '' ? null : Number(proposedRepsMin);
-  const proposedMaximumValue = proposedRepsMax.trim() === '' ? null : Number(proposedRepsMax);
+  const proposedWeightValue =
+    proposedWeight.trim() === '' ? null : Number(proposedWeight);
+  const proposedMinimumValue =
+    proposedRepsMin.trim() === '' ? null : Number(proposedRepsMin);
+  const proposedMaximumValue =
+    proposedRepsMax.trim() === '' ? null : Number(proposedRepsMax);
 
   return (
     <details className="progression-approval">
@@ -263,7 +299,10 @@ function ApprovalPanel({
       <div className="progression-approval-body">
         <label className="field progression-location-select">
           <span>Routine target</span>
-          <select value={selected.id} onChange={(event) => setSelectedId(event.target.value)}>
+          <select
+            value={selected.id}
+            onChange={(event) => setSelectedId(event.target.value)}
+          >
             {locations.map((location) => (
               <option value={location.id} key={location.id}>
                 {location.routineName} — {location.dayName}
@@ -288,12 +327,18 @@ function ApprovalPanel({
             <span>Proposed</span>
             <strong>
               {formatRoutineTarget(
-                Number.isFinite(proposedWeightValue) ? proposedWeightValue : null,
+                Number.isFinite(proposedWeightValue)
+                  ? proposedWeightValue
+                  : null,
                 recommendation.recommendation_type === 'increase_load'
                   ? recommendation.weight_unit
                   : selected.weightUnit,
-                Number.isFinite(proposedMinimumValue) ? proposedMinimumValue : null,
-                Number.isFinite(proposedMaximumValue) ? proposedMaximumValue : null,
+                Number.isFinite(proposedMinimumValue)
+                  ? proposedMinimumValue
+                  : null,
+                Number.isFinite(proposedMaximumValue)
+                  ? proposedMaximumValue
+                  : null,
               )}
             </strong>
           </article>
@@ -301,7 +346,13 @@ function ApprovalPanel({
 
         <div className="progression-approval-fields">
           <label className="field">
-            <span>Target weight ({recommendation.recommendation_type === 'increase_load' ? recommendation.weight_unit : selected.weightUnit})</span>
+            <span>
+              Target weight (
+              {recommendation.recommendation_type === 'increase_load'
+                ? recommendation.weight_unit
+                : selected.weightUnit}
+              )
+            </span>
             <input
               type="number"
               min={0}
@@ -338,11 +389,21 @@ function ApprovalPanel({
         </div>
 
         <p className="progression-approval-note">
-          Only this saved routine target and future workouts will change. Completed workout history remains intact.
+          Only this saved routine target and future workouts will change.
+          Completed workout history remains intact.
         </p>
-        {error ? <p className="builder-message builder-message--error" role="alert">{error}</p> : null}
+        {error ? (
+          <p className="builder-message builder-message--error" role="alert">
+            {error}
+          </p>
+        ) : null}
         <div className="progression-change-actions">
-          <button className="primary-button" type="button" disabled={applying} onClick={() => void submit()}>
+          <button
+            className="primary-button"
+            type="button"
+            disabled={applying}
+            onClick={() => void submit()}
+          >
             {applying ? 'Applying…' : 'Approve and apply'}
           </button>
         </div>
@@ -363,7 +424,9 @@ function RecommendationCard({
   onApply: (input: ApplyProgressionChangeInput) => Promise<boolean>;
 }) {
   return (
-    <article className={`progression-card progression-card--${recommendation.recommendation_type}`}>
+    <article
+      className={`progression-card progression-card--${recommendation.recommendation_type}`}
+    >
       <header className="progression-card-header">
         <div>
           <p>{recommendation.primary_muscle_group}</p>
@@ -373,7 +436,9 @@ function RecommendationCard({
           <span className="progression-type-chip">
             {recommendationLabel(recommendation.recommendation_type)}
           </span>
-          <span className={`confidence-chip confidence-chip--${recommendation.confidence}`}>
+          <span
+            className={`confidence-chip confidence-chip--${recommendation.confidence}`}
+          >
             {recommendation.confidence} confidence
           </span>
         </div>
@@ -456,7 +521,10 @@ function ChangeHistory({
   onUndo: (change: ProgressionChange) => Promise<void>;
 }) {
   return (
-    <section className="progression-history" aria-labelledby="progression-history-heading">
+    <section
+      className="progression-history"
+      aria-labelledby="progression-history-heading"
+    >
       <div className="history-panel-heading">
         <div>
           <p className="eyebrow">Audited changes</p>
@@ -467,7 +535,10 @@ function ChangeHistory({
 
       {changes.length === 0 ? (
         <div className="progression-filter-empty">
-          <p>No recommendations have been applied. Approved changes and undo status will appear here.</p>
+          <p>
+            No recommendations have been applied. Approved changes and undo
+            status will appear here.
+          </p>
         </div>
       ) : (
         <div className="progression-history-list">
@@ -475,10 +546,14 @@ function ChangeHistory({
             <article className="progression-history-card" key={change.id}>
               <header>
                 <div>
-                  <p>{change.routine_name_snapshot} · {change.day_name_snapshot}</p>
+                  <p>
+                    {change.routine_name_snapshot} · {change.day_name_snapshot}
+                  </p>
                   <h4>{change.exercise_name_snapshot}</h4>
                 </div>
-                <span className={`progression-change-status progression-change-status--${change.status}`}>
+                <span
+                  className={`progression-change-status progression-change-status--${change.status}`}
+                >
                   {change.status}
                 </span>
               </header>
@@ -509,7 +584,9 @@ function ChangeHistory({
               <footer>
                 <span>
                   Applied {formatDateTime(change.applied_at)}
-                  {change.undone_at ? ` · Undone ${formatDateTime(change.undone_at)}` : ''}
+                  {change.undone_at
+                    ? ` · Undone ${formatDateTime(change.undone_at)}`
+                    : ''}
                 </span>
                 {change.status === 'applied' && change.routine_exercise_id ? (
                   <button
@@ -592,7 +669,9 @@ export function ProgressionDashboard() {
     [filter, progression.recommendations],
   );
 
-  function matchingLocations(recommendation: ProgressionRecommendation): RoutineExerciseLocation[] {
+  function matchingLocations(
+    recommendation: ProgressionRecommendation,
+  ): RoutineExerciseLocation[] {
     return (locationsByExercise[recommendation.exercise_id] ?? []).filter(
       (location) =>
         location.weightUnit === recommendation.weight_unit &&
@@ -616,7 +695,9 @@ export function ProgressionDashboard() {
     await routines.refresh();
     progression.refresh();
     changeState.refresh();
-    setMessage('Progression approved and applied to the saved routine. Future workouts will use the new target.');
+    setMessage(
+      'Progression approved and applied to the saved routine. Future workouts will use the new target.',
+    );
     return true;
   }
 
@@ -637,7 +718,9 @@ export function ProgressionDashboard() {
     await routines.refresh();
     progression.refresh();
     changeState.refresh();
-    setMessage('Progression change undone. The previous routine target has been restored.');
+    setMessage(
+      'Progression change undone. The previous routine target has been restored.',
+    );
   }
 
   const loading =
@@ -647,22 +730,31 @@ export function ProgressionDashboard() {
 
   if (loading) {
     return (
-      <section className="progression-state-card" aria-live="polite" aria-busy="true">
-        <div className="loading-mark" aria-hidden="true">P</div>
+      <section
+        className="progression-state-card"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <div className="loading-mark" aria-hidden="true">
+          P
+        </div>
         <p>Comparing sessions and loading approved changes…</p>
       </section>
     );
   }
 
   return (
-    <section className="progression-dashboard" aria-labelledby="progression-heading">
+    <section
+      className="progression-dashboard"
+      aria-labelledby="progression-heading"
+    >
       <div className="section-heading progression-heading">
         <div>
           <p className="eyebrow">Explainable progression</p>
           <h2 id="progression-heading">What should change next?</h2>
           <p>
-            Review the evidence, select the exact saved routine target, compare before and after, then approve
-            the change yourself.
+            Review the evidence, select the exact saved routine target, compare
+            before and after, then approve the change yourself.
           </p>
         </div>
         <button
@@ -681,44 +773,85 @@ export function ProgressionDashboard() {
       <aside className="progression-safety-note">
         <strong>You remain in control.</strong>
         <span>
-          Recommendations never edit a routine automatically. Every applied change is revalidated in Supabase,
-          recorded with before-and-after values and can be undone when no later edit would be overwritten.
+          Recommendations never edit a routine automatically. Every applied
+          change is revalidated in Supabase, recorded with before-and-after
+          values and can be undone when no later edit would be overwritten.
         </span>
       </aside>
 
-      {message ? <p className="builder-message builder-message--success">{message}</p> : null}
-      {localError || progression.error || routines.error || changeState.error ? (
+      {message ? (
+        <p className="builder-message builder-message--success">{message}</p>
+      ) : null}
+      {localError ||
+      progression.error ||
+      routines.error ||
+      changeState.error ? (
         <p className="builder-message builder-message--error" role="alert">
-          {localError ?? progression.error ?? routines.error ?? changeState.error}
+          {localError ??
+            progression.error ??
+            routines.error ??
+            changeState.error}
         </p>
       ) : null}
 
       <div className="progression-overview-grid">
-        <article><span>Load opportunities</span><strong>{counts.increase_load}</strong></article>
-        <article><span>Rep opportunities</span><strong>{counts.increase_reps}</strong></article>
-        <article><span>Review first</span><strong>{counts.review_recovery}</strong></article>
-        <article><span>Applied changes</span><strong>{changeState.changes.filter((change) => change.status === 'applied').length}</strong></article>
+        <article>
+          <span>Load opportunities</span>
+          <strong>{counts.increase_load}</strong>
+        </article>
+        <article>
+          <span>Rep opportunities</span>
+          <strong>{counts.increase_reps}</strong>
+        </article>
+        <article>
+          <span>Review first</span>
+          <strong>{counts.review_recovery}</strong>
+        </article>
+        <article>
+          <span>Applied changes</span>
+          <strong>
+            {
+              changeState.changes.filter(
+                (change) => change.status === 'applied',
+              ).length
+            }
+          </strong>
+        </article>
       </div>
 
       {progression.recommendations.length === 0 ? (
-        <section className="progression-empty" aria-labelledby="progression-empty-heading">
+        <section
+          className="progression-empty"
+          aria-labelledby="progression-empty-heading"
+        >
           <p className="eyebrow">Evidence before advice</p>
-          <h2 id="progression-empty-heading">No comparable training history yet</h2>
+          <h2 id="progression-empty-heading">
+            No comparable training history yet
+          </h2>
           <p>
-            Complete working sets in at least two sessions using a programmed repetition range. BioTrack will
-            then compare performance and require your approval before changing any saved target.
+            Complete working sets in at least two sessions using a programmed
+            repetition range. BioTrack will then compare performance and require
+            your approval before changing any saved target.
           </p>
         </section>
       ) : (
         <>
-          <div className="progression-filter-row" role="tablist" aria-label="Progression guidance filters">
+          <div
+            className="progression-filter-row"
+            role="tablist"
+            aria-label="Progression guidance filters"
+          >
             {filters.map((item) => (
               <button
                 key={item.value}
                 type="button"
                 role="tab"
                 aria-selected={filter === item.value}
-                className={filter === item.value ? 'progression-filter progression-filter--active' : 'progression-filter'}
+                className={
+                  filter === item.value
+                    ? 'progression-filter progression-filter--active'
+                    : 'progression-filter'
+                }
                 onClick={() => setFilter(item.value)}
               >
                 {item.label}
@@ -737,7 +870,10 @@ export function ProgressionDashboard() {
                   key={`${recommendation.exercise_id}:${recommendation.weight_unit}`}
                   recommendation={recommendation}
                   locations={matchingLocations(recommendation)}
-                  applying={changeState.applyingExerciseId === recommendation.exercise_id}
+                  applying={
+                    changeState.applyingExerciseId ===
+                    recommendation.exercise_id
+                  }
                   onApply={(input) => applyChange(recommendation, input)}
                 />
               ))}

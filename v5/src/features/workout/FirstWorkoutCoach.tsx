@@ -59,7 +59,9 @@ function restTimerIsActive(sessionId: string): boolean {
 
 function goToTrain(): void {
   document
-    .querySelector<HTMLButtonElement>('.workspace-nav-button[aria-label^="Train:"]')
+    .querySelector<HTMLButtonElement>(
+      '.workspace-nav-button[aria-label^="Train:"]',
+    )
     ?.click();
 }
 
@@ -71,13 +73,18 @@ function scrollAndFocus(selector: string, focusSelector?: string): void {
   const element = document.querySelector<HTMLElement>(selector);
   element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   if (focusSelector) {
-    element?.querySelector<HTMLElement>(focusSelector)?.focus({ preventScroll: true });
+    element
+      ?.querySelector<HTMLElement>(focusSelector)
+      ?.focus({ preventScroll: true });
   } else {
     element?.focus({ preventScroll: true });
   }
 }
 
-const copyByStep: Record<CoachStep, { title: string; body: string; action: string }> = {
+const copyByStep: Record<
+  CoachStep,
+  { title: string; body: string; action: string }
+> = {
   log: {
     title: 'Log your first working set',
     body: 'Enter the weight you actually used and the repetitions you completed. RPE is optional. Tap Complete set when you are done.',
@@ -179,7 +186,9 @@ export function FirstWorkoutCoach() {
     }
 
     setTimerSeen(restTimerIsActive(session.id));
-    setTechniqueSeen(readBoolean(window.sessionStorage, techniqueKey(session.id)));
+    setTechniqueSeen(
+      readBoolean(window.sessionStorage, techniqueKey(session.id)),
+    );
   }, [session]);
 
   const progress = useMemo(() => {
@@ -211,7 +220,13 @@ export function FirstWorkoutCoach() {
     };
   }, [session]);
 
-  if (!userId || !historyChecked || hasCompletedWorkout || dismissed || !session) {
+  if (
+    !userId ||
+    !historyChecked ||
+    hasCompletedWorkout ||
+    dismissed ||
+    !session
+  ) {
     return null;
   }
 
@@ -221,7 +236,8 @@ export function FirstWorkoutCoach() {
   let currentStep: CoachStep = 'log';
   if (progress.completed > 0) currentStep = 'timer';
   if (progress.completed > 0 && timerSeen) currentStep = 'technique';
-  if (progress.completed > 0 && timerSeen && techniqueSeen) currentStep = 'continue';
+  if (progress.completed > 0 && timerSeen && techniqueSeen)
+    currentStep = 'continue';
   if (progress.allResolved) currentStep = 'finish';
 
   const currentIndex =
@@ -238,11 +254,31 @@ export function FirstWorkoutCoach() {
   const completionPercent = Math.round(((currentIndex - 1) / 5) * 100);
 
   const steps = [
-    { label: 'Log and complete a set', done: progress.completed > 0, active: currentStep === 'log' },
-    { label: 'Understand the rest timer', done: timerSeen, active: currentStep === 'timer' },
-    { label: 'Open a technique guide', done: techniqueSeen, active: currentStep === 'technique' },
-    { label: 'Resolve every planned set', done: progress.allResolved, active: currentStep === 'continue' },
-    { label: 'Finish and save the workout', done: false, active: currentStep === 'finish' },
+    {
+      label: 'Log and complete a set',
+      done: progress.completed > 0,
+      active: currentStep === 'log',
+    },
+    {
+      label: 'Understand the rest timer',
+      done: timerSeen,
+      active: currentStep === 'timer',
+    },
+    {
+      label: 'Open a technique guide',
+      done: techniqueSeen,
+      active: currentStep === 'technique',
+    },
+    {
+      label: 'Resolve every planned set',
+      done: progress.allResolved,
+      active: currentStep === 'continue',
+    },
+    {
+      label: 'Finish and save the workout',
+      done: false,
+      active: currentStep === 'finish',
+    },
   ];
 
   function dismissCoach() {
@@ -297,27 +333,43 @@ export function FirstWorkoutCoach() {
 
   return (
     <section
-      className={expanded ? 'first-workout-coach' : 'first-workout-coach first-workout-coach--collapsed'}
+      className={
+        expanded
+          ? 'first-workout-coach'
+          : 'first-workout-coach first-workout-coach--collapsed'
+      }
       aria-labelledby="first-workout-coach-heading"
       aria-live="polite"
     >
       <header className="first-workout-coach-header">
-        <div className="first-workout-coach-mark" aria-hidden="true">AI</div>
+        <div className="first-workout-coach-mark" aria-hidden="true">
+          AI
+        </div>
         <div>
           <span>First workout coach · Step {currentIndex} of 5</span>
           <strong id="first-workout-coach-heading">
-            {expanded ? currentCopy.title : 'Your first-workout guide is active'}
+            {expanded
+              ? currentCopy.title
+              : 'Your first-workout guide is active'}
           </strong>
         </div>
         <div className="first-workout-coach-header-actions">
-          <button type="button" onClick={() => setExpanded((current) => !current)}>
+          <button
+            type="button"
+            onClick={() => setExpanded((current) => !current)}
+          >
             {expanded ? 'Minimize' : 'Open'}
           </button>
-          <button type="button" onClick={dismissCoach}>Skip guide</button>
+          <button type="button" onClick={dismissCoach}>
+            Skip guide
+          </button>
         </div>
       </header>
 
-      <div className="first-workout-coach-progress" aria-label={`${completionPercent}% of coach steps complete`}>
+      <div
+        className="first-workout-coach-progress"
+        aria-label={`${completionPercent}% of coach steps complete`}
+      >
         <span style={{ width: `${completionPercent}%` }} />
       </div>
 
@@ -330,7 +382,11 @@ export function FirstWorkoutCoach() {
               <span>{progress.skipped} skipped</span>
               <span>{progress.remaining} remaining</span>
             </div>
-            <button className="primary-button" type="button" onClick={handleAction}>
+            <button
+              className="primary-button"
+              type="button"
+              onClick={handleAction}
+            >
               {currentCopy.action}
             </button>
           </div>
@@ -341,7 +397,9 @@ export function FirstWorkoutCoach() {
                 className={[
                   step.done ? 'first-workout-coach-step--done' : '',
                   step.active ? 'first-workout-coach-step--active' : '',
-                ].filter(Boolean).join(' ')}
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
                 key={step.label}
               >
                 <span aria-hidden="true">{step.done ? '✓' : index + 1}</span>
@@ -351,7 +409,8 @@ export function FirstWorkoutCoach() {
           </ol>
 
           <p className="first-workout-coach-note">
-            This guide disappears automatically after your first completed workout.
+            This guide disappears automatically after your first completed
+            workout.
           </p>
         </div>
       ) : null}

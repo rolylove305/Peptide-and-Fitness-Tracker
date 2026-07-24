@@ -9,7 +9,11 @@
   border: 1px solid rgba(72, 214, 165, 0.3);
   border-radius: 1.05rem;
   background:
-    radial-gradient(circle at top right, rgba(72, 214, 165, 0.13), transparent 18rem),
+    radial-gradient(
+      circle at top right,
+      rgba(72, 214, 165, 0.13),
+      transparent 18rem
+    ),
     linear-gradient(145deg, rgba(10, 42, 43, 0.94), rgba(6, 22, 34, 0.96));
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
 }

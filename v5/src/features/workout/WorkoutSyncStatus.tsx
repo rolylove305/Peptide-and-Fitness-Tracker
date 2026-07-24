@@ -28,7 +28,9 @@ export function WorkoutSyncStatus() {
   const { user } = useAuth();
   const userId = user?.id;
   const online = useOnlineState();
-  const [state, setState] = useState<WorkoutSyncState>(() => getWorkoutSyncState(userId));
+  const [state, setState] = useState<WorkoutSyncState>(() =>
+    getWorkoutSyncState(userId),
+  );
 
   useEffect(() => {
     if (!userId) {
@@ -39,27 +41,33 @@ export function WorkoutSyncStatus() {
   }, [userId]);
 
   if (!userId) return null;
-  if (online && state.pendingCount === 0 && !state.syncing && !state.error) return null;
+  if (online && state.pendingCount === 0 && !state.syncing && !state.error)
+    return null;
 
   const className = [
     'workout-sync-status',
     !online ? 'workout-sync-status--offline' : '',
     state.error ? 'workout-sync-status--error' : '',
     state.syncing ? 'workout-sync-status--syncing' : '',
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   let label = 'Workout protected';
   let title = 'Your active workout remains safe on this device';
-  let body = 'Reconnect when available. Completed sets will sync automatically.';
+  let body =
+    'Reconnect when available. Completed sets will sync automatically.';
 
   if (online && state.syncing) {
     label = 'Syncing';
     title = `Uploading ${state.pendingCount} saved ${state.pendingCount === 1 ? 'set' : 'sets'}`;
-    body = 'Keep BioTrack open for a moment. You can continue viewing your workout.';
+    body =
+      'Keep BioTrack open for a moment. You can continue viewing your workout.';
   } else if (online && state.pendingCount > 0) {
     label = state.error ? 'Sync needs attention' : 'Ready to sync';
     title = `${state.pendingCount} saved ${state.pendingCount === 1 ? 'set is' : 'sets are'} waiting`;
-    body = state.error ?? 'BioTrack will retry automatically, or you can retry now.';
+    body =
+      state.error ?? 'BioTrack will retry automatically, or you can retry now.';
   } else if (!online && state.pendingCount > 0) {
     title = `${state.pendingCount} completed ${state.pendingCount === 1 ? 'set is' : 'sets are'} saved locally`;
   }
@@ -75,7 +83,11 @@ export function WorkoutSyncStatus() {
         <p>{body}</p>
       </div>
       {online && state.pendingCount > 0 && !state.syncing ? (
-        <button className="secondary-button secondary-button--compact" type="button" onClick={() => requestWorkoutSync(userId)}>
+        <button
+          className="secondary-button secondary-button--compact"
+          type="button"
+          onClick={() => requestWorkoutSync(userId)}
+        >
           Retry sync
         </button>
       ) : null}

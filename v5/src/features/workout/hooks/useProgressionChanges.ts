@@ -13,7 +13,9 @@ export function useProgressionChanges(userId: string | undefined) {
   const [status, setStatus] = useState<ProgressionChangeStatus>('loading');
   const [changes, setChanges] = useState<ProgressionChange[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [applyingExerciseId, setApplyingExerciseId] = useState<string | null>(null);
+  const [applyingExerciseId, setApplyingExerciseId] = useState<string | null>(
+    null,
+  );
   const [undoingChangeId, setUndoingChangeId] = useState<string | null>(null);
   const [requestVersion, setRequestVersion] = useState(0);
 

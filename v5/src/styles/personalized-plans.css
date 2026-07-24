@@ -3,8 +3,10 @@
   gap: 1rem;
 }
 
-.personalized-plans--foundation-three-day .starter-plan-card--foundation-three-day,
-.personalized-plans--lean-strong-four-day .starter-plan-card--lean-strong-four-day,
+.personalized-plans--foundation-three-day
+  .starter-plan-card--foundation-three-day,
+.personalized-plans--lean-strong-four-day
+  .starter-plan-card--lean-strong-four-day,
 .personalized-plans--busy-week-two-day .starter-plan-card--busy-week-two-day {
   order: -1;
   border-color: rgba(72, 214, 165, 0.44);
@@ -13,9 +15,12 @@
     inset 0 0 0 1px rgba(72, 214, 165, 0.08);
 }
 
-.personalized-plans--foundation-three-day .starter-plan-card--foundation-three-day::before,
-.personalized-plans--lean-strong-four-day .starter-plan-card--lean-strong-four-day::before,
-.personalized-plans--busy-week-two-day .starter-plan-card--busy-week-two-day::before {
+.personalized-plans--foundation-three-day
+  .starter-plan-card--foundation-three-day::before,
+.personalized-plans--lean-strong-four-day
+  .starter-plan-card--lean-strong-four-day::before,
+.personalized-plans--busy-week-two-day
+  .starter-plan-card--busy-week-two-day::before {
   content: 'Best match for your profile';
   display: inline-flex;
   width: fit-content;
@@ -43,7 +48,11 @@
   border: 1px solid rgba(69, 200, 255, 0.28);
   border-radius: 1.25rem;
   background:
-    radial-gradient(circle at top right, rgba(69, 200, 255, 0.16), transparent 18rem),
+    radial-gradient(
+      circle at top right,
+      rgba(69, 200, 255, 0.16),
+      transparent 18rem
+    ),
     linear-gradient(145deg, rgba(13, 35, 55, 0.98), rgba(6, 19, 33, 0.98));
   box-shadow: 0 18px 42px rgba(1, 10, 20, 0.2);
   scroll-margin-block: 5rem;
@@ -52,7 +61,11 @@
 .plan-activation-card--new {
   border-color: rgba(72, 214, 165, 0.48);
   background:
-    radial-gradient(circle at top right, rgba(72, 214, 165, 0.2), transparent 18rem),
+    radial-gradient(
+      circle at top right,
+      rgba(72, 214, 165, 0.2),
+      transparent 18rem
+    ),
     linear-gradient(145deg, rgba(12, 43, 45, 0.98), rgba(6, 24, 34, 0.98));
   box-shadow:
     0 20px 46px rgba(3, 54, 47, 0.26),

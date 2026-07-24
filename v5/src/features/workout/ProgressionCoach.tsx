@@ -32,16 +32,24 @@ function clamp(value: number, minimum: number, maximum: number): number {
 }
 
 function formatNumber(value: number, maximumFractionDigits = 1): string {
-  return new Intl.NumberFormat(undefined, { maximumFractionDigits }).format(value);
-}
-
-function chronologicalEvidence(evidence: ProgressionEvidenceSession[]): ProgressionEvidenceSession[] {
-  return [...evidence].sort(
-    (left, right) => new Date(left.performed_at).getTime() - new Date(right.performed_at).getTime(),
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits }).format(
+    value,
   );
 }
 
-function confidencePoints(confidence: ProgressionRecommendation['confidence']): number {
+function chronologicalEvidence(
+  evidence: ProgressionEvidenceSession[],
+): ProgressionEvidenceSession[] {
+  return [...evidence].sort(
+    (left, right) =>
+      new Date(left.performed_at).getTime() -
+      new Date(right.performed_at).getTime(),
+  );
+}
+
+function confidencePoints(
+  confidence: ProgressionRecommendation['confidence'],
+): number {
   if (confidence === 'high') return 12;
   if (confidence === 'medium') return 5;
   return -5;
@@ -62,16 +70,25 @@ function baseScore(type: ProgressionRecommendationType): number {
   }
 }
 
-function readinessFor(type: ProgressionRecommendationType, score: number): ProgressionReadiness {
+function readinessFor(
+  type: ProgressionRecommendationType,
+  score: number,
+): ProgressionReadiness {
   if (type === 'insufficient_data') return 'learn';
   if (type === 'review_recovery') return 'recover';
-  if (score >= 70 && (type === 'increase_load' || type === 'increase_reps')) return 'ready';
+  if (score >= 70 && (type === 'increase_load' || type === 'increase_reps'))
+    return 'ready';
   return 'monitor';
 }
 
-function dataQualityFor(recommendation: ProgressionRecommendation): DataQuality {
-  const rpeSessions = recommendation.evidence.filter((item) => item.average_rpe !== null).length;
-  if (recommendation.sessions_analyzed >= 3 && rpeSessions >= 2) return 'strong';
+function dataQualityFor(
+  recommendation: ProgressionRecommendation,
+): DataQuality {
+  const rpeSessions = recommendation.evidence.filter(
+    (item) => item.average_rpe !== null,
+  ).length;
+  if (recommendation.sessions_analyzed >= 3 && rpeSessions >= 2)
+    return 'strong';
   if (recommendation.sessions_analyzed >= 2) return 'developing';
   return 'limited';
 }
@@ -87,13 +104,15 @@ function nextTargetFor(recommendation: ProgressionRecommendation): string {
         : `${minimum}–${maximum} reps`;
 
   if (recommendation.recommendation_type === 'increase_load') {
-    if (recommendation.latest_weight === null) return `Set a repeatable load for ${repRange}`;
+    if (recommendation.latest_weight === null)
+      return `Set a repeatable load for ${repRange}`;
     const step = recommendation.weight_unit === 'lb' ? 5 : 2.5;
     return `${formatNumber(recommendation.latest_weight + step)} ${recommendation.weight_unit} · keep ${repRange}`;
   }
 
   if (recommendation.recommendation_type === 'increase_reps') {
-    if (minimum === null || maximum === null) return 'Add 1 controlled rep per working set';
+    if (minimum === null || maximum === null)
+      return 'Add 1 controlled rep per working set';
     return `${minimum + 1}${minimum === maximum ? '' : `–${maximum + 1}`} reps · keep the current load`;
   }
 
@@ -108,11 +127,14 @@ function nextTargetFor(recommendation: ProgressionRecommendation): string {
   return 'Complete another comparable session before changing the plan';
 }
 
-function analyzeRecommendation(recommendation: ProgressionRecommendation): ProgressionInsight {
+function analyzeRecommendation(
+  recommendation: ProgressionRecommendation,
+): ProgressionInsight {
   const evidence = chronologicalEvidence(recommendation.evidence);
   const oldest = evidence[0] ?? null;
   const latest = evidence[evidence.length - 1] ?? null;
-  const repDelta = oldest && latest ? latest.average_reps - oldest.average_reps : 0;
+  const repDelta =
+    oldest && latest ? latest.average_reps - oldest.average_reps : 0;
   const loadDelta =
     oldest?.maximum_weight !== null &&
     oldest?.maximum_weight !== undefined &&
@@ -140,8 +162,10 @@ function analyzeRecommendation(recommendation: ProgressionRecommendation): Progr
     else score -= 15;
   }
   if (rpeDelta !== null && rpeDelta >= 1) score -= 5;
-  if (recommendation.recommendation_type === 'review_recovery') score = Math.min(score, 42);
-  if (recommendation.recommendation_type === 'insufficient_data') score = Math.min(score, 28);
+  if (recommendation.recommendation_type === 'review_recovery')
+    score = Math.min(score, 42);
+  if (recommendation.recommendation_type === 'insufficient_data')
+    score = Math.min(score, 28);
   score = clamp(Math.round(score), 5, 98);
 
   const signals: string[] = [];
@@ -150,12 +174,19 @@ function analyzeRecommendation(recommendation: ProgressionRecommendation): Progr
       `${recommendation.sessions_analyzed} comparable session${recommendation.sessions_analyzed === 1 ? '' : 's'} analyzed`,
     );
   }
-  if (repDelta >= 0.5) signals.push(`Average reps improved by ${formatNumber(repDelta)}`);
-  else if (repDelta <= -0.5) signals.push(`Average reps declined by ${formatNumber(Math.abs(repDelta))}`);
-  else if (recommendation.sessions_analyzed >= 2) signals.push('Average repetitions are stable');
+  if (repDelta >= 0.5)
+    signals.push(`Average reps improved by ${formatNumber(repDelta)}`);
+  else if (repDelta <= -0.5)
+    signals.push(
+      `Average reps declined by ${formatNumber(Math.abs(repDelta))}`,
+    );
+  else if (recommendation.sessions_analyzed >= 2)
+    signals.push('Average repetitions are stable');
 
   if (loadDelta !== null && loadDelta > 0) {
-    signals.push(`Top load increased by ${formatNumber(loadDelta)} ${recommendation.weight_unit}`);
+    signals.push(
+      `Top load increased by ${formatNumber(loadDelta)} ${recommendation.weight_unit}`,
+    );
   } else if (loadDelta === 0 && recommendation.sessions_analyzed >= 2) {
     signals.push('Load stayed comparable across sessions');
   }
@@ -163,11 +194,17 @@ function analyzeRecommendation(recommendation: ProgressionRecommendation): Progr
   if (recommendation.latest_average_rpe === null) {
     signals.push('RPE coverage is missing; confidence is more conservative');
   } else if (recommendation.latest_average_rpe <= 8) {
-    signals.push(`Latest average effort was controlled at RPE ${formatNumber(recommendation.latest_average_rpe)}`);
+    signals.push(
+      `Latest average effort was controlled at RPE ${formatNumber(recommendation.latest_average_rpe)}`,
+    );
   } else if (recommendation.latest_average_rpe > 9) {
-    signals.push(`Latest average effort was very high at RPE ${formatNumber(recommendation.latest_average_rpe)}`);
+    signals.push(
+      `Latest average effort was very high at RPE ${formatNumber(recommendation.latest_average_rpe)}`,
+    );
   } else {
-    signals.push(`Latest average effort was RPE ${formatNumber(recommendation.latest_average_rpe)}`);
+    signals.push(
+      `Latest average effort was RPE ${formatNumber(recommendation.latest_average_rpe)}`,
+    );
   }
 
   return {
@@ -196,7 +233,9 @@ function readinessLabel(readiness: ProgressionReadiness): string {
 
 function coachHeadline(insights: ProgressionInsight[]): string {
   const ready = insights.filter((item) => item.readiness === 'ready').length;
-  const recovery = insights.filter((item) => item.readiness === 'recover').length;
+  const recovery = insights.filter(
+    (item) => item.readiness === 'recover',
+  ).length;
   if (ready > 0 && recovery === 0) {
     return `${ready} progression ${ready === 1 ? 'opportunity is' : 'opportunities are'} ready for your review.`;
   }
@@ -210,10 +249,12 @@ function coachHeadline(insights: ProgressionInsight[]): string {
 }
 
 function scrollToRecommendations(): void {
-  document.querySelector<HTMLElement>('.progression-dashboard')?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'start',
-  });
+  document
+    .querySelector<HTMLElement>('.progression-dashboard')
+    ?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
 }
 
 export function ProgressionCoach() {
@@ -229,8 +270,12 @@ export function ProgressionCoach() {
 
   const summary = useMemo(() => {
     const ready = insights.filter((item) => item.readiness === 'ready').length;
-    const recovery = insights.filter((item) => item.readiness === 'recover').length;
-    const strongEvidence = insights.filter((item) => item.dataQuality === 'strong').length;
+    const recovery = insights.filter(
+      (item) => item.readiness === 'recover',
+    ).length;
+    const strongEvidence = insights.filter(
+      (item) => item.dataQuality === 'strong',
+    ).length;
     const rpeCoverage = insights.filter(
       (item) => item.recommendation.latest_average_rpe !== null,
     ).length;
@@ -239,9 +284,20 @@ export function ProgressionCoach() {
 
   if (progression.status === 'loading') {
     return (
-      <section className="progression-coach progression-coach--state" aria-live="polite" aria-busy="true">
-        <div className="progression-coach-mark" aria-hidden="true">AI</div>
-        <div><strong>Analyzing progression signals…</strong><span>Comparing load, repetitions, effort and session consistency.</span></div>
+      <section
+        className="progression-coach progression-coach--state"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <div className="progression-coach-mark" aria-hidden="true">
+          AI
+        </div>
+        <div>
+          <strong>Analyzing progression signals…</strong>
+          <span>
+            Comparing load, repetitions, effort and session consistency.
+          </span>
+        </div>
       </section>
     );
   }
@@ -251,37 +307,65 @@ export function ProgressionCoach() {
   if (insights.length === 0) {
     return (
       <section className="progression-coach progression-coach--empty">
-        <div className="progression-coach-mark" aria-hidden="true">AI</div>
+        <div className="progression-coach-mark" aria-hidden="true">
+          AI
+        </div>
         <div>
           <p className="eyebrow">Progression AI</p>
           <h2>Training model is still learning</h2>
-          <p>Complete at least two comparable sessions and record RPE when practical. No target will change automatically.</p>
+          <p>
+            Complete at least two comparable sessions and record RPE when
+            practical. No target will change automatically.
+          </p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="progression-coach" aria-labelledby="progression-coach-heading">
+    <section
+      className="progression-coach"
+      aria-labelledby="progression-coach-heading"
+    >
       <header className="progression-coach-header">
         <div className="progression-coach-title">
-          <div className="progression-coach-mark" aria-hidden="true">AI</div>
+          <div className="progression-coach-mark" aria-hidden="true">
+            AI
+          </div>
           <div>
             <p className="eyebrow">Progression AI</p>
             <h2 id="progression-coach-heading">Your next training decisions</h2>
             <p>{coachHeadline(insights)}</p>
           </div>
         </div>
-        <button className="secondary-button" type="button" onClick={scrollToRecommendations}>
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={scrollToRecommendations}
+        >
           Review full evidence
         </button>
       </header>
 
       <div className="progression-coach-metrics">
-        <article><span>Ready to review</span><strong>{summary.ready}</strong></article>
-        <article><span>Recovery checks</span><strong>{summary.recovery}</strong></article>
-        <article><span>Strong evidence</span><strong>{summary.strongEvidence}</strong></article>
-        <article><span>RPE coverage</span><strong>{summary.rpeCoverage}/{insights.length}</strong></article>
+        <article>
+          <span>Ready to review</span>
+          <strong>{summary.ready}</strong>
+        </article>
+        <article>
+          <span>Recovery checks</span>
+          <strong>{summary.recovery}</strong>
+        </article>
+        <article>
+          <span>Strong evidence</span>
+          <strong>{summary.strongEvidence}</strong>
+        </article>
+        <article>
+          <span>RPE coverage</span>
+          <strong>
+            {summary.rpeCoverage}/{insights.length}
+          </strong>
+        </article>
       </div>
 
       <div className="progression-priority-list">
@@ -290,8 +374,12 @@ export function ProgressionCoach() {
             className={`progression-priority-card progression-priority-card--${insight.readiness}`}
             key={`${insight.recommendation.exercise_id}:${insight.recommendation.weight_unit}:${insight.recommendation.target_reps_min}:${insight.recommendation.target_reps_max}`}
           >
-            <div className="progression-readiness-score" aria-label={`${insight.score} out of 100 readiness score`}>
-              <strong>{insight.score}</strong><span>/100</span>
+            <div
+              className="progression-readiness-score"
+              aria-label={`${insight.score} out of 100 readiness score`}
+            >
+              <strong>{insight.score}</strong>
+              <span>/100</span>
             </div>
             <div className="progression-priority-content">
               <div className="progression-priority-heading">
@@ -309,7 +397,9 @@ export function ProgressionCoach() {
                 <strong>{insight.nextTarget}</strong>
               </div>
               <ul>
-                {insight.signals.map((signal) => <li key={signal}>{signal}</li>)}
+                {insight.signals.map((signal) => (
+                  <li key={signal}>{signal}</li>
+                ))}
               </ul>
             </div>
           </article>
@@ -318,7 +408,10 @@ export function ProgressionCoach() {
 
       <footer className="progression-coach-footer">
         <strong>Approval remains mandatory.</strong>
-        <span>This layer prioritizes and explains the existing evidence. It never edits a routine or replaces recovery judgment.</span>
+        <span>
+          This layer prioritizes and explains the existing evidence. It never
+          edits a routine or replaces recovery judgment.
+        </span>
       </footer>
     </section>
   );

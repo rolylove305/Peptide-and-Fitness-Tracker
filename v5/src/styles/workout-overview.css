@@ -14,7 +14,11 @@
   margin-top: 0.15rem;
   border: 1px solid rgba(69, 200, 255, 0.34);
   border-radius: 0.9rem;
-  background: linear-gradient(145deg, rgba(69, 200, 255, 0.2), rgba(16, 168, 255, 0.08));
+  background: linear-gradient(
+    145deg,
+    rgba(69, 200, 255, 0.2),
+    rgba(16, 168, 255, 0.08)
+  );
   color: #c8efff;
   font-size: 1.05rem;
   font-weight: 900;
@@ -102,7 +106,11 @@
   border: 1px solid rgba(69, 200, 255, 0.22);
   border-radius: 1.45rem;
   background:
-    radial-gradient(circle at 92% 12%, rgba(69, 200, 255, 0.2), transparent 15rem),
+    radial-gradient(
+      circle at 92% 12%,
+      rgba(69, 200, 255, 0.2),
+      transparent 15rem
+    ),
     linear-gradient(145deg, rgba(18, 43, 68, 0.98), rgba(7, 21, 36, 0.97));
   box-shadow: var(--shadow);
 }
@@ -110,7 +118,11 @@
 .overview-hero--active {
   border-color: rgba(72, 214, 165, 0.32);
   background:
-    radial-gradient(circle at 90% 12%, rgba(72, 214, 165, 0.17), transparent 15rem),
+    radial-gradient(
+      circle at 90% 12%,
+      rgba(72, 214, 165, 0.17),
+      transparent 15rem
+    ),
     linear-gradient(145deg, rgba(16, 45, 61, 0.98), rgba(7, 24, 36, 0.97));
 }
 
@@ -215,7 +227,11 @@
   padding: 0.95rem;
   border: 1px solid var(--border);
   border-radius: 1.05rem;
-  background: linear-gradient(145deg, rgba(15, 34, 55, 0.93), rgba(8, 21, 35, 0.94));
+  background: linear-gradient(
+    145deg,
+    rgba(15, 34, 55, 0.93),
+    rgba(8, 21, 35, 0.94)
+  );
 }
 
 .overview-stat-card > span,
@@ -445,7 +461,12 @@
 .overview-skeleton {
   overflow: hidden;
   border: 1px solid var(--border);
-  background: linear-gradient(90deg, rgba(147, 197, 253, 0.05), rgba(147, 197, 253, 0.14), rgba(147, 197, 253, 0.05));
+  background: linear-gradient(
+    90deg,
+    rgba(147, 197, 253, 0.05),
+    rgba(147, 197, 253, 0.14),
+    rgba(147, 197, 253, 0.05)
+  );
   background-size: 220% 100%;
   animation: overview-pulse 1.4s linear infinite;
 }
@@ -461,8 +482,12 @@
 }
 
 @keyframes overview-pulse {
-  from { background-position: 120% 0; }
-  to { background-position: -120% 0; }
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
 }
 
 @media (min-width: 700px) {

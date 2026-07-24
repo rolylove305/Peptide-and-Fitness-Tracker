@@ -185,7 +185,11 @@
   min-height: 3rem;
   margin-top: 0.75rem;
   border-color: rgba(72, 214, 165, 0.4);
-  background: linear-gradient(135deg, rgba(72, 214, 165, 0.2), rgba(69, 200, 255, 0.14));
+  background: linear-gradient(
+    135deg,
+    rgba(72, 214, 165, 0.2),
+    rgba(69, 200, 255, 0.14)
+  );
   color: #b7f8e1;
 }
 
@@ -226,11 +230,14 @@
 }
 
 @keyframes rest-ready-pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   }
   50% {
-    box-shadow: 0 0 0 0.25rem rgba(72, 214, 165, 0.13), 0 20px 60px rgba(0, 0, 0, 0.4);
+    box-shadow:
+      0 0 0 0.25rem rgba(72, 214, 165, 0.13),
+      0 20px 60px rgba(0, 0, 0, 0.4);
   }
 }
 

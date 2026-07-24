@@ -2,8 +2,7 @@ import { supabase } from '../../../lib/supabase/client';
 import type { Database } from '../../../types/database';
 
 export type RepositoryResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string };
+  { ok: true; data: T } | { ok: false; error: string };
 
 type WorkoutSetUpdate = Database['public']['Tables']['workout_sets']['Update'];
 type WorkoutSetInsert = Database['public']['Tables']['workout_sets']['Insert'];
@@ -63,7 +62,9 @@ export type ActiveWorkoutSession = {
 type SessionQueryRow = Omit<ActiveWorkoutSession, 'exercises'> & {
   workout_session_exercises: Array<
     Omit<ActiveWorkoutExercise, 'sets'> & {
-      workout_sets: Array<Omit<ActiveWorkoutSet, 'is_skipped'> & { is_skipped?: boolean }>;
+      workout_sets: Array<
+        Omit<ActiveWorkoutSet, 'is_skipped'> & { is_skipped?: boolean }
+      >;
     }
   >;
 };
@@ -102,18 +103,24 @@ function asWorkoutSetInsert(value: WorkoutSetInsertWithSkip): WorkoutSetInsert {
 export async function loadActiveWorkout(
   userId: string,
 ): Promise<RepositoryResult<ActiveWorkoutSession | null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const { data, error } = await supabase
       .from('workout_sessions')
-      .select(`
+      .select(
+        `
         *,
         workout_session_exercises (
           *,
           workout_sets (*)
         )
-      `)
+      `,
+      )
       .eq('user_id', userId)
       .eq('status', 'in_progress')
       .maybeSingle();
@@ -137,22 +144,38 @@ export async function loadActiveWorkout(
       },
     };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not load the active workout.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not load the active workout.'),
+    };
   }
 }
 
-export async function startWorkoutFromDay(dayId: string): Promise<RepositoryResult<string>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+export async function startWorkoutFromDay(
+  dayId: string,
+): Promise<RepositoryResult<string>> {
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
-    const { data, error } = await supabase.rpc('start_workout_session_from_day', {
-      p_routine_day_id: dayId,
-    });
+    const { data, error } = await supabase.rpc(
+      'start_workout_session_from_day',
+      {
+        p_routine_day_id: dayId,
+      },
+    );
     if (error) throw error;
-    if (!data) throw new Error('The workout started, but no session ID was returned.');
+    if (!data)
+      throw new Error('The workout started, but no session ID was returned.');
     return { ok: true, data };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not start this workout.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not start this workout.'),
+    };
   }
 }
 
@@ -160,7 +183,11 @@ export async function saveWorkoutSet(
   setId: string,
   input: WorkoutSetInput,
 ): Promise<RepositoryResult<null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const update: WorkoutSetUpdateWithSkip = {
@@ -180,7 +207,10 @@ export async function saveWorkoutSet(
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not save this set.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not save this set.'),
+    };
   }
 }
 
@@ -188,20 +218,36 @@ export async function setWorkoutSetWarmup(
   setId: string,
   isWarmup: boolean,
 ): Promise<RepositoryResult<null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const update: WorkoutSetUpdate = { is_warmup: isWarmup };
-    const { error } = await supabase.from('workout_sets').update(update).eq('id', setId);
+    const { error } = await supabase
+      .from('workout_sets')
+      .update(update)
+      .eq('id', setId);
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not update the set type.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not update the set type.'),
+    };
   }
 }
 
-export async function skipWorkoutSet(setId: string): Promise<RepositoryResult<null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+export async function skipWorkoutSet(
+  setId: string,
+): Promise<RepositoryResult<null>> {
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const update: WorkoutSetUpdateWithSkip = {
@@ -216,12 +262,21 @@ export async function skipWorkoutSet(setId: string): Promise<RepositoryResult<nu
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not skip this set.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not skip this set.'),
+    };
   }
 }
 
-export async function restoreWorkoutSet(setId: string): Promise<RepositoryResult<null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+export async function restoreWorkoutSet(
+  setId: string,
+): Promise<RepositoryResult<null>> {
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const update: WorkoutSetUpdateWithSkip = { is_skipped: false };
@@ -232,12 +287,21 @@ export async function restoreWorkoutSet(setId: string): Promise<RepositoryResult
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not restore this set.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not restore this set.'),
+    };
   }
 }
 
-export async function resetWorkoutSet(setId: string): Promise<RepositoryResult<null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+export async function resetWorkoutSet(
+  setId: string,
+): Promise<RepositoryResult<null>> {
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const update: WorkoutSetUpdateWithSkip = {
@@ -252,7 +316,10 @@ export async function resetWorkoutSet(setId: string): Promise<RepositoryResult<n
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not reopen this set.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not reopen this set.'),
+    };
   }
 }
 
@@ -261,7 +328,11 @@ export async function addWorkoutSet(
   setNumber: number,
   weightUnit: 'lb' | 'kg',
 ): Promise<RepositoryResult<null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const insert: WorkoutSetInsertWithSkip = {
@@ -278,19 +349,34 @@ export async function addWorkoutSet(
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not add another set.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not add another set.'),
+    };
   }
 }
 
-export async function deleteWorkoutSet(setId: string): Promise<RepositoryResult<null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+export async function deleteWorkoutSet(
+  setId: string,
+): Promise<RepositoryResult<null>> {
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
-    const { error } = await supabase.from('workout_sets').delete().eq('id', setId);
+    const { error } = await supabase
+      .from('workout_sets')
+      .delete()
+      .eq('id', setId);
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not remove this extra set.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not remove this extra set.'),
+    };
   }
 }
 
@@ -298,7 +384,11 @@ export async function saveWorkoutSessionDetails(
   sessionId: string,
   input: WorkoutSessionDetailsInput,
 ): Promise<RepositoryResult<null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const { error } = await supabase
@@ -313,7 +403,10 @@ export async function saveWorkoutSessionDetails(
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not save the workout details.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not save the workout details.'),
+    };
   }
 }
 
@@ -321,7 +414,11 @@ export async function saveWorkoutExerciseNotes(
   sessionExerciseId: string,
   notes: string | null,
 ): Promise<RepositoryResult<null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const { error } = await supabase
@@ -331,12 +428,21 @@ export async function saveWorkoutExerciseNotes(
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not save the exercise note.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not save the exercise note.'),
+    };
   }
 }
 
-export async function completeWorkout(sessionId: string): Promise<RepositoryResult<null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+export async function completeWorkout(
+  sessionId: string,
+): Promise<RepositoryResult<null>> {
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const { error } = await supabase.rpc('complete_workout_session', {
@@ -345,12 +451,21 @@ export async function completeWorkout(sessionId: string): Promise<RepositoryResu
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not complete this workout.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not complete this workout.'),
+    };
   }
 }
 
-export async function cancelWorkout(sessionId: string): Promise<RepositoryResult<null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+export async function cancelWorkout(
+  sessionId: string,
+): Promise<RepositoryResult<null>> {
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const { error } = await supabase.rpc('cancel_workout_session', {
@@ -359,6 +474,9 @@ export async function cancelWorkout(sessionId: string): Promise<RepositoryResult
     if (error) throw error;
     return { ok: true, data: null };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not cancel this workout.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not cancel this workout.'),
+    };
   }
 }

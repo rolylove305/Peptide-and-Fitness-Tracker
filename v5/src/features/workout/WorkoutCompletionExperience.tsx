@@ -57,7 +57,9 @@ type ShareNavigator = Navigator & {
 };
 
 function formatNumber(value: number, maximumFractionDigits = 0): string {
-  return new Intl.NumberFormat(undefined, { maximumFractionDigits }).format(value);
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits }).format(
+    value,
+  );
 }
 
 function formatDuration(totalSeconds: number): string {
@@ -89,7 +91,8 @@ function previousRecordFor(
 ): ExerciseRecord | null {
   return (
     records.find(
-      (record) => record.exercise_id === exerciseId && record.weight_unit === weightUnit,
+      (record) =>
+        record.exercise_id === exerciseId && record.weight_unit === weightUnit,
     ) ?? null
   );
 }
@@ -105,11 +108,19 @@ function buildRecordAchievements(
     if (sets.length === 0) return;
 
     const weightUnit = sets[0]?.weight_unit ?? exercise.weight_unit_snapshot;
-    const previous = previousRecordFor(previousRecords, exercise.exercise_id, weightUnit);
+    const previous = previousRecordFor(
+      previousRecords,
+      exercise.exercise_id,
+      weightUnit,
+    );
     if (!previous) return;
 
-    const weights = sets.flatMap((set) => (set.weight === null ? [] : [set.weight]));
-    const repetitions = sets.flatMap((set) => (set.reps === null ? [] : [set.reps]));
+    const weights = sets.flatMap((set) =>
+      set.weight === null ? [] : [set.weight],
+    );
+    const repetitions = sets.flatMap((set) =>
+      set.reps === null ? [] : [set.reps],
+    );
     const volumes = sets.flatMap((set) =>
       set.weight === null || set.reps === null ? [] : [set.weight * set.reps],
     );
@@ -141,7 +152,8 @@ function buildRecordAchievements(
 
     if (
       bestVolume !== null &&
-      (previous.best_set_volume === null || bestVolume > previous.best_set_volume)
+      (previous.best_set_volume === null ||
+        bestVolume > previous.best_set_volume)
     ) {
       achievements.push({
         exerciseName: exercise.exercise_name_snapshot,
@@ -160,7 +172,9 @@ function findPreviousSession(
   history: WorkoutSessionSummary[],
 ): WorkoutSessionSummary | null {
   if (routineDayId) {
-    const sameRoutineDay = history.find((session) => session.routine_day_id === routineDayId);
+    const sameRoutineDay = history.find(
+      (session) => session.routine_day_id === routineDayId,
+    );
     if (sameRoutineDay) return sameRoutineDay;
   }
   return history.find((session) => session.name === currentName) ?? null;
@@ -191,7 +205,9 @@ function buildComparison(
 
   const setDelta = current.completedSets - previous.working_set_count;
   const repDelta = current.totalReps - previous.total_reps;
-  const minuteDelta = Math.round((current.durationSeconds - previous.duration_seconds) / 60);
+  const minuteDelta = Math.round(
+    (current.durationSeconds - previous.duration_seconds) / 60,
+  );
   const metrics: ComparisonMetric[] = [
     {
       label: 'Working sets',
@@ -243,7 +259,9 @@ function buildCoachMessage(
     return `You set ${records.length} new personal ${records.length === 1 ? 'best' : 'bests'}. Recover well and let the next session build on real evidence.`;
   }
 
-  const volume = comparison.find((metric) => metric.label === 'Training volume');
+  const volume = comparison.find(
+    (metric) => metric.label === 'Training volume',
+  );
   if (completionPercent === 100 && volume?.direction === 'up') {
     return 'Every programmed set was completed and total volume moved forward. That is measurable progression without changing your plan automatically.';
   }
@@ -256,27 +274,41 @@ function buildCoachMessage(
   return 'Your first baseline is saved. Future workouts can now be compared against real sets, repetitions, load and effort.';
 }
 
-function buildCompletionSummary(detail: WorkoutCompletedEventDetail): CompletionSummary {
+function buildCompletionSummary(
+  detail: WorkoutCompletedEventDetail,
+): CompletionSummary {
   const completedAt = new Date(detail.completedAt);
   const durationSeconds = Math.max(
     0,
-    Math.round((completedAt.getTime() - new Date(detail.session.started_at).getTime()) / 1000),
+    Math.round(
+      (completedAt.getTime() - new Date(detail.session.started_at).getTime()) /
+        1000,
+    ),
   );
   const allSets = detail.session.exercises.flatMap((exercise) => exercise.sets);
   const completedSets = detail.session.exercises.flatMap(completedWorkingSets);
-  const totalReps = completedSets.reduce((sum, set) => sum + (set.reps ?? 0), 0);
-  const totalVolume = completedSets.reduce(
-    (sum, set) => sum + (set.weight === null ? 0 : set.weight * (set.reps ?? 0)),
+  const totalReps = completedSets.reduce(
+    (sum, set) => sum + (set.reps ?? 0),
     0,
   );
-  const rpeValues = completedSets.flatMap((set) => (set.rpe === null ? [] : [set.rpe]));
+  const totalVolume = completedSets.reduce(
+    (sum, set) =>
+      sum + (set.weight === null ? 0 : set.weight * (set.reps ?? 0)),
+    0,
+  );
+  const rpeValues = completedSets.flatMap((set) =>
+    set.rpe === null ? [] : [set.rpe],
+  );
   const averageRpe =
     rpeValues.length > 0
       ? rpeValues.reduce((sum, value) => sum + value, 0) / rpeValues.length
       : null;
   const completionPercent =
     allSets.length > 0
-      ? Math.round((allSets.filter((set) => set.is_completed).length / allSets.length) * 100)
+      ? Math.round(
+          (allSets.filter((set) => set.is_completed).length / allSets.length) *
+            100,
+        )
       : 0;
 
   const muscles = new Map<string, number>();
@@ -292,7 +324,10 @@ function buildCompletionSummary(detail: WorkoutCompletedEventDetail): Completion
     detail.session.routine_day_id,
     detail.previousHistory,
   );
-  const records = buildRecordAchievements(detail.session.exercises, detail.previousRecords);
+  const records = buildRecordAchievements(
+    detail.session.exercises,
+    detail.previousRecords,
+  );
   const comparison = buildComparison(
     {
       completedSets: completedSets.length,
@@ -341,7 +376,9 @@ function buildShareText(summary: CompletionSummary): string {
     `${formatDuration(summary.durationSeconds)} · ${summary.exerciseCount} exercises`,
   ];
   if (summary.records.length > 0) {
-    lines.push(`${summary.records.length} new personal ${summary.records.length === 1 ? 'best' : 'bests'}`);
+    lines.push(
+      `${summary.records.length} new personal ${summary.records.length === 1 ? 'best' : 'bests'}`,
+    );
   }
   return lines.join('\n');
 }
@@ -379,7 +416,8 @@ export function WorkoutCompletionExperience({
     };
 
     window.addEventListener(WORKOUT_COMPLETED_EVENT, handleCompleted);
-    return () => window.removeEventListener(WORKOUT_COMPLETED_EVENT, handleCompleted);
+    return () =>
+      window.removeEventListener(WORKOUT_COMPLETED_EVENT, handleCompleted);
   }, []);
 
   useEffect(() => {
@@ -409,7 +447,10 @@ export function WorkoutCompletionExperience({
 
     try {
       if (shareNavigator.share) {
-        await shareNavigator.share({ title: 'BioTrack AI workout complete', text });
+        await shareNavigator.share({
+          title: 'BioTrack AI workout complete',
+          text,
+        });
         setShareMessage('Summary shared.');
       } else {
         await copyText(text);
@@ -466,7 +507,10 @@ export function WorkoutCompletionExperience({
             style={completionStyle}
             aria-label={`${currentSummary.completionPercent}% complete`}
           >
-            <div><strong>{currentSummary.completionPercent}%</strong><span>complete</span></div>
+            <div>
+              <strong>{currentSummary.completionPercent}%</strong>
+              <span>complete</span>
+            </div>
           </div>
           <div>
             <p className="eyebrow">Workout complete</p>
@@ -481,25 +525,60 @@ export function WorkoutCompletionExperience({
         </div>
 
         <div className="completion-metric-grid" aria-label="Workout totals">
-          <article><span>Time</span><strong>{formatDuration(currentSummary.durationSeconds)}</strong></article>
-          <article><span>Working sets</span><strong>{currentSummary.completedSets}</strong><small>of {currentSummary.plannedSets} planned</small></article>
-          <article><span>Total reps</span><strong>{formatNumber(currentSummary.totalReps)}</strong></article>
-          <article><span>Volume</span><strong>{formatNumber(currentSummary.totalVolume)}</strong><small>{currentSummary.weightUnit}</small></article>
-          <article><span>Exercises</span><strong>{currentSummary.exerciseCount}</strong></article>
-          <article><span>Average RPE</span><strong>{currentSummary.averageRpe === null ? '—' : formatNumber(currentSummary.averageRpe, 1)}</strong></article>
+          <article>
+            <span>Time</span>
+            <strong>{formatDuration(currentSummary.durationSeconds)}</strong>
+          </article>
+          <article>
+            <span>Working sets</span>
+            <strong>{currentSummary.completedSets}</strong>
+            <small>of {currentSummary.plannedSets} planned</small>
+          </article>
+          <article>
+            <span>Total reps</span>
+            <strong>{formatNumber(currentSummary.totalReps)}</strong>
+          </article>
+          <article>
+            <span>Volume</span>
+            <strong>{formatNumber(currentSummary.totalVolume)}</strong>
+            <small>{currentSummary.weightUnit}</small>
+          </article>
+          <article>
+            <span>Exercises</span>
+            <strong>{currentSummary.exerciseCount}</strong>
+          </article>
+          <article>
+            <span>Average RPE</span>
+            <strong>
+              {currentSummary.averageRpe === null
+                ? '—'
+                : formatNumber(currentSummary.averageRpe, 1)}
+            </strong>
+          </article>
         </div>
 
         {currentSummary.records.length > 0 ? (
-          <section className="completion-section completion-records" aria-labelledby="completion-records-title">
+          <section
+            className="completion-section completion-records"
+            aria-labelledby="completion-records-title"
+          >
             <div className="completion-section-heading">
-              <div><p className="eyebrow">Personal bests</p><h3 id="completion-records-title">New records</h3></div>
+              <div>
+                <p className="eyebrow">Personal bests</p>
+                <h3 id="completion-records-title">New records</h3>
+              </div>
               <span>{currentSummary.records.length}</span>
             </div>
             <div className="completion-record-list">
               {currentSummary.records.map((record, index) => (
-                <article key={`${record.exerciseName}:${record.metric}:${index}`}>
+                <article
+                  key={`${record.exerciseName}:${record.metric}:${index}`}
+                >
                   <span aria-hidden="true">PR</span>
-                  <div><strong>{record.exerciseName}</strong><small>{record.metric}</small></div>
+                  <div>
+                    <strong>{record.exerciseName}</strong>
+                    <small>{record.metric}</small>
+                  </div>
                   <strong>{record.value}</strong>
                 </article>
               ))}
@@ -508,16 +587,31 @@ export function WorkoutCompletionExperience({
         ) : null}
 
         {currentSummary.comparison.length > 0 ? (
-          <section className="completion-section" aria-labelledby="completion-comparison-title">
+          <section
+            className="completion-section"
+            aria-labelledby="completion-comparison-title"
+          >
             <div className="completion-section-heading">
-              <div><p className="eyebrow">Previous performance</p><h3 id="completion-comparison-title">Compared with {currentSummary.previousSessionName}</h3></div>
+              <div>
+                <p className="eyebrow">Previous performance</p>
+                <h3 id="completion-comparison-title">
+                  Compared with {currentSummary.previousSessionName}
+                </h3>
+              </div>
             </div>
             <div className="completion-comparison-grid">
               {currentSummary.comparison.map((metric) => (
                 <article key={metric.label}>
                   <span>{metric.label}</span>
-                  <div><strong>{metric.current}</strong><small>Last: {metric.previous}</small></div>
-                  <em className={`comparison-delta comparison-delta--${metric.direction}`}>{metric.delta}</em>
+                  <div>
+                    <strong>{metric.current}</strong>
+                    <small>Last: {metric.previous}</small>
+                  </div>
+                  <em
+                    className={`comparison-delta comparison-delta--${metric.direction}`}
+                  >
+                    {metric.delta}
+                  </em>
                 </article>
               ))}
             </div>
@@ -525,28 +619,55 @@ export function WorkoutCompletionExperience({
         ) : null}
 
         {currentSummary.muscles.length > 0 ? (
-          <section className="completion-section" aria-labelledby="completion-muscles-title">
+          <section
+            className="completion-section"
+            aria-labelledby="completion-muscles-title"
+          >
             <div className="completion-section-heading">
-              <div><p className="eyebrow">Training focus</p><h3 id="completion-muscles-title">Muscles trained</h3></div>
+              <div>
+                <p className="eyebrow">Training focus</p>
+                <h3 id="completion-muscles-title">Muscles trained</h3>
+              </div>
             </div>
             <div className="completion-muscle-list">
               {currentSummary.muscles.map((muscle) => (
-                <span key={muscle.name}><strong>{muscle.name}</strong>{muscle.sets} sets</span>
+                <span key={muscle.name}>
+                  <strong>{muscle.name}</strong>
+                  {muscle.sets} sets
+                </span>
               ))}
             </div>
           </section>
         ) : null}
 
-        {shareMessage ? <p className="completion-share-message" role="status">{shareMessage}</p> : null}
+        {shareMessage ? (
+          <p className="completion-share-message" role="status">
+            {shareMessage}
+          </p>
+        ) : null}
 
         <footer className="workout-completion-actions">
-          <button className="primary-button" type="button" onClick={() => closeAndNavigate('history')}>
+          <button
+            className="primary-button"
+            type="button"
+            onClick={() => closeAndNavigate('history')}
+          >
             View workout history
           </button>
-          <button className="secondary-button" type="button" onClick={() => void shareCurrentSummary(currentSummary)}>
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={() => void shareCurrentSummary(currentSummary)}
+          >
             Share summary
           </button>
-          <button className="text-button" type="button" onClick={() => setSummary(null)}>Done</button>
+          <button
+            className="text-button"
+            type="button"
+            onClick={() => setSummary(null)}
+          >
+            Done
+          </button>
         </footer>
       </section>
     </div>

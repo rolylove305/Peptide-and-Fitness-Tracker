@@ -3,7 +3,8 @@
   display: grid;
   min-height: 100vh;
   place-items: center;
-  padding: max(1.25rem, env(safe-area-inset-top)) 1rem max(1.25rem, env(safe-area-inset-bottom));
+  padding: max(1.25rem, env(safe-area-inset-top)) 1rem
+    max(1.25rem, env(safe-area-inset-bottom));
 }
 
 .auth-card {
@@ -11,7 +12,11 @@
   padding: clamp(1.25rem, 5vw, 2rem);
   border: 1px solid var(--border);
   border-radius: 1.55rem;
-  background: linear-gradient(145deg, rgba(20, 42, 66, 0.98), rgba(8, 21, 36, 0.97));
+  background: linear-gradient(
+    145deg,
+    rgba(20, 42, 66, 0.98),
+    rgba(8, 21, 36, 0.97)
+  );
   box-shadow: var(--shadow);
 }
 

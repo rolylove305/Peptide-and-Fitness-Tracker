@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Exercise } from '../../types/database';
 import { useExerciseMedia } from './ExerciseMediaProvider';
-import { getMuscleHighlightLabels, type ExerciseTechniqueGuide } from './exerciseMedia';
+import {
+  getMuscleHighlightLabels,
+  type ExerciseTechniqueGuide,
+} from './exerciseMedia';
 import { resolveExerciseVisuals, type ExerciseVisual } from './exerciseVisuals';
 
 type ExerciseTechniqueMediaProps = {
@@ -35,15 +38,22 @@ function usePrefersReducedMotion(): boolean {
   return reduced;
 }
 
-function ExerciseMediaPlaceholder({ exercise, expanded }: ResolvedExerciseTechniqueMediaProps) {
+function ExerciseMediaPlaceholder({
+  exercise,
+  expanded,
+}: ResolvedExerciseTechniqueMediaProps) {
   return (
     <div
-      className={expanded
-        ? 'exercise-media-engine__placeholder exercise-media-engine__placeholder--expanded'
-        : 'exercise-media-engine__placeholder'}
+      className={
+        expanded
+          ? 'exercise-media-engine__placeholder exercise-media-engine__placeholder--expanded'
+          : 'exercise-media-engine__placeholder'
+      }
       aria-label={`${exercise.name} professional demonstration is being prepared`}
     >
-      <span aria-hidden="true">{exercise.primary_muscle_group.slice(0, 1).toUpperCase()}</span>
+      <span aria-hidden="true">
+        {exercise.primary_muscle_group.slice(0, 1).toUpperCase()}
+      </span>
       <div>
         <strong>Technique guide</strong>
         <small>Professional movement media coming soon</small>
@@ -100,7 +110,10 @@ function VisualSurface({ visual, expanded, phaseLabel }: VisualSurfaceProps) {
   );
 }
 
-export function ExerciseTechniqueMedia({ exercise, expanded = false }: ExerciseTechniqueMediaProps) {
+export function ExerciseTechniqueMedia({
+  exercise,
+  expanded = false,
+}: ExerciseTechniqueMediaProps) {
   const bundle = useExerciseMedia(exercise.id);
   const visuals = resolveExerciseVisuals(exercise, bundle, { expanded });
 
@@ -114,28 +127,54 @@ export function ExerciseTechniqueMedia({ exercise, expanded = false }: ExerciseT
   if (showPositionPair && visuals.start && visuals.finish) {
     return (
       <div className="exercise-media-engine exercise-media-engine--expanded exercise-media-engine--pair">
-        <VisualSurface visual={visuals.start} expanded phaseLabel="Start position" />
-        <VisualSurface visual={visuals.finish} expanded phaseLabel="Finish position" />
+        <VisualSurface
+          visual={visuals.start}
+          expanded
+          phaseLabel="Start position"
+        />
+        <VisualSurface
+          visual={visuals.finish}
+          expanded
+          phaseLabel="Finish position"
+        />
       </div>
     );
   }
 
   if (visuals.primary) {
     return (
-      <div className={expanded ? 'exercise-media-engine exercise-media-engine--expanded' : 'exercise-media-engine'}>
+      <div
+        className={
+          expanded
+            ? 'exercise-media-engine exercise-media-engine--expanded'
+            : 'exercise-media-engine'
+        }
+      >
         <VisualSurface visual={visuals.primary} expanded={expanded} />
       </div>
     );
   }
 
   return (
-    <div className={expanded ? 'exercise-media-engine exercise-media-engine--expanded' : 'exercise-media-engine'}>
+    <div
+      className={
+        expanded
+          ? 'exercise-media-engine exercise-media-engine--expanded'
+          : 'exercise-media-engine'
+      }
+    >
       <ExerciseMediaPlaceholder exercise={exercise} expanded={expanded} />
     </div>
   );
 }
 
-function TechniqueList({ items, fallback }: { items: string[]; fallback?: string }) {
+function TechniqueList({
+  items,
+  fallback,
+}: {
+  items: string[];
+  fallback?: string;
+}) {
   const visibleItems = items.filter((item) => item.trim().length > 0);
 
   if (visibleItems.length === 0 && fallback) {
@@ -154,17 +193,29 @@ function TechniqueList({ items, fallback }: { items: string[]; fallback?: string
   );
 }
 
-function buildTechniqueSteps(guide: ExerciseTechniqueGuide | null, exercise: Exercise): string[] {
+function buildTechniqueSteps(
+  guide: ExerciseTechniqueGuide | null,
+  exercise: Exercise,
+): string[] {
   if (!guide) return exercise.instructions;
 
   const steps = [...guide.setup_steps, ...guide.execution_steps];
   return steps.length > 0 ? steps : exercise.instructions;
 }
 
-export function ExerciseTechniqueSheet({ exercise, onClose }: { exercise: Exercise; onClose: () => void }) {
+export function ExerciseTechniqueSheet({
+  exercise,
+  onClose,
+}: {
+  exercise: Exercise;
+  onClose: () => void;
+}) {
   const bundle = useExerciseMedia(exercise.id);
   const guide = bundle?.guide ?? null;
-  const techniqueSteps = useMemo(() => buildTechniqueSteps(guide, exercise), [exercise, guide]);
+  const techniqueSteps = useMemo(
+    () => buildTechniqueSteps(guide, exercise),
+    [exercise, guide],
+  );
   const muscleHighlights = useMemo(
     () => getMuscleHighlightLabels(guide?.muscle_highlights ?? []),
     [guide?.muscle_highlights],
@@ -204,7 +255,13 @@ export function ExerciseTechniqueSheet({ exercise, onClose }: { exercise: Exerci
             <p>{exercise.primary_muscle_group}</p>
             <h2 id="active-technique-title">{exercise.name}</h2>
           </div>
-          <button type="button" aria-label="Close technique guide" onClick={onClose}>×</button>
+          <button
+            type="button"
+            aria-label="Close technique guide"
+            onClick={onClose}
+          >
+            ×
+          </button>
         </header>
 
         <div className="active-technique-scroll">
@@ -223,8 +280,18 @@ export function ExerciseTechniqueSheet({ exercise, onClose }: { exercise: Exerci
             <section className="exercise-technique-section exercise-technique-positions">
               <span className="overview-kicker">Positions</span>
               <div>
-                {guide.start_position ? <article><strong>Start</strong><p>{guide.start_position}</p></article> : null}
-                {guide.finish_position ? <article><strong>Finish</strong><p>{guide.finish_position}</p></article> : null}
+                {guide.start_position ? (
+                  <article>
+                    <strong>Start</strong>
+                    <p>{guide.start_position}</p>
+                  </article>
+                ) : null}
+                {guide.finish_position ? (
+                  <article>
+                    <strong>Finish</strong>
+                    <p>{guide.finish_position}</p>
+                  </article>
+                ) : null}
               </div>
             </section>
           ) : null}
@@ -252,10 +319,22 @@ export function ExerciseTechniqueSheet({ exercise, onClose }: { exercise: Exerci
             </section>
           ) : null}
 
-          {guide?.breathing || guide?.tempo_guidance || muscleHighlights.length > 0 ? (
+          {guide?.breathing ||
+          guide?.tempo_guidance ||
+          muscleHighlights.length > 0 ? (
             <aside className="exercise-technique-details">
-              {guide?.breathing ? <div><strong>Breathing</strong><p>{guide.breathing}</p></div> : null}
-              {guide?.tempo_guidance ? <div><strong>Tempo</strong><p>{guide.tempo_guidance}</p></div> : null}
+              {guide?.breathing ? (
+                <div>
+                  <strong>Breathing</strong>
+                  <p>{guide.breathing}</p>
+                </div>
+              ) : null}
+              {guide?.tempo_guidance ? (
+                <div>
+                  <strong>Tempo</strong>
+                  <p>{guide.tempo_guidance}</p>
+                </div>
+              ) : null}
               {muscleHighlights.length > 0 ? (
                 <div>
                   <strong>Muscles highlighted</strong>
@@ -266,7 +345,10 @@ export function ExerciseTechniqueSheet({ exercise, onClose }: { exercise: Exerci
           ) : (
             <aside>
               <strong>Technique reminder</strong>
-              <p>Use a controlled range of motion and stop if you feel sharp pain.</p>
+              <p>
+                Use a controlled range of motion and stop if you feel sharp
+                pain.
+              </p>
             </aside>
           )}
         </div>

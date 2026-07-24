@@ -36,8 +36,12 @@ function useOnlineState(): boolean {
 
 export function PwaUpdateStatus({ userId }: PwaUpdateStatusProps) {
   const online = useOnlineState();
-  const [update, setUpdate] = useState<PwaUpdateState>(() => getPwaUpdateState());
-  const [syncState, setSyncState] = useState<WorkoutSyncState>(() => getWorkoutSyncState(userId));
+  const [update, setUpdate] = useState<PwaUpdateState>(() =>
+    getPwaUpdateState(),
+  );
+  const [syncState, setSyncState] = useState<WorkoutSyncState>(() =>
+    getWorkoutSyncState(userId),
+  );
   const [, setSafetyRevision] = useState(0);
 
   useEffect(() => subscribePwaUpdateState(setUpdate), []);
@@ -51,7 +55,11 @@ export function PwaUpdateStatus({ userId }: PwaUpdateStatusProps) {
   }, [userId]);
 
   useEffect(() => {
-    if (!userId || (update.status !== 'available' && update.status !== 'applying')) return;
+    if (
+      !userId ||
+      (update.status !== 'available' && update.status !== 'applying')
+    )
+      return;
 
     const refreshSafety = () => setSafetyRevision((revision) => revision + 1);
     const interval = window.setInterval(refreshSafety, 1000);
@@ -64,35 +72,47 @@ export function PwaUpdateStatus({ userId }: PwaUpdateStatusProps) {
 
   const hasActiveWorkout = Boolean(userId && readCachedActiveWorkout(userId));
 
-  if (update.status === 'idle' || update.status === 'checking' || update.status === 'unsupported') {
+  if (
+    update.status === 'idle' ||
+    update.status === 'checking' ||
+    update.status === 'unsupported'
+  ) {
     return null;
   }
 
   const blockedByWorkout = hasActiveWorkout;
   const blockedBySync = syncState.pendingCount > 0 || syncState.syncing;
-  const canApply = online && !blockedByWorkout && !blockedBySync && update.status === 'available';
+  const canApply =
+    online &&
+    !blockedByWorkout &&
+    !blockedBySync &&
+    update.status === 'available';
 
   let label = 'App update';
   let title = 'A safer BioTrack version is ready';
-  let body = 'Update now to load the latest compatible files and remove old cached versions.';
+  let body =
+    'Update now to load the latest compatible files and remove old cached versions.';
 
   if (update.status === 'applying') {
     label = 'Updating';
     title = 'Loading the new BioTrack version';
-    body = 'Your protected workout data will be recovered after the app reloads.';
+    body =
+      'Your protected workout data will be recovered after the app reloads.';
   } else if (update.status === 'error') {
     label = 'Update needs attention';
     title = 'BioTrack could not prepare the update';
     body = update.error ?? 'Check your connection and try again.';
   } else if (!online) {
     title = 'BioTrack update waiting for a connection';
-    body = 'Your current version remains available. Reconnect before applying the update.';
+    body =
+      'Your current version remains available. Reconnect before applying the update.';
   } else if (blockedBySync) {
     title = 'BioTrack update waiting for workout sync';
     body = `${syncState.pendingCount} saved ${syncState.pendingCount === 1 ? 'set must' : 'sets must'} sync before BioTrack reloads.`;
   } else if (blockedByWorkout) {
     title = 'BioTrack update ready after this workout';
-    body = 'Finish or cancel the active workout first. The new version will remain waiting without interrupting your session.';
+    body =
+      'Finish or cancel the active workout first. The new version will remain waiting without interrupting your session.';
   }
 
   return (
@@ -102,16 +122,26 @@ export function PwaUpdateStatus({ userId }: PwaUpdateStatusProps) {
       aria-live="polite"
     >
       <div className="pwa-update-status-mark" aria-hidden="true">
-        {update.status === 'applying' ? '↻' : update.status === 'error' ? '!' : '↑'}
+        {update.status === 'applying'
+          ? '↻'
+          : update.status === 'error'
+            ? '!'
+            : '↑'}
       </div>
       <div className="pwa-update-status-copy">
         <span>{label}</span>
         <strong>{title}</strong>
         <p>{body}</p>
-        {update.buildId ? <small>Version {update.buildId.slice(0, 8)}</small> : null}
+        {update.buildId ? (
+          <small>Version {update.buildId.slice(0, 8)}</small>
+        ) : null}
       </div>
       {canApply ? (
-        <button className="primary-button" type="button" onClick={applyPwaUpdate}>
+        <button
+          className="primary-button"
+          type="button"
+          onClick={applyPwaUpdate}
+        >
           Update BioTrack
         </button>
       ) : update.status === 'error' ? (

@@ -1,10 +1,5 @@
 export type PwaUpdateStatus =
-  | 'unsupported'
-  | 'idle'
-  | 'checking'
-  | 'available'
-  | 'applying'
-  | 'error';
+  'unsupported' | 'idle' | 'checking' | 'available' | 'applying' | 'error';
 
 export type PwaUpdateState = {
   status: PwaUpdateStatus;
@@ -35,14 +30,20 @@ function publish(patch: Partial<PwaUpdateState>): void {
   listeners.forEach((listener) => listener(state));
 }
 
-async function readWorkerBuildId(worker: ServiceWorker): Promise<string | null> {
+async function readWorkerBuildId(
+  worker: ServiceWorker,
+): Promise<string | null> {
   return new Promise((resolve) => {
     const channel = new MessageChannel();
     const timeout = window.setTimeout(() => resolve(null), 1500);
 
-    channel.port1.onmessage = (event: MessageEvent<ServiceWorkerVersionMessage>) => {
+    channel.port1.onmessage = (
+      event: MessageEvent<ServiceWorkerVersionMessage>,
+    ) => {
       window.clearTimeout(timeout);
-      resolve(typeof event.data?.buildId === 'string' ? event.data.buildId : null);
+      resolve(
+        typeof event.data?.buildId === 'string' ? event.data.buildId : null,
+      );
     };
 
     worker.postMessage({ type: 'GET_VERSION' }, [channel.port2]);
@@ -56,7 +57,8 @@ async function announceWaitingWorker(worker: ServiceWorker): Promise<void> {
 
 function watchInstallingWorker(worker: ServiceWorker): void {
   worker.addEventListener('statechange', () => {
-    if (worker.state !== 'installed' || !navigator.serviceWorker.controller) return;
+    if (worker.state !== 'installed' || !navigator.serviceWorker.controller)
+      return;
     if (registration?.waiting) void announceWaitingWorker(registration.waiting);
   });
 }
@@ -64,11 +66,14 @@ function watchInstallingWorker(worker: ServiceWorker): void {
 function watchRegistration(nextRegistration: ServiceWorkerRegistration): void {
   registration = nextRegistration;
 
-  if (nextRegistration.waiting) void announceWaitingWorker(nextRegistration.waiting);
-  if (nextRegistration.installing) watchInstallingWorker(nextRegistration.installing);
+  if (nextRegistration.waiting)
+    void announceWaitingWorker(nextRegistration.waiting);
+  if (nextRegistration.installing)
+    watchInstallingWorker(nextRegistration.installing);
 
   nextRegistration.addEventListener('updatefound', () => {
-    if (nextRegistration.installing) watchInstallingWorker(nextRegistration.installing);
+    if (nextRegistration.installing)
+      watchInstallingWorker(nextRegistration.installing);
   });
 }
 
@@ -76,7 +81,9 @@ export function getPwaUpdateState(): PwaUpdateState {
   return state;
 }
 
-export function subscribePwaUpdateState(listener: PwaUpdateListener): () => void {
+export function subscribePwaUpdateState(
+  listener: PwaUpdateListener,
+): () => void {
   listeners.add(listener);
   listener(state);
   return () => listeners.delete(listener);
@@ -96,14 +103,18 @@ export async function checkForPwaUpdate(): Promise<void> {
   } catch (error: unknown) {
     publish({
       status: 'error',
-      error: error instanceof Error ? error.message : 'BioTrack could not check for an update.',
+      error:
+        error instanceof Error
+          ? error.message
+          : 'BioTrack could not check for an update.',
     });
   }
 }
 
 export function applyPwaUpdate(): boolean {
   const waitingWorker = registration?.waiting;
-  if (!waitingWorker || !navigator.onLine || state.status === 'applying') return false;
+  if (!waitingWorker || !navigator.onLine || state.status === 'applying')
+    return false;
 
   reloadRequested = true;
   publish({ status: 'applying', error: null });
@@ -118,7 +129,10 @@ async function removeDevelopmentServiceWorkers(): Promise<void> {
     const registrations = await navigator.serviceWorker.getRegistrations();
     await Promise.all(registrations.map((item) => item.unregister()));
   } catch (error: unknown) {
-    console.warn('BioTrack AI could not remove a development service worker.', error);
+    console.warn(
+      'BioTrack AI could not remove a development service worker.',
+      error,
+    );
   }
 }
 
@@ -153,7 +167,10 @@ export function startPwaUpdateManager(enabled = true): void {
       .catch((error: unknown) => {
         publish({
           status: 'error',
-          error: error instanceof Error ? error.message : 'BioTrack service worker registration failed.',
+          error:
+            error instanceof Error
+              ? error.message
+              : 'BioTrack service worker registration failed.',
         });
         console.warn('BioTrack AI service worker registration failed.', error);
       });

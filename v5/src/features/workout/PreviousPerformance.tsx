@@ -8,7 +8,8 @@ type PreviousPerformanceContextValue = {
   progression: ReturnType<typeof useProgressionRecommendations>;
 };
 
-const PreviousPerformanceContext = createContext<PreviousPerformanceContextValue | null>(null);
+const PreviousPerformanceContext =
+  createContext<PreviousPerformanceContextValue | null>(null);
 
 export function PreviousPerformanceProvider({
   exerciseIds,
@@ -41,15 +42,25 @@ function formatDate(value: string): string {
 }
 
 function formatNumber(value: number): string {
-  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(value);
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(
+    value,
+  );
 }
 
-function CompactProgression({ recommendation }: { recommendation: ProgressionRecommendation }) {
+function CompactProgression({
+  recommendation,
+}: {
+  recommendation: ProgressionRecommendation;
+}) {
   return (
-    <aside className={`compact-progression compact-progression--${recommendation.recommendation_type}`}>
+    <aside
+      className={`compact-progression compact-progression--${recommendation.recommendation_type}`}
+    >
       <header>
         <span>Progression guidance</span>
-        <span className={`confidence-chip confidence-chip--${recommendation.confidence}`}>
+        <span
+          className={`confidence-chip confidence-chip--${recommendation.confidence}`}
+        >
           {recommendation.confidence}
         </span>
       </header>
@@ -83,7 +94,9 @@ export function PreviousPerformance({ exerciseId }: { exerciseId: string }) {
 
   const recommendations = context.progression.byExerciseId[exerciseId] ?? [];
   const recommendation =
-    recommendations.find((item) => item.weight_unit === performance.weight_unit) ??
+    recommendations.find(
+      (item) => item.weight_unit === performance.weight_unit,
+    ) ??
     recommendations[0] ??
     null;
 
@@ -101,7 +114,9 @@ export function PreviousPerformance({ exerciseId }: { exerciseId: string }) {
           ))}
         </div>
       </div>
-      {recommendation ? <CompactProgression recommendation={recommendation} /> : null}
+      {recommendation ? (
+        <CompactProgression recommendation={recommendation} />
+      ) : null}
     </>
   );
 }

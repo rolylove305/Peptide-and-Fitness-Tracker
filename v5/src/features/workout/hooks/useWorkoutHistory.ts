@@ -23,8 +23,12 @@ export function useWorkoutHistory(userId: string | undefined) {
   const [history, setHistory] = useState<WorkoutSessionSummary[]>([]);
   const [records, setRecords] = useState<ExerciseRecord[]>([]);
   const [muscleVolume, setMuscleVolume] = useState<MuscleVolumeDay[]>([]);
-  const [details, setDetails] = useState<Record<string, WorkoutSessionDetail>>({});
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [details, setDetails] = useState<Record<string, WorkoutSessionDetail>>(
+    {},
+  );
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
+    null,
+  );
   const [loadingDetailId, setLoadingDetailId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [requestVersion, setRequestVersion] = useState(0);
@@ -58,7 +62,9 @@ export function useWorkoutHistory(userId: string | undefined) {
 
       if (cancelled) return;
 
-      const failedResult = [historyResult, recordsResult, muscleResult].find((result) => !result.ok);
+      const failedResult = [historyResult, recordsResult, muscleResult].find(
+        (result) => !result.ok,
+      );
       if (failedResult && !failedResult.ok) {
         setError(failedResult.error);
         setStatus('error');
@@ -82,7 +88,7 @@ export function useWorkoutHistory(userId: string | undefined) {
   }, [requestVersion, userId]);
 
   const selectedDetail = useMemo(
-    () => (selectedSessionId ? details[selectedSessionId] ?? null : null),
+    () => (selectedSessionId ? (details[selectedSessionId] ?? null) : null),
     [details, selectedSessionId],
   );
 
@@ -111,7 +117,10 @@ export function useWorkoutHistory(userId: string | undefined) {
         return;
       }
 
-      setDetails((current) => ({ ...current, [sessionId]: result.data as WorkoutSessionDetail }));
+      setDetails((current) => ({
+        ...current,
+        [sessionId]: result.data as WorkoutSessionDetail,
+      }));
     },
     [details, selectedSessionId, userId],
   );

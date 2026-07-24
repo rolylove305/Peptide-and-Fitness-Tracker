@@ -6,7 +6,11 @@ import { useRoutines } from './hooks/useRoutines';
 import { subscribeWorkoutRoutineSaved } from './routineEvents';
 import type { WorkoutWorkspaceView } from './WorkoutWorkspace';
 import { useWorkoutProfile } from './WorkoutProfileProvider';
-import { labelForGoal, type TrainingGoal, type WorkoutProfile } from './workoutProfile';
+import {
+  labelForGoal,
+  type TrainingGoal,
+  type WorkoutProfile,
+} from './workoutProfile';
 
 type PersonalizedPlansProps = {
   onNavigate: (view: WorkoutWorkspaceView) => void;
@@ -28,7 +32,13 @@ const plans: PlanDescriptor[] = [
     days: 3,
     minutes: 50,
     difficulty: 'beginner',
-    goalAffinity: { general_fitness: 32, strength: 25, consistency: 22, muscle_gain: 14, fat_loss: 14 },
+    goalAffinity: {
+      general_fitness: 32,
+      strength: 25,
+      consistency: 22,
+      muscle_gain: 14,
+      fat_loss: 14,
+    },
   },
   {
     id: 'lean-strong-four-day',
@@ -36,7 +46,13 @@ const plans: PlanDescriptor[] = [
     days: 4,
     minutes: 60,
     difficulty: 'intermediate',
-    goalAffinity: { muscle_gain: 36, fat_loss: 32, strength: 20, general_fitness: 12, consistency: 4 },
+    goalAffinity: {
+      muscle_gain: 36,
+      fat_loss: 32,
+      strength: 20,
+      general_fitness: 12,
+      consistency: 4,
+    },
   },
   {
     id: 'busy-week-two-day',
@@ -44,7 +60,13 @@ const plans: PlanDescriptor[] = [
     days: 2,
     minutes: 45,
     difficulty: 'beginner',
-    goalAffinity: { consistency: 38, general_fitness: 22, fat_loss: 16, strength: 8, muscle_gain: 5 },
+    goalAffinity: {
+      consistency: 38,
+      general_fitness: 22,
+      fat_loss: 16,
+      strength: 8,
+      muscle_gain: 5,
+    },
   },
 ];
 
@@ -55,15 +77,21 @@ function scorePlan(plan: PlanDescriptor, profile: WorkoutProfile): number {
   score += plan.goalAffinity[profile.goal] ?? 0;
 
   if (profile.experience === plan.difficulty) score += 18;
-  if (profile.experience === 'beginner' && plan.difficulty === 'intermediate') score -= 24;
-  if (profile.experience === 'advanced' && plan.difficulty === 'beginner') score -= 7;
-  if (profile.movementPreferences.includes('short_sessions')) score -= plan.minutes > 50 ? 18 : 0;
+  if (profile.experience === 'beginner' && plan.difficulty === 'intermediate')
+    score -= 24;
+  if (profile.experience === 'advanced' && plan.difficulty === 'beginner')
+    score -= 7;
+  if (profile.movementPreferences.includes('short_sessions'))
+    score -= plan.minutes > 50 ? 18 : 0;
   if (profile.equipment.includes('full_gym')) score += 5;
 
   return score;
 }
 
-function recommendationReason(plan: PlanDescriptor, profile: WorkoutProfile): string {
+function recommendationReason(
+  plan: PlanDescriptor,
+  profile: WorkoutProfile,
+): string {
   const schedule = `${profile.daysPerWeek} training days and about ${profile.sessionMinutes} minutes per session`;
   if (plan.id === 'busy-week-two-day') {
     return `This plan is the closest match to your ${schedule}, with the smallest weekly time commitment.`;
@@ -86,9 +114,11 @@ export function PersonalizedPlans({ onNavigate }: PersonalizedPlansProps) {
 
   const recommendation = useMemo(() => {
     if (!profile) return null;
-    return [...plans]
-      .map((plan) => ({ plan, score: scorePlan(plan, profile) }))
-      .sort((left, right) => right.score - left.score)[0]?.plan ?? null;
+    return (
+      [...plans]
+        .map((plan) => ({ plan, score: scorePlan(plan, profile) }))
+        .sort((left, right) => right.score - left.score)[0]?.plan ?? null
+    );
   }, [profile]);
 
   useEffect(
@@ -98,7 +128,10 @@ export function PersonalizedPlans({ onNavigate }: PersonalizedPlansProps) {
         setActivationError(null);
         void refreshRoutines().then(() => {
           window.setTimeout(() => {
-            activationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            activationRef.current?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
           }, 120);
         });
       }),
@@ -107,7 +140,9 @@ export function PersonalizedPlans({ onNavigate }: PersonalizedPlansProps) {
 
   const launchRoutine = useMemo(() => {
     if (recentRoutineId) {
-      const recent = routineState.routines.find((routine) => routine.id === recentRoutineId);
+      const recent = routineState.routines.find(
+        (routine) => routine.id === recentRoutineId,
+      );
       if (recent) return recent;
     }
     return routineState.routines[0] ?? null;
@@ -150,29 +185,49 @@ export function PersonalizedPlans({ onNavigate }: PersonalizedPlansProps) {
     <div className={wrapperClass}>
       <aside className="starter-personalization-note">
         <div>
-          <strong>{recommendation ? `${recommendation.name} is your current best match` : 'Personalize your plan ranking'}</strong>
+          <strong>
+            {recommendation
+              ? `${recommendation.name} is your current best match`
+              : 'Personalize your plan ranking'}
+          </strong>
           <span>
             {recommendation && profile
               ? recommendationReason(recommendation, profile)
               : 'Complete your training profile so BioTrack can prioritize plans around your goal, schedule and experience.'}
           </span>
         </div>
-        <button className="secondary-button" type="button" onClick={() => onNavigate('profile')}>
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={() => onNavigate('profile')}
+        >
           {profile ? 'Review profile' : 'Set up profile'}
         </button>
       </aside>
 
       {showActivation ? (
         <section
-          className={recentRoutineId ? 'plan-activation-card plan-activation-card--new' : 'plan-activation-card'}
+          className={
+            recentRoutineId
+              ? 'plan-activation-card plan-activation-card--new'
+              : 'plan-activation-card'
+          }
           aria-labelledby="plan-activation-heading"
           aria-live="polite"
           ref={activationRef}
         >
           <div className="plan-activation-copy">
-            <span>{active.session ? 'Workout in progress' : recentRoutineId ? 'Plan activated' : 'Ready to train'}</span>
+            <span>
+              {active.session
+                ? 'Workout in progress'
+                : recentRoutineId
+                  ? 'Plan activated'
+                  : 'Ready to train'}
+            </span>
             <h2 id="plan-activation-heading">
-              {active.session?.name ?? launchRoutine?.name ?? 'Your training plan'}
+              {active.session?.name ??
+                launchRoutine?.name ??
+                'Your training plan'}
             </h2>
             <p>
               {active.session
@@ -182,7 +237,9 @@ export function PersonalizedPlans({ onNavigate }: PersonalizedPlansProps) {
                   : 'Add at least one exercise day before starting this routine.'}
             </p>
             {activationError || active.error || routineState.error ? (
-              <small role="alert">{activationError ?? active.error ?? routineState.error}</small>
+              <small role="alert">
+                {activationError ?? active.error ?? routineState.error}
+              </small>
             ) : null}
           </div>
           <div className="plan-activation-actions">
@@ -200,10 +257,18 @@ export function PersonalizedPlans({ onNavigate }: PersonalizedPlansProps) {
                     ? `Start ${launchDay.name}`
                     : 'Edit routine'}
             </button>
-            <button className="secondary-button" type="button" onClick={() => onNavigate('planner')}>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={() => onNavigate('planner')}
+            >
               Plan my week
             </button>
-            <button className="text-button" type="button" onClick={() => onNavigate('builder')}>
+            <button
+              className="text-button"
+              type="button"
+              onClick={() => onNavigate('builder')}
+            >
               Edit routine
             </button>
           </div>

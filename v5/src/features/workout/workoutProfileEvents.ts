@@ -1,6 +1,7 @@
 import type { WorkoutProfile } from './workoutProfile';
 
-export const workoutProfileCompletedEventName = 'biotrack:workout-profile-completed';
+export const workoutProfileCompletedEventName =
+  'biotrack:workout-profile-completed';
 
 export type WorkoutProfileCompletedDetail = {
   profile: WorkoutProfile;
@@ -8,9 +9,12 @@ export type WorkoutProfileCompletedDetail = {
 
 export function emitWorkoutProfileCompleted(profile: WorkoutProfile): void {
   window.dispatchEvent(
-    new CustomEvent<WorkoutProfileCompletedDetail>(workoutProfileCompletedEventName, {
-      detail: { profile },
-    }),
+    new CustomEvent<WorkoutProfileCompletedDetail>(
+      workoutProfileCompletedEventName,
+      {
+        detail: { profile },
+      },
+    ),
   );
 }
 
@@ -22,5 +26,6 @@ export function subscribeWorkoutProfileCompleted(
   };
 
   window.addEventListener(workoutProfileCompletedEventName, handleEvent);
-  return () => window.removeEventListener(workoutProfileCompletedEventName, handleEvent);
+  return () =>
+    window.removeEventListener(workoutProfileCompletedEventName, handleEvent);
 }

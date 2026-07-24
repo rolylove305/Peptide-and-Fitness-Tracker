@@ -11,8 +11,14 @@ type SessionDetailsEditorProps = {
   onSave: (input: WorkoutSessionDetailsInput) => Promise<boolean>;
 };
 
-export function SessionDetailsEditor({ session, saving, onSave }: SessionDetailsEditorProps) {
-  const [bodyWeight, setBodyWeight] = useState(session.body_weight?.toString() ?? '');
+export function SessionDetailsEditor({
+  session,
+  saving,
+  onSave,
+}: SessionDetailsEditorProps) {
+  const [bodyWeight, setBodyWeight] = useState(
+    session.body_weight?.toString() ?? '',
+  );
   const [notes, setNotes] = useState(session.notes ?? '');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +32,12 @@ export function SessionDetailsEditor({ session, saving, onSave }: SessionDetails
     setError(null);
     setMessage(null);
     const parsedWeight = bodyWeight.trim() === '' ? null : Number(bodyWeight);
-    if (parsedWeight !== null && (!Number.isFinite(parsedWeight) || parsedWeight < 0 || parsedWeight > 2000)) {
+    if (
+      parsedWeight !== null &&
+      (!Number.isFinite(parsedWeight) ||
+        parsedWeight < 0 ||
+        parsedWeight > 2000)
+    ) {
       setError('Enter a valid body weight or leave it blank.');
       return;
     }
@@ -80,12 +91,23 @@ export function SessionDetailsEditor({ session, saving, onSave }: SessionDetails
           />
         </label>
         <div className="live-workout-details-actions">
-          <button className="secondary-button" type="button" disabled={saving} onClick={() => void submit()}>
+          <button
+            className="secondary-button"
+            type="button"
+            disabled={saving}
+            onClick={() => void submit()}
+          >
             {saving ? 'Saving…' : 'Save workout details'}
           </button>
-          {message ? <span className="flex-save-message">{message}</span> : null}
+          {message ? (
+            <span className="flex-save-message">{message}</span>
+          ) : null}
         </div>
-        {error ? <p className="builder-message builder-message--error" role="alert">{error}</p> : null}
+        {error ? (
+          <p className="builder-message builder-message--error" role="alert">
+            {error}
+          </p>
+        ) : null}
       </div>
     </details>
   );
@@ -97,7 +119,11 @@ type ExerciseNotesEditorProps = {
   onSave: (notes: string | null) => Promise<boolean>;
 };
 
-export function ExerciseNotesEditor({ exercise, saving, onSave }: ExerciseNotesEditorProps) {
+export function ExerciseNotesEditor({
+  exercise,
+  saving,
+  onSave,
+}: ExerciseNotesEditorProps) {
   const [notes, setNotes] = useState(exercise.notes ?? '');
   const [saved, setSaved] = useState(false);
   const [open, setOpen] = useState(Boolean(exercise.notes));
@@ -121,7 +147,9 @@ export function ExerciseNotesEditor({ exercise, saving, onSave }: ExerciseNotesE
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary>
-        <span>{exercise.notes ? 'Exercise note saved' : 'Add exercise note'}</span>
+        <span>
+          {exercise.notes ? 'Exercise note saved' : 'Add exercise note'}
+        </span>
         <span aria-hidden="true">＋</span>
       </summary>
       <div>

@@ -3,8 +3,7 @@ import { supabase } from '../../../lib/supabase/client';
 import type { Database, Json } from '../../../types/database';
 
 export type RepositoryResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string };
+  { ok: true; data: T } | { ok: false; error: string };
 
 export type ProgressionRecommendationType =
   | 'increase_load'
@@ -106,7 +105,9 @@ function numberOrZero(value: unknown): number {
   return numberOrNull(value) ?? 0;
 }
 
-function isRecommendationType(value: string): value is ProgressionRecommendationType {
+function isRecommendationType(
+  value: string,
+): value is ProgressionRecommendationType {
   return [
     'increase_load',
     'increase_reps',
@@ -129,25 +130,33 @@ function parseEvidence(value: Json): ProgressionEvidenceSession[] {
 
   return value.flatMap((item) => {
     if (!item || Array.isArray(item) || typeof item !== 'object') return [];
-    if (typeof item.session_id !== 'string' || typeof item.performed_at !== 'string') return [];
+    if (
+      typeof item.session_id !== 'string' ||
+      typeof item.performed_at !== 'string'
+    )
+      return [];
 
-    return [{
-      session_id: item.session_id,
-      performed_at: item.performed_at,
-      completed_set_count: numberOrZero(item.completed_set_count),
-      average_reps: numberOrZero(item.average_reps),
-      minimum_reps: numberOrZero(item.minimum_reps),
-      maximum_reps: numberOrZero(item.maximum_reps),
-      maximum_weight: numberOrNull(item.maximum_weight),
-      average_rpe: numberOrNull(item.average_rpe),
-      rpe_set_count: numberOrZero(item.rpe_set_count),
-      target_reps_min: numberOrNull(item.target_reps_min),
-      target_reps_max: numberOrNull(item.target_reps_max),
-    }];
+    return [
+      {
+        session_id: item.session_id,
+        performed_at: item.performed_at,
+        completed_set_count: numberOrZero(item.completed_set_count),
+        average_reps: numberOrZero(item.average_reps),
+        minimum_reps: numberOrZero(item.minimum_reps),
+        maximum_reps: numberOrZero(item.maximum_reps),
+        maximum_weight: numberOrNull(item.maximum_weight),
+        average_rpe: numberOrNull(item.average_rpe),
+        rpe_set_count: numberOrZero(item.rpe_set_count),
+        target_reps_min: numberOrNull(item.target_reps_min),
+        target_reps_max: numberOrNull(item.target_reps_max),
+      },
+    ];
   });
 }
 
-function normalizeRecommendation(row: ProgressionRpcRow): ProgressionRecommendation | null {
+function normalizeRecommendation(
+  row: ProgressionRpcRow,
+): ProgressionRecommendation | null {
   if (
     !row.exercise_id ||
     !row.exercise_name ||
@@ -188,7 +197,10 @@ export async function loadProgressionRecommendations(
 ): Promise<RepositoryResult<ProgressionRecommendation[]>> {
   const client = progressionClient();
   if (!client) {
-    return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
   }
 
   const uniqueExerciseIds = exerciseIds?.length
@@ -196,10 +208,13 @@ export async function loadProgressionRecommendations(
     : null;
 
   try {
-    const { data, error } = await client.rpc('get_workout_progression_recommendations', {
-      p_exercise_ids: uniqueExerciseIds,
-      p_session_limit: Math.max(2, Math.min(sessionLimit, 6)),
-    });
+    const { data, error } = await client.rpc(
+      'get_workout_progression_recommendations',
+      {
+        p_exercise_ids: uniqueExerciseIds,
+        p_session_limit: Math.max(2, Math.min(sessionLimit, 6)),
+      },
+    );
 
     if (error) throw error;
 
@@ -213,7 +228,10 @@ export async function loadProgressionRecommendations(
   } catch (error) {
     return {
       ok: false,
-      error: messageFrom(error, 'BioTrack could not calculate progression guidance.'),
+      error: messageFrom(
+        error,
+        'BioTrack could not calculate progression guidance.',
+      ),
     };
   }
 }

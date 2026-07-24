@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 
-const [filePath, expectedWidth = '180', expectedHeight = '180'] = process.argv.slice(2);
+const [filePath, expectedWidth = '180', expectedHeight = '180'] =
+  process.argv.slice(2);
 
 if (!filePath) {
   throw new Error('Usage: node scripts/verify-png.mjs <file> [width] [height]');
@@ -67,4 +68,6 @@ if (width !== Number(expectedWidth) || height !== Number(expectedHeight)) {
   );
 }
 
-console.log(`Verified ${filePath}: ${width}x${height} PNG with valid chunks and CRCs.`);
+console.log(
+  `Verified ${filePath}: ${width}x${height} PNG with valid chunks and CRCs.`,
+);

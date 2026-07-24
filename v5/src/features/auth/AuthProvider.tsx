@@ -25,7 +25,11 @@ type AuthContextValue = {
   error: string | null;
   clearError: () => void;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, password: string) => Promise<SignUpResult>;
+  signUp: (
+    name: string,
+    email: string,
+    password: string,
+  ) => Promise<SignUpResult>;
   requestPasswordReset: (email: string, redirectTo: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -65,7 +69,9 @@ function currentAuthRedirectUrl(): string | undefined {
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [status, setStatus] = useState<AuthStatus>(supabase ? 'checking' : 'misconfigured');
+  const [status, setStatus] = useState<AuthStatus>(
+    supabase ? 'checking' : 'misconfigured',
+  );
   const [session, setSession] = useState<Session | null>(null);
   const [error, setError] = useState<string | null>(null);
   const recoveryStarted = useRef(readRecoveryFlag());
@@ -139,7 +145,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
       clearError: () => setError(null),
       signIn: async (email, password) => {
         if (!supabase) {
-          const configurationError = new Error('Supabase environment variables are not configured.');
+          const configurationError = new Error(
+            'Supabase environment variables are not configured.',
+          );
           setError(configurationError.message);
           throw configurationError;
         }
@@ -159,7 +167,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
       },
       signUp: async (name, email, password) => {
         if (!supabase) {
-          const configurationError = new Error('Supabase environment variables are not configured.');
+          const configurationError = new Error(
+            'Supabase environment variables are not configured.',
+          );
           setError(configurationError.message);
           throw configurationError;
         }
@@ -188,7 +198,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
       },
       requestPasswordReset: async (email, redirectTo) => {
         if (!supabase) {
-          const configurationError = new Error('Supabase environment variables are not configured.');
+          const configurationError = new Error(
+            'Supabase environment variables are not configured.',
+          );
           setError(configurationError.message);
           throw configurationError;
         }
@@ -206,13 +218,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
       },
       updatePassword: async (password) => {
         if (!supabase) {
-          const configurationError = new Error('Supabase environment variables are not configured.');
+          const configurationError = new Error(
+            'Supabase environment variables are not configured.',
+          );
           setError(configurationError.message);
           throw configurationError;
         }
 
         setError(null);
-        const { error: updateError } = await supabase.auth.updateUser({ password });
+        const { error: updateError } = await supabase.auth.updateUser({
+          password,
+        });
 
         if (updateError) {
           setError(updateError.message);

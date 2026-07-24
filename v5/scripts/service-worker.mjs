@@ -13,6 +13,9 @@ if (!source.includes(TOKEN)) {
   throw new Error(`Service worker build token was not found in ${swPath}.`);
 }
 
-const stamped = source.replaceAll(TOKEN, buildId.replace(/[^a-zA-Z0-9._-]/g, '-'));
+const stamped = source.replaceAll(
+  TOKEN,
+  buildId.replace(/[^a-zA-Z0-9._-]/g, '-'),
+);
 await writeFile(swPath, stamped, 'utf8');
 console.log(`Stamped BioTrack service worker build ${buildId}.`);

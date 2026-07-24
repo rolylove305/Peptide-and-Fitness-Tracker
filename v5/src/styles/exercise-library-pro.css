@@ -82,7 +82,10 @@
   display: flex;
   min-height: 100%;
   flex-direction: column;
-  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .exercise-card--interactive:hover {
@@ -203,7 +206,10 @@
   z-index: 60;
   display: grid;
   align-items: end;
-  padding: max(0.7rem, env(safe-area-inset-top)) max(0.7rem, env(safe-area-inset-right)) max(0.7rem, env(safe-area-inset-bottom)) max(0.7rem, env(safe-area-inset-left));
+  padding: max(0.7rem, env(safe-area-inset-top))
+    max(0.7rem, env(safe-area-inset-right))
+    max(0.7rem, env(safe-area-inset-bottom))
+    max(0.7rem, env(safe-area-inset-left));
   background: rgba(1, 7, 13, 0.78);
   backdrop-filter: blur(10px);
 }
@@ -215,7 +221,11 @@
   margin: 0 auto;
   border: 1px solid rgba(147, 197, 253, 0.2);
   border-radius: 1.35rem;
-  background: linear-gradient(155deg, rgba(14, 34, 54, 0.99), rgba(5, 16, 28, 0.995));
+  background: linear-gradient(
+    155deg,
+    rgba(14, 34, 54, 0.99),
+    rgba(5, 16, 28, 0.995)
+  );
   box-shadow: 0 28px 100px rgba(0, 0, 0, 0.58);
 }
 

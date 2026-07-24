@@ -7,8 +7,7 @@ import type {
 } from './progressionRepository';
 
 export type RepositoryResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string };
+  { ok: true; data: T } | { ok: false; error: string };
 
 export type ProgressionChangeStatus = 'applied' | 'undone';
 export type ApplicableRecommendationType = Extract<
@@ -116,7 +115,10 @@ export async function loadProgressionChanges(
 ): Promise<RepositoryResult<ProgressionChange[]>> {
   const database = client();
   if (!database) {
-    return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
   }
 
   try {
@@ -132,7 +134,10 @@ export async function loadProgressionChanges(
   } catch (error) {
     return {
       ok: false,
-      error: messageFrom(error, 'BioTrack could not load progression change history.'),
+      error: messageFrom(
+        error,
+        'BioTrack could not load progression change history.',
+      ),
     };
   }
 }
@@ -142,31 +147,43 @@ export async function applyProgressionChange(
 ): Promise<RepositoryResult<string>> {
   const database = client();
   if (!database) {
-    return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
   }
 
   try {
-    const { data, error } = await database.rpc('apply_workout_progression_change', {
-      p_routine_exercise_id: input.routineExerciseId,
-      p_expected_recommendation_type: input.recommendationType,
-      p_expected_recommendation_weight_unit: input.recommendationWeightUnit,
-      p_expected_target_weight: input.expectedTargetWeight,
-      p_expected_weight_unit: input.expectedWeightUnit,
-      p_expected_reps_min: input.expectedRepsMin,
-      p_expected_reps_max: input.expectedRepsMax,
-      p_proposed_target_weight: input.proposedTargetWeight,
-      p_proposed_weight_unit: input.proposedWeightUnit,
-      p_proposed_reps_min: input.proposedRepsMin,
-      p_proposed_reps_max: input.proposedRepsMax,
-    });
+    const { data, error } = await database.rpc(
+      'apply_workout_progression_change',
+      {
+        p_routine_exercise_id: input.routineExerciseId,
+        p_expected_recommendation_type: input.recommendationType,
+        p_expected_recommendation_weight_unit: input.recommendationWeightUnit,
+        p_expected_target_weight: input.expectedTargetWeight,
+        p_expected_weight_unit: input.expectedWeightUnit,
+        p_expected_reps_min: input.expectedRepsMin,
+        p_expected_reps_max: input.expectedRepsMax,
+        p_proposed_target_weight: input.proposedTargetWeight,
+        p_proposed_weight_unit: input.proposedWeightUnit,
+        p_proposed_reps_min: input.proposedRepsMin,
+        p_proposed_reps_max: input.proposedRepsMax,
+      },
+    );
 
     if (error) throw error;
-    if (!data) throw new Error('The progression was applied, but no change ID was returned.');
+    if (!data)
+      throw new Error(
+        'The progression was applied, but no change ID was returned.',
+      );
     return { ok: true, data };
   } catch (error) {
     return {
       ok: false,
-      error: messageFrom(error, 'BioTrack could not apply this progression change.'),
+      error: messageFrom(
+        error,
+        'BioTrack could not apply this progression change.',
+      ),
     };
   }
 }
@@ -176,7 +193,10 @@ export async function undoProgressionChange(
 ): Promise<RepositoryResult<null>> {
   const database = client();
   if (!database) {
-    return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
   }
 
   try {
@@ -189,7 +209,10 @@ export async function undoProgressionChange(
   } catch (error) {
     return {
       ok: false,
-      error: messageFrom(error, 'BioTrack could not undo this progression change.'),
+      error: messageFrom(
+        error,
+        'BioTrack could not undo this progression change.',
+      ),
     };
   }
 }

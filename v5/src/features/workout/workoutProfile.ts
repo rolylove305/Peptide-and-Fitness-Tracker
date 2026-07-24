@@ -1,17 +1,9 @@
 export type TrainingGoal =
-  | 'fat_loss'
-  | 'muscle_gain'
-  | 'strength'
-  | 'general_fitness'
-  | 'consistency';
+  'fat_loss' | 'muscle_gain' | 'strength' | 'general_fitness' | 'consistency';
 
 export type TrainingExperience = 'beginner' | 'intermediate' | 'advanced';
 export type TrainingEquipment =
-  | 'full_gym'
-  | 'machines'
-  | 'dumbbells'
-  | 'bands'
-  | 'bodyweight';
+  'full_gym' | 'machines' | 'dumbbells' | 'bands' | 'bodyweight';
 export type TrainingFocusArea =
   | 'full_body'
   | 'chest'
@@ -43,25 +35,76 @@ export type WorkoutProfile = {
   updatedAt: string;
 };
 
-export type WorkoutProfileDraft = Omit<WorkoutProfile, 'version' | 'completedAt' | 'updatedAt'>;
+export type WorkoutProfileDraft = Omit<
+  WorkoutProfile,
+  'version' | 'completedAt' | 'updatedAt'
+>;
 
 export const workoutProfileMetadataKey = 'workout_profile_v1';
 
-export const goalOptions: Array<{ value: TrainingGoal; label: string; description: string }> = [
-  { value: 'fat_loss', label: 'Lose body fat', description: 'Preserve strength and build a repeatable calorie-burning routine.' },
-  { value: 'muscle_gain', label: 'Build muscle', description: 'Prioritize weekly volume, controlled progression and recovery.' },
-  { value: 'strength', label: 'Get stronger', description: 'Focus on repeatable performance and gradual load progression.' },
-  { value: 'general_fitness', label: 'Improve overall fitness', description: 'Build balanced strength, mobility and work capacity.' },
-  { value: 'consistency', label: 'Build consistency', description: 'Create a realistic schedule that survives busy weeks.' },
+export const goalOptions: Array<{
+  value: TrainingGoal;
+  label: string;
+  description: string;
+}> = [
+  {
+    value: 'fat_loss',
+    label: 'Lose body fat',
+    description:
+      'Preserve strength and build a repeatable calorie-burning routine.',
+  },
+  {
+    value: 'muscle_gain',
+    label: 'Build muscle',
+    description:
+      'Prioritize weekly volume, controlled progression and recovery.',
+  },
+  {
+    value: 'strength',
+    label: 'Get stronger',
+    description:
+      'Focus on repeatable performance and gradual load progression.',
+  },
+  {
+    value: 'general_fitness',
+    label: 'Improve overall fitness',
+    description: 'Build balanced strength, mobility and work capacity.',
+  },
+  {
+    value: 'consistency',
+    label: 'Build consistency',
+    description: 'Create a realistic schedule that survives busy weeks.',
+  },
 ];
 
-export const experienceOptions: Array<{ value: TrainingExperience; label: string; description: string }> = [
-  { value: 'beginner', label: 'Beginner', description: 'New, returning after a long break or still building movement confidence.' },
-  { value: 'intermediate', label: 'Intermediate', description: 'Training consistently and comfortable with common gym exercises.' },
-  { value: 'advanced', label: 'Advanced', description: 'Several years of structured training and reliable technique.' },
+export const experienceOptions: Array<{
+  value: TrainingExperience;
+  label: string;
+  description: string;
+}> = [
+  {
+    value: 'beginner',
+    label: 'Beginner',
+    description:
+      'New, returning after a long break or still building movement confidence.',
+  },
+  {
+    value: 'intermediate',
+    label: 'Intermediate',
+    description:
+      'Training consistently and comfortable with common gym exercises.',
+  },
+  {
+    value: 'advanced',
+    label: 'Advanced',
+    description: 'Several years of structured training and reliable technique.',
+  },
 ];
 
-export const equipmentOptions: Array<{ value: TrainingEquipment; label: string }> = [
+export const equipmentOptions: Array<{
+  value: TrainingEquipment;
+  label: string;
+}> = [
   { value: 'full_gym', label: 'Full gym' },
   { value: 'machines', label: 'Machines' },
   { value: 'dumbbells', label: 'Dumbbells' },
@@ -69,7 +112,10 @@ export const equipmentOptions: Array<{ value: TrainingEquipment; label: string }
   { value: 'bodyweight', label: 'Bodyweight' },
 ];
 
-export const focusAreaOptions: Array<{ value: TrainingFocusArea; label: string }> = [
+export const focusAreaOptions: Array<{
+  value: TrainingFocusArea;
+  label: string;
+}> = [
   { value: 'full_body', label: 'Balanced full body' },
   { value: 'chest', label: 'Chest' },
   { value: 'back', label: 'Back' },
@@ -81,7 +127,10 @@ export const focusAreaOptions: Array<{ value: TrainingFocusArea; label: string }
   { value: 'core', label: 'Core' },
 ];
 
-export const movementPreferenceOptions: Array<{ value: MovementPreference; label: string }> = [
+export const movementPreferenceOptions: Array<{
+  value: MovementPreference;
+  label: string;
+}> = [
   { value: 'low_impact', label: 'Prefer low-impact movements' },
   { value: 'machine_first', label: 'Prefer machines first' },
   { value: 'minimal_floor_work', label: 'Minimize floor exercises' },
@@ -103,18 +152,33 @@ export function defaultWorkoutProfileDraft(): WorkoutProfileDraft {
 }
 
 function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === 'string')
+  );
 }
 
-function oneOf<T extends string>(value: unknown, options: readonly T[]): value is T {
+function oneOf<T extends string>(
+  value: unknown,
+  options: readonly T[],
+): value is T {
   return typeof value === 'string' && options.includes(value as T);
 }
 
 export function parseWorkoutProfile(value: unknown): WorkoutProfile | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const candidate = value as Record<string, unknown>;
-  const goals: TrainingGoal[] = ['fat_loss', 'muscle_gain', 'strength', 'general_fitness', 'consistency'];
-  const experiences: TrainingExperience[] = ['beginner', 'intermediate', 'advanced'];
+  const goals: TrainingGoal[] = [
+    'fat_loss',
+    'muscle_gain',
+    'strength',
+    'general_fitness',
+    'consistency',
+  ];
+  const experiences: TrainingExperience[] = [
+    'beginner',
+    'intermediate',
+    'advanced',
+  ];
   const equipmentValues = equipmentOptions.map((item) => item.value);
   const focusValues = focusAreaOptions.map((item) => item.value);
   const preferenceValues = movementPreferenceOptions.map((item) => item.value);
@@ -131,11 +195,17 @@ export function parseWorkoutProfile(value: unknown): WorkoutProfile | null {
     candidate.sessionMinutes > 180 ||
     !oneOf(candidate.weightUnit, ['lb', 'kg'] as const) ||
     !isStringArray(candidate.equipment) ||
-    !candidate.equipment.every((item) => equipmentValues.includes(item as TrainingEquipment)) ||
+    !candidate.equipment.every((item) =>
+      equipmentValues.includes(item as TrainingEquipment),
+    ) ||
     !isStringArray(candidate.focusAreas) ||
-    !candidate.focusAreas.every((item) => focusValues.includes(item as TrainingFocusArea)) ||
+    !candidate.focusAreas.every((item) =>
+      focusValues.includes(item as TrainingFocusArea),
+    ) ||
     !isStringArray(candidate.movementPreferences) ||
-    !candidate.movementPreferences.every((item) => preferenceValues.includes(item as MovementPreference)) ||
+    !candidate.movementPreferences.every((item) =>
+      preferenceValues.includes(item as MovementPreference),
+    ) ||
     typeof candidate.completedAt !== 'string' ||
     typeof candidate.updatedAt !== 'string'
   ) {
@@ -162,5 +232,8 @@ export function labelForGoal(goal: TrainingGoal): string {
 }
 
 export function labelForExperience(experience: TrainingExperience): string {
-  return experienceOptions.find((item) => item.value === experience)?.label ?? experience;
+  return (
+    experienceOptions.find((item) => item.value === experience)?.label ??
+    experience
+  );
 }

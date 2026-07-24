@@ -23,7 +23,11 @@
   padding: 2rem 1rem;
   border: 1px solid var(--border);
   border-radius: 1.35rem;
-  background: linear-gradient(145deg, rgba(16, 34, 55, 0.96), rgba(8, 21, 36, 0.95));
+  background: linear-gradient(
+    145deg,
+    rgba(16, 34, 55, 0.96),
+    rgba(8, 21, 36, 0.95)
+  );
   text-align: center;
   box-shadow: var(--shadow);
 }
@@ -47,7 +51,11 @@
   padding: 1rem;
   border: 1px solid var(--border);
   border-radius: 1.15rem;
-  background: linear-gradient(145deg, rgba(19, 40, 63, 0.95), rgba(8, 22, 37, 0.94));
+  background: linear-gradient(
+    145deg,
+    rgba(19, 40, 63, 0.95),
+    rgba(8, 22, 37, 0.94)
+  );
 }
 
 .history-overview-grid span {
@@ -74,7 +82,11 @@
   padding: clamp(1rem, 3vw, 1.35rem);
   border: 1px solid var(--border);
   border-radius: 1.35rem;
-  background: linear-gradient(145deg, rgba(16, 34, 55, 0.96), rgba(8, 21, 36, 0.95));
+  background: linear-gradient(
+    145deg,
+    rgba(16, 34, 55, 0.96),
+    rgba(8, 21, 36, 0.95)
+  );
   box-shadow: var(--shadow);
 }
 
@@ -271,7 +283,11 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, rgba(69, 200, 255, 0.58), rgba(72, 214, 165, 0.9));
+  background: linear-gradient(
+    90deg,
+    rgba(69, 200, 255, 0.58),
+    rgba(72, 214, 165, 0.9)
+  );
 }
 
 .exercise-record-grid {

@@ -26,9 +26,13 @@ function formatClock(totalSeconds: number): string {
   const minutes = Math.floor((safeSeconds % 3600) / 60);
   const seconds = safeSeconds % 60;
   if (hours > 0) {
-    return [hours, minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
+    return [hours, minutes, seconds]
+      .map((value) => String(value).padStart(2, '0'))
+      .join(':');
   }
-  return [minutes, seconds].map((value) => String(value).padStart(2, '0')).join(':');
+  return [minutes, seconds]
+    .map((value) => String(value).padStart(2, '0'))
+    .join(':');
 }
 
 function useElapsedSeconds(startedAt: string | undefined): number {
@@ -41,7 +45,12 @@ function useElapsedSeconds(startedAt: string | undefined): number {
     }
 
     const update = () => {
-      setElapsed(Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000)));
+      setElapsed(
+        Math.max(
+          0,
+          Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000),
+        ),
+      );
     };
 
     update();
@@ -96,7 +105,10 @@ function readStoredRestTimer(): RestTimerState | null {
   }
 }
 
-function formatSuggestion(suggestion: SetSuggestion, unit: 'lb' | 'kg'): string {
+function formatSuggestion(
+  suggestion: SetSuggestion,
+  unit: 'lb' | 'kg',
+): string {
   const parts: string[] = [];
   if (suggestion.weight !== null) parts.push(`${suggestion.weight} ${unit}`);
   if (suggestion.reps !== null) parts.push(`${suggestion.reps} reps`);
@@ -111,7 +123,10 @@ type SetEditorProps = {
   saving: boolean;
   suggestion: SetSuggestion | null;
   nextSetId: string | null;
-  onSave: (input: WorkoutSetInput, wasAlreadyCompleted: boolean) => Promise<boolean>;
+  onSave: (
+    input: WorkoutSetInput,
+    wasAlreadyCompleted: boolean,
+  ) => Promise<boolean>;
   onToggleWarmup: (isWarmup: boolean) => Promise<boolean>;
   onSkip: () => Promise<boolean>;
   onRestore: () => Promise<boolean>;
@@ -148,8 +163,12 @@ function SetEditor({
 
   useEffect(() => {
     if (workoutSet.is_completed || workoutSet.is_skipped || !suggestion) return;
-    setWeight((current) => (current.trim() !== '' ? current : suggestion.weight?.toString() ?? ''));
-    setReps((current) => (current.trim() !== '' ? current : suggestion.reps?.toString() ?? ''));
+    setWeight((current) =>
+      current.trim() !== '' ? current : (suggestion.weight?.toString() ?? ''),
+    );
+    setReps((current) =>
+      current.trim() !== '' ? current : (suggestion.reps?.toString() ?? ''),
+    );
   }, [suggestion, workoutSet.is_completed, workoutSet.is_skipped]);
 
   const targetLabel =
@@ -167,7 +186,10 @@ function SetEditor({
 
   function adjustReps(delta: number) {
     const current = reps.trim() === '' ? 0 : Number(reps);
-    const next = Math.max(1, Math.round((Number.isFinite(current) ? current : 0) + delta));
+    const next = Math.max(
+      1,
+      Math.round((Number.isFinite(current) ? current : 0) + delta),
+    );
     setReps(String(next));
   }
 
@@ -181,11 +203,17 @@ function SetEditor({
       setError('Enter at least 1 repetition.');
       return;
     }
-    if (parsedWeight !== null && (!Number.isFinite(parsedWeight) || parsedWeight < 0)) {
+    if (
+      parsedWeight !== null &&
+      (!Number.isFinite(parsedWeight) || parsedWeight < 0)
+    ) {
       setError('Weight cannot be negative.');
       return;
     }
-    if (parsedRpe !== null && (!Number.isFinite(parsedRpe) || parsedRpe < 1 || parsedRpe > 10)) {
+    if (
+      parsedRpe !== null &&
+      (!Number.isFinite(parsedRpe) || parsedRpe < 1 || parsedRpe > 10)
+    ) {
       setError('RPE must be between 1 and 10.');
       return;
     }
@@ -205,7 +233,9 @@ function SetEditor({
       window.setTimeout(() => {
         const nextSet = document.getElementById(`workout-set-${nextSetId}`);
         nextSet?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        nextSet?.querySelector<HTMLInputElement>('input[data-field="reps"]')?.focus({ preventScroll: true });
+        nextSet
+          ?.querySelector<HTMLInputElement>('input[data-field="reps"]')
+          ?.focus({ preventScroll: true });
       }, 180);
     }
   }
@@ -226,7 +256,9 @@ function SetEditor({
     workoutSet.is_warmup ? 'live-set--warmup' : '',
     workoutSet.is_skipped ? 'live-set--skipped' : '',
     isExtra ? 'live-set--extra' : '',
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   if (workoutSet.is_skipped) {
     return (
@@ -242,11 +274,20 @@ function SetEditor({
           </div>
         </div>
         <div className="live-set-compact-actions">
-          <button type="button" disabled={saving} onClick={() => void onRestore()}>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => void onRestore()}
+          >
             {saving ? 'Restoring…' : 'Restore set'}
           </button>
           {isExtra ? (
-            <button className="live-set-action--danger" type="button" disabled={saving} onClick={() => void removeExtraSet()}>
+            <button
+              className="live-set-action--danger"
+              type="button"
+              disabled={saving}
+              onClick={() => void removeExtraSet()}
+            >
               Remove extra set
             </button>
           ) : null}
@@ -269,7 +310,9 @@ function SetEditor({
           ) : suggestion ? (
             <>
               <span className="set-prefill-source">{suggestion.source}</span>
-              <small>{formatSuggestion(suggestion, workoutSet.weight_unit)}</small>
+              <small>
+                {formatSuggestion(suggestion, workoutSet.weight_unit)}
+              </small>
             </>
           ) : (
             <span className="set-ready-label">Ready to log</span>
@@ -279,7 +322,11 @@ function SetEditor({
       </div>
 
       <button
-        className={workoutSet.is_warmup ? 'warmup-toggle warmup-toggle--active' : 'warmup-toggle'}
+        className={
+          workoutSet.is_warmup
+            ? 'warmup-toggle warmup-toggle--active'
+            : 'warmup-toggle'
+        }
         type="button"
         aria-pressed={workoutSet.is_warmup}
         disabled={saving}
@@ -293,7 +340,11 @@ function SetEditor({
         <div className="live-set-field">
           <span>Weight ({workoutSet.weight_unit})</span>
           <div className="live-number-control">
-            <button type="button" aria-label="Decrease weight by 5" onClick={() => adjustWeight(-5)}>
+            <button
+              type="button"
+              aria-label="Decrease weight by 5"
+              onClick={() => adjustWeight(-5)}
+            >
               −5
             </button>
             <input
@@ -307,7 +358,11 @@ function SetEditor({
               placeholder="0"
               onChange={(event) => setWeight(event.target.value)}
             />
-            <button type="button" aria-label="Increase weight by 5" onClick={() => adjustWeight(5)}>
+            <button
+              type="button"
+              aria-label="Increase weight by 5"
+              onClick={() => adjustWeight(5)}
+            >
               +5
             </button>
           </div>
@@ -316,7 +371,11 @@ function SetEditor({
         <div className="live-set-field">
           <span>{targetLabel}</span>
           <div className="live-number-control">
-            <button type="button" aria-label="Decrease repetitions by 1" onClick={() => adjustReps(-1)}>
+            <button
+              type="button"
+              aria-label="Decrease repetitions by 1"
+              onClick={() => adjustReps(-1)}
+            >
               −1
             </button>
             <input
@@ -330,7 +389,11 @@ function SetEditor({
               placeholder="Reps"
               onChange={(event) => setReps(event.target.value)}
             />
-            <button type="button" aria-label="Increase repetitions by 1" onClick={() => adjustReps(1)}>
+            <button
+              type="button"
+              aria-label="Increase repetitions by 1"
+              onClick={() => adjustReps(1)}
+            >
               +1
             </button>
           </div>
@@ -369,7 +432,11 @@ function SetEditor({
 
       <div className="live-set-secondary-actions">
         {workoutSet.is_completed ? (
-          <button type="button" disabled={saving} onClick={() => void onReset()}>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => void onReset()}
+          >
             Mark incomplete
           </button>
         ) : (
@@ -378,7 +445,12 @@ function SetEditor({
           </button>
         )}
         {isExtra ? (
-          <button className="live-set-action--danger" type="button" disabled={saving} onClick={() => void removeExtraSet()}>
+          <button
+            className="live-set-action--danger"
+            type="button"
+            disabled={saving}
+            onClick={() => void removeExtraSet()}
+          >
             Remove extra
           </button>
         ) : null}
@@ -421,7 +493,8 @@ function ExerciseSetEditors({
   onAddSet,
 }: ExerciseSetEditorsProps) {
   const previous = usePreviousPerformanceForExercise(exercise.exercise_id);
-  const nextSetNumber = Math.max(0, ...exercise.sets.map((set) => set.set_number)) + 1;
+  const nextSetNumber =
+    Math.max(0, ...exercise.sets.map((set) => set.set_number)) + 1;
 
   return (
     <div className="live-set-list">
@@ -431,7 +504,9 @@ function ExerciseSetEditors({
           .reverse()
           .find((set) => set.is_completed);
         const previousWorkoutSet =
-          previous.performance?.sets.find((set) => set.set_number === workoutSet.set_number) ??
+          previous.performance?.sets.find(
+            (set) => set.set_number === workoutSet.set_number,
+          ) ??
           previous.performance?.sets[index] ??
           previous.performance?.sets[previous.performance.sets.length - 1] ??
           null;
@@ -460,7 +535,11 @@ function ExerciseSetEditors({
           };
         }
 
-        if (suggestion && suggestion.weight === null && suggestion.reps === null) {
+        if (
+          suggestion &&
+          suggestion.weight === null &&
+          suggestion.reps === null
+        ) {
           suggestion = null;
         }
 
@@ -488,7 +567,9 @@ function ExerciseSetEditors({
                 wasAlreadyCompleted,
               )
             }
-            onToggleWarmup={(isWarmup) => onToggleWarmup(workoutSet.id, isWarmup)}
+            onToggleWarmup={(isWarmup) =>
+              onToggleWarmup(workoutSet.id, isWarmup)
+            }
             onSkip={() => onSkip(workoutSet.id)}
             onRestore={() => onRestore(workoutSet.id)}
             onReset={() => onReset(workoutSet.id)}
@@ -514,7 +595,9 @@ export function ActiveWorkout() {
   const { user } = useAuth();
   const active = useActiveWorkout(user?.id);
   const routines = useRoutines(user?.id);
-  const [restTimer, setRestTimer] = useState<RestTimerState | null>(() => readStoredRestTimer());
+  const [restTimer, setRestTimer] = useState<RestTimerState | null>(() =>
+    readStoredRestTimer(),
+  );
   const [timerNow, setTimerNow] = useState(() => Date.now());
   const [message, setMessage] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -535,7 +618,10 @@ export function ActiveWorkout() {
   useEffect(() => {
     try {
       if (restTimer) {
-        window.localStorage.setItem(REST_TIMER_STORAGE_KEY, JSON.stringify(restTimer));
+        window.localStorage.setItem(
+          REST_TIMER_STORAGE_KEY,
+          JSON.stringify(restTimer),
+        );
       } else {
         window.localStorage.removeItem(REST_TIMER_STORAGE_KEY);
       }
@@ -552,7 +638,12 @@ export function ActiveWorkout() {
   }, [active.session, active.status, restTimer]);
 
   useEffect(() => {
-    if (!restTimer || restTimerRemaining !== 0 || announcedTimerRef.current === restTimer.endsAt) return;
+    if (
+      !restTimer ||
+      restTimerRemaining !== 0 ||
+      announcedTimerRef.current === restTimer.endsAt
+    )
+      return;
     announcedTimerRef.current = restTimer.endsAt;
     if ('vibrate' in navigator) navigator.vibrate([180, 90, 180]);
   }, [restTimer, restTimerRemaining]);
@@ -576,7 +667,9 @@ export function ActiveWorkout() {
     if (!active.session) {
       return { completed: 0, skipped: 0, total: 0, remaining: 0, percent: 0 };
     }
-    const allSets = active.session.exercises.flatMap((exercise) => exercise.sets);
+    const allSets = active.session.exercises.flatMap(
+      (exercise) => exercise.sets,
+    );
     const completed = allSets.filter((set) => set.is_completed).length;
     const skipped = allSets.filter((set) => set.is_skipped).length;
     const total = allSets.length;
@@ -593,7 +686,9 @@ export function ActiveWorkout() {
   const nextIncompleteSet = useMemo(() => {
     if (!active.session) return null;
     for (const exercise of active.session.exercises) {
-      const nextSet = exercise.sets.find((set) => !set.is_completed && !set.is_skipped);
+      const nextSet = exercise.sets.find(
+        (set) => !set.is_completed && !set.is_skipped,
+      );
       if (nextSet) {
         return {
           exerciseName: exercise.exercise_name_snapshot,
@@ -605,7 +700,11 @@ export function ActiveWorkout() {
     return null;
   }, [active.session]);
 
-  function startRestTimer(sessionId: string, exerciseName: string, seconds: number) {
+  function startRestTimer(
+    sessionId: string,
+    exerciseName: string,
+    seconds: number,
+  ) {
     const now = Date.now();
     announcedTimerRef.current = null;
     setTimerNow(now);
@@ -623,7 +722,10 @@ export function ActiveWorkout() {
     announcedTimerRef.current = null;
     setRestTimer((current) => {
       if (!current) return current;
-      const currentRemaining = Math.max(0, Math.ceil((current.endsAt - now) / 1000));
+      const currentRemaining = Math.max(
+        0,
+        Math.ceil((current.endsAt - now) / 1000),
+      );
       const nextRemaining = Math.max(0, currentRemaining + seconds);
       return {
         ...current,
@@ -674,7 +776,9 @@ export function ActiveWorkout() {
   }
 
   async function runSetAction(
-    action: () => Promise<{ ok: true; data: null } | { ok: false; error: string }>,
+    action: () => Promise<
+      { ok: true; data: null } | { ok: false; error: string }
+    >,
   ): Promise<boolean> {
     setMessage(null);
     setLocalError(null);
@@ -686,13 +790,18 @@ export function ActiveWorkout() {
     return true;
   }
 
-  async function addSet(exercise: ActiveWorkoutExercise, nextSetNumber: number): Promise<boolean> {
+  async function addSet(
+    exercise: ActiveWorkoutExercise,
+    nextSetNumber: number,
+  ): Promise<boolean> {
     return runSetAction(() =>
       active.addSet(exercise.id, nextSetNumber, exercise.weight_unit_snapshot),
     );
   }
 
-  async function saveSessionDetails(input: WorkoutSessionDetailsInput): Promise<boolean> {
+  async function saveSessionDetails(
+    input: WorkoutSessionDetailsInput,
+  ): Promise<boolean> {
     setMessage(null);
     setLocalError(null);
     const result = await active.saveDetails(input);
@@ -703,7 +812,10 @@ export function ActiveWorkout() {
     return true;
   }
 
-  async function saveExerciseNote(exerciseId: string, notes: string | null): Promise<boolean> {
+  async function saveExerciseNote(
+    exerciseId: string,
+    notes: string | null,
+  ): Promise<boolean> {
     setMessage(null);
     setLocalError(null);
     const result = await active.saveExerciseNotes(exerciseId, notes);
@@ -738,7 +850,12 @@ export function ActiveWorkout() {
   }
 
   async function cancelCurrentWorkout() {
-    if (!window.confirm('Cancel this workout? The session will remain in history as cancelled.')) return;
+    if (
+      !window.confirm(
+        'Cancel this workout? The session will remain in history as cancelled.',
+      )
+    )
+      return;
     setMessage(null);
     setLocalError(null);
     const result = await active.cancel();
@@ -752,8 +869,14 @@ export function ActiveWorkout() {
 
   if (active.status === 'loading') {
     return (
-      <section className="active-workout-state" aria-live="polite" aria-busy="true">
-        <div className="loading-mark" aria-hidden="true">W</div>
+      <section
+        className="active-workout-state"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <div className="loading-mark" aria-hidden="true">
+          W
+        </div>
         <p>Loading your workout…</p>
       </section>
     );
@@ -764,24 +887,44 @@ export function ActiveWorkout() {
       <section className="active-workout-state" role="alert">
         <h2>Workout unavailable</h2>
         <p>{active.error}</p>
-        <button className="secondary-button" type="button" onClick={active.refresh}>Try again</button>
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={active.refresh}
+        >
+          Try again
+        </button>
       </section>
     );
   }
 
   if (!active.session) {
     return (
-      <section className="workout-launcher" aria-labelledby="start-workout-heading">
+      <section
+        className="workout-launcher"
+        aria-labelledby="start-workout-heading"
+      >
         <div className="section-heading workout-launcher-heading">
           <div>
             <p className="eyebrow">Train now</p>
             <h2 id="start-workout-heading">Start a workout</h2>
-            <p>Choose a saved routine day. BioTrack will create every exercise and target set for you.</p>
+            <p>
+              Choose a saved routine day. BioTrack will create every exercise
+              and target set for you.
+            </p>
           </div>
-          <button className="text-button" type="button" onClick={routines.refresh}>Refresh plans</button>
+          <button
+            className="text-button"
+            type="button"
+            onClick={routines.refresh}
+          >
+            Refresh plans
+          </button>
         </div>
 
-        {message ? <p className="builder-message builder-message--success">{message}</p> : null}
+        {message ? (
+          <p className="builder-message builder-message--success">{message}</p>
+        ) : null}
         {localError || active.error || routines.error ? (
           <p className="builder-message builder-message--error" role="alert">
             {localError ?? active.error ?? routines.error}
@@ -792,7 +935,10 @@ export function ActiveWorkout() {
         {availableDays.length === 0 && routines.status !== 'loading' ? (
           <div className="workout-empty-card">
             <h3>Build your first routine</h3>
-            <p>Create at least one routine day in the Routine Builder, then return here to train.</p>
+            <p>
+              Create at least one routine day in the Routine Builder, then
+              return here to train.
+            </p>
           </div>
         ) : null}
 
@@ -810,10 +956,14 @@ export function ActiveWorkout() {
                 <button
                   className="primary-button"
                   type="button"
-                  disabled={active.startingDayId !== null || day.exerciseCount === 0}
+                  disabled={
+                    active.startingDayId !== null || day.exerciseCount === 0
+                  }
                   onClick={() => void startDay(day.id)}
                 >
-                  {active.startingDayId === day.id ? 'Starting…' : 'Start workout'}
+                  {active.startingDayId === day.id
+                    ? 'Starting…'
+                    : 'Start workout'}
                 </button>
               </div>
             </article>
@@ -825,7 +975,13 @@ export function ActiveWorkout() {
 
   const restProgress =
     restTimer && restTimer.total > 0
-      ? Math.min(100, Math.max(0, ((restTimer.total - restTimerRemaining) / restTimer.total) * 100))
+      ? Math.min(
+          100,
+          Math.max(
+            0,
+            ((restTimer.total - restTimerRemaining) / restTimer.total) * 100,
+          ),
+        )
       : 0;
 
   return (
@@ -834,23 +990,47 @@ export function ActiveWorkout() {
         <div>
           <p className="eyebrow">Workout in progress</p>
           <h2 id="live-workout-heading">{active.session.name}</h2>
-          <p>Adjust this session freely. Your saved routine remains unchanged.</p>
+          <p>
+            Adjust this session freely. Your saved routine remains unchanged.
+          </p>
         </div>
         <div className="live-workout-metrics live-workout-metrics--flexible">
-          <div><span>Elapsed</span><strong>{formatClock(elapsedSeconds)}</strong></div>
-          <div><span>Completed</span><strong>{sessionProgress.completed}</strong></div>
-          <div><span>Skipped</span><strong>{sessionProgress.skipped}</strong></div>
-          <div><span>Remaining</span><strong>{sessionProgress.remaining}</strong></div>
+          <div>
+            <span>Elapsed</span>
+            <strong>{formatClock(elapsedSeconds)}</strong>
+          </div>
+          <div>
+            <span>Completed</span>
+            <strong>{sessionProgress.completed}</strong>
+          </div>
+          <div>
+            <span>Skipped</span>
+            <strong>{sessionProgress.skipped}</strong>
+          </div>
+          <div>
+            <span>Remaining</span>
+            <strong>{sessionProgress.remaining}</strong>
+          </div>
         </div>
 
-        <div className="live-workout-progress" aria-label={`${sessionProgress.percent}% resolved`}>
+        <div
+          className="live-workout-progress"
+          aria-label={`${sessionProgress.percent}% resolved`}
+        >
           <span style={{ width: `${sessionProgress.percent}%` }} />
         </div>
 
         {nextIncompleteSet ? (
-          <button className="next-set-cue" type="button" onClick={scrollToNextSet}>
+          <button
+            className="next-set-cue"
+            type="button"
+            onClick={scrollToNextSet}
+          >
             <span>Next set</span>
-            <strong>{nextIncompleteSet.exerciseName} · Set {nextIncompleteSet.setNumber}</strong>
+            <strong>
+              {nextIncompleteSet.exerciseName} · Set{' '}
+              {nextIncompleteSet.setNumber}
+            </strong>
           </button>
         ) : (
           <div className="next-set-cue next-set-cue--complete">
@@ -872,7 +1052,11 @@ export function ActiveWorkout() {
         </p>
       ) : null}
 
-      <PreviousPerformanceProvider exerciseIds={active.session.exercises.map((exercise) => exercise.exercise_id)}>
+      <PreviousPerformanceProvider
+        exerciseIds={active.session.exercises.map(
+          (exercise) => exercise.exercise_id,
+        )}
+      >
         <div className="live-exercise-list">
           {active.session.exercises.map((exercise) => (
             <article className="live-exercise-card" key={exercise.id}>
@@ -881,7 +1065,9 @@ export function ActiveWorkout() {
                   <p>{exercise.primary_muscle_group_snapshot || 'Exercise'}</p>
                   <h3>{exercise.exercise_name_snapshot}</h3>
                 </div>
-                <span className="rest-target">Rest {formatClock(exercise.target_rest_seconds_snapshot)}</span>
+                <span className="rest-target">
+                  Rest {formatClock(exercise.target_rest_seconds_snapshot)}
+                </span>
               </div>
 
               <ExerciseNotesEditor
@@ -897,11 +1083,17 @@ export function ActiveWorkout() {
                 savingSetId={active.savingSetId}
                 addingSet={active.addingSetExerciseId === exercise.id}
                 onSave={saveSet}
-                onToggleWarmup={(setId, isWarmup) => runSetAction(() => active.toggleWarmup(setId, isWarmup))}
+                onToggleWarmup={(setId, isWarmup) =>
+                  runSetAction(() => active.toggleWarmup(setId, isWarmup))
+                }
                 onSkip={(setId) => runSetAction(() => active.skipSet(setId))}
-                onRestore={(setId) => runSetAction(() => active.restoreSet(setId))}
+                onRestore={(setId) =>
+                  runSetAction(() => active.restoreSet(setId))
+                }
                 onReset={(setId) => runSetAction(() => active.resetSet(setId))}
-                onDeleteExtra={(setId) => runSetAction(() => active.removeSet(setId))}
+                onDeleteExtra={(setId) =>
+                  runSetAction(() => active.removeSet(setId))
+                }
                 onAddSet={(nextSetNumber) => addSet(exercise, nextSetNumber)}
               />
             </article>
@@ -910,21 +1102,39 @@ export function ActiveWorkout() {
       </PreviousPerformanceProvider>
 
       <div className="live-workout-actions">
-        <button className="primary-button" type="button" disabled={active.finishing} onClick={() => void finishWorkout()}>
+        <button
+          className="primary-button"
+          type="button"
+          disabled={active.finishing}
+          onClick={() => void finishWorkout()}
+        >
           {active.finishing ? 'Finishing…' : 'Finish workout'}
         </button>
-        <button className="text-button text-button--danger" type="button" disabled={active.finishing} onClick={() => void cancelCurrentWorkout()}>
+        <button
+          className="text-button text-button--danger"
+          type="button"
+          disabled={active.finishing}
+          onClick={() => void cancelCurrentWorkout()}
+        >
           Cancel workout
         </button>
       </div>
 
       {restTimer ? (
         <aside
-          className={restTimerRemaining === 0 ? 'rest-timer rest-timer--done' : 'rest-timer'}
+          className={
+            restTimerRemaining === 0
+              ? 'rest-timer rest-timer--done'
+              : 'rest-timer'
+          }
           aria-live="polite"
         >
           <div className="rest-timer-copy">
-            <p>{restTimerRemaining === 0 ? 'Rest complete' : `Rest after ${restTimer.exerciseName}`}</p>
+            <p>
+              {restTimerRemaining === 0
+                ? 'Rest complete'
+                : `Rest after ${restTimer.exerciseName}`}
+            </p>
             <strong>{formatClock(restTimerRemaining)}</strong>
             <div className="rest-timer-progress" aria-hidden="true">
               <span style={{ width: `${restProgress}%` }} />
@@ -932,9 +1142,13 @@ export function ActiveWorkout() {
           </div>
           <div className="rest-timer-actions">
             {restTimerRemaining > 0 ? (
-              <button type="button" onClick={() => adjustRestTimer(-15)}>−15 sec</button>
+              <button type="button" onClick={() => adjustRestTimer(-15)}>
+                −15 sec
+              </button>
             ) : null}
-            <button type="button" onClick={() => adjustRestTimer(30)}>+30 sec</button>
+            <button type="button" onClick={() => adjustRestTimer(30)}>
+              +30 sec
+            </button>
             <button type="button" onClick={clearRestTimer}>
               {restTimerRemaining > 0 ? 'Skip' : 'Close'}
             </button>

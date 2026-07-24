@@ -2,8 +2,7 @@ import { supabase } from '../../../lib/supabase/client';
 import type { Database, Json } from '../../../types/database';
 
 export type RepositoryResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string };
+  { ok: true; data: T } | { ok: false; error: string };
 
 export type WorkoutSessionSummary = {
   id: string;
@@ -100,11 +99,17 @@ export type PreviousExercisePerformance = {
   sets: PreviousPerformanceSet[];
 };
 
-type SessionSummaryRow = Database['public']['Views']['workout_session_summaries']['Row'];
-type ExerciseRecordRow = Database['public']['Views']['workout_exercise_records']['Row'];
-type MuscleVolumeRow = Database['public']['Views']['workout_muscle_volume_daily']['Row'];
+type SessionSummaryRow =
+  Database['public']['Views']['workout_session_summaries']['Row'];
+type ExerciseRecordRow =
+  Database['public']['Views']['workout_exercise_records']['Row'];
+type MuscleVolumeRow =
+  Database['public']['Views']['workout_muscle_volume_daily']['Row'];
 
-type SessionDetailQueryRow = Omit<WorkoutSessionDetail, 'exercises' | 'status' | 'completed_at'> & {
+type SessionDetailQueryRow = Omit<
+  WorkoutSessionDetail,
+  'exercises' | 'status' | 'completed_at'
+> & {
   status: string;
   completed_at: string | null;
   workout_session_exercises: Array<
@@ -127,7 +132,9 @@ function isWeightUnit(value: string | null): value is 'lb' | 'kg' {
   return value === 'lb' || value === 'kg';
 }
 
-function normalizeSummary(row: SessionSummaryRow): WorkoutSessionSummary | null {
+function normalizeSummary(
+  row: SessionSummaryRow,
+): WorkoutSessionSummary | null {
   if (
     !row.id ||
     !row.user_id ||
@@ -184,7 +191,8 @@ function normalizeRecord(row: ExerciseRecordRow): ExerciseRecord | null {
 }
 
 function normalizeMuscleDay(row: MuscleVolumeRow): MuscleVolumeDay | null {
-  if (!row.user_id || !row.workout_date || !isWeightUnit(row.weight_unit)) return null;
+  if (!row.user_id || !row.workout_date || !isWeightUnit(row.weight_unit))
+    return null;
 
   return {
     user_id: row.user_id,
@@ -203,17 +211,24 @@ function parsePreviousSets(value: Json): PreviousPerformanceSet[] {
   return value.flatMap((item) => {
     if (!item || Array.isArray(item) || typeof item !== 'object') return [];
     const setNumber = Number(item.set_number);
-    const weight = item.weight === null || item.weight === undefined ? null : Number(item.weight);
-    const reps = item.reps === null || item.reps === undefined ? null : Number(item.reps);
-    const rpe = item.rpe === null || item.rpe === undefined ? null : Number(item.rpe);
+    const weight =
+      item.weight === null || item.weight === undefined
+        ? null
+        : Number(item.weight);
+    const reps =
+      item.reps === null || item.reps === undefined ? null : Number(item.reps);
+    const rpe =
+      item.rpe === null || item.rpe === undefined ? null : Number(item.rpe);
 
     if (!Number.isFinite(setNumber)) return [];
-    return [{
-      set_number: setNumber,
-      weight: weight !== null && Number.isFinite(weight) ? weight : null,
-      reps: reps !== null && Number.isFinite(reps) ? reps : null,
-      rpe: rpe !== null && Number.isFinite(rpe) ? rpe : null,
-    }];
+    return [
+      {
+        set_number: setNumber,
+        weight: weight !== null && Number.isFinite(weight) ? weight : null,
+        reps: reps !== null && Number.isFinite(reps) ? reps : null,
+        rpe: rpe !== null && Number.isFinite(rpe) ? rpe : null,
+      },
+    ];
   });
 }
 
@@ -221,7 +236,11 @@ export async function loadWorkoutHistory(
   userId: string,
   limit = 24,
 ): Promise<RepositoryResult<WorkoutSessionSummary[]>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const { data, error } = await supabase
@@ -240,14 +259,21 @@ export async function loadWorkoutHistory(
       }),
     };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not load workout history.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not load workout history.'),
+    };
   }
 }
 
 export async function loadExerciseRecords(
   userId: string,
 ): Promise<RepositoryResult<ExerciseRecord[]>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const { data, error } = await supabase
@@ -265,7 +291,10 @@ export async function loadExerciseRecords(
       }),
     };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not load exercise records.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not load exercise records.'),
+    };
   }
 }
 
@@ -273,7 +302,11 @@ export async function loadMuscleVolume(
   userId: string,
   sinceDate: string,
 ): Promise<RepositoryResult<MuscleVolumeDay[]>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const { data, error } = await supabase
@@ -292,7 +325,10 @@ export async function loadMuscleVolume(
       }),
     };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not load muscle progress.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not load muscle progress.'),
+    };
   }
 }
 
@@ -300,18 +336,24 @@ export async function loadWorkoutSessionDetail(
   userId: string,
   sessionId: string,
 ): Promise<RepositoryResult<WorkoutSessionDetail | null>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
 
   try {
     const { data, error } = await supabase
       .from('workout_sessions')
-      .select(`
+      .select(
+        `
         *,
         workout_session_exercises (
           *,
           workout_sets (*)
         )
-      `)
+      `,
+      )
       .eq('id', sessionId)
       .eq('user_id', userId)
       .eq('status', 'completed')
@@ -339,44 +381,61 @@ export async function loadWorkoutSessionDetail(
           .sort((a, b) => a.exercise_order - b.exercise_order)
           .map((exercise) => ({
             ...exercise,
-            sets: [...exercise.workout_sets].sort((a, b) => a.set_number - b.set_number),
+            sets: [...exercise.workout_sets].sort(
+              (a, b) => a.set_number - b.set_number,
+            ),
           })),
       },
     };
   } catch (error) {
-    return { ok: false, error: messageFrom(error, 'BioTrack could not load this workout.') };
+    return {
+      ok: false,
+      error: messageFrom(error, 'BioTrack could not load this workout.'),
+    };
   }
 }
 
 export async function loadPreviousExercisePerformance(
   exerciseIds: string[],
 ): Promise<RepositoryResult<PreviousExercisePerformance[]>> {
-  if (!supabase) return { ok: false, error: 'Supabase is not configured for BioTrack AI V5.' };
+  if (!supabase)
+    return {
+      ok: false,
+      error: 'Supabase is not configured for BioTrack AI V5.',
+    };
   if (exerciseIds.length === 0) return { ok: true, data: [] };
 
   try {
-    const { data, error } = await supabase.rpc('get_previous_exercise_performance', {
-      p_exercise_ids: Array.from(new Set(exerciseIds)),
-    });
+    const { data, error } = await supabase.rpc(
+      'get_previous_exercise_performance',
+      {
+        p_exercise_ids: Array.from(new Set(exerciseIds)),
+      },
+    );
 
     if (error) throw error;
     return {
       ok: true,
       data: (data ?? []).flatMap((row) => {
         if (!isWeightUnit(row.weight_unit)) return [];
-        return [{
-          exercise_id: row.exercise_id,
-          session_id: row.session_id,
-          performed_at: row.performed_at,
-          weight_unit: row.weight_unit,
-          sets: parsePreviousSets(row.sets),
-        }];
+        return [
+          {
+            exercise_id: row.exercise_id,
+            session_id: row.session_id,
+            performed_at: row.performed_at,
+            weight_unit: row.weight_unit,
+            sets: parsePreviousSets(row.sets),
+          },
+        ];
       }),
     };
   } catch (error) {
     return {
       ok: false,
-      error: messageFrom(error, 'BioTrack could not load your previous performance.'),
+      error: messageFrom(
+        error,
+        'BioTrack could not load your previous performance.',
+      ),
     };
   }
 }

@@ -38,90 +38,107 @@ import {
 
 type ActiveWorkoutStatus = 'loading' | 'idle' | 'active' | 'error';
 
-type SetMutation = () => Promise<{ ok: true; data: null } | { ok: false; error: string }>;
+type SetMutation = () => Promise<
+  { ok: true; data: null } | { ok: false; error: string }
+>;
 
-const OFFLINE_ACTION_ERROR = 'This action needs a connection. Your current workout remains safe on this device.';
+const OFFLINE_ACTION_ERROR =
+  'This action needs a connection. Your current workout remains safe on this device.';
 
 export function useActiveWorkout(userId: string | undefined) {
   const [status, setStatus] = useState<ActiveWorkoutStatus>('loading');
   const [session, setSession] = useState<ActiveWorkoutSession | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
-  const [syncState, setSyncState] = useState<WorkoutSyncState>(() => getWorkoutSyncState(userId));
+  const [syncState, setSyncState] = useState<WorkoutSyncState>(() =>
+    getWorkoutSyncState(userId),
+  );
   const [startingDayId, setStartingDayId] = useState<string | null>(null);
   const [savingSetId, setSavingSetId] = useState<string | null>(null);
-  const [addingSetExerciseId, setAddingSetExerciseId] = useState<string | null>(null);
+  const [addingSetExerciseId, setAddingSetExerciseId] = useState<string | null>(
+    null,
+  );
   const [savingSessionDetails, setSavingSessionDetails] = useState(false);
   const [savingExerciseId, setSavingExerciseId] = useState<string | null>(null);
   const [finishing, setFinishing] = useState(false);
 
-  const reload = useCallback(async (silent: boolean) => {
-    if (!userId) {
-      setSession(null);
-      setStatus('idle');
-      setSyncNotice(null);
-      return;
-    }
+  const reload = useCallback(
+    async (silent: boolean) => {
+      if (!userId) {
+        setSession(null);
+        setStatus('idle');
+        setSyncNotice(null);
+        return;
+      }
 
-    if (!silent) setStatus('loading');
-    setError(null);
-    const result = await loadActiveWorkout(userId);
-    if (!result.ok) {
-      const cached = readCachedActiveWorkout(userId);
-      if (cached && (!navigator.onLine || silent || isConnectivityError(result.error))) {
-        const recovered = applyPendingWorkoutSetWrites(cached, userId);
+      if (!silent) setStatus('loading');
+      setError(null);
+      const result = await loadActiveWorkout(userId);
+      if (!result.ok) {
+        const cached = readCachedActiveWorkout(userId);
+        if (
+          cached &&
+          (!navigator.onLine || silent || isConnectivityError(result.error))
+        ) {
+          const recovered = applyPendingWorkoutSetWrites(cached, userId);
+          setSession(recovered);
+          setStatus('active');
+          setSyncNotice(
+            navigator.onLine
+              ? 'BioTrack is using the last safe workout copy while it reconnects.'
+              : 'Offline mode: your workout and completed sets remain available on this device.',
+          );
+          return;
+        }
+
+        if (silent) {
+          setSyncNotice(
+            'BioTrack could not refresh the workout yet. Your current screen remains unchanged.',
+          );
+          return;
+        }
+
+        setStatus('error');
+        setError(result.error);
+        return;
+      }
+
+      if (result.data) {
+        const recovered = applyPendingWorkoutSetWrites(result.data, userId);
+        cacheActiveWorkout(userId, recovered);
         setSession(recovered);
         setStatus('active');
+        const pending = getWorkoutSyncState(userId).pendingCount;
         setSyncNotice(
-          navigator.onLine
-            ? 'BioTrack is using the last safe workout copy while it reconnects.'
-            : 'Offline mode: your workout and completed sets remain available on this device.',
+          pending > 0
+            ? `${pending} completed ${pending === 1 ? 'set is' : 'sets are'} waiting to sync.`
+            : null,
         );
         return;
       }
 
-      if (silent) {
-        setSyncNotice('BioTrack could not refresh the workout yet. Your current screen remains unchanged.');
+      if (getWorkoutSyncState(userId).pendingCount === 0) {
+        clearCachedActiveWorkout(userId);
+        setSession(null);
+        setStatus('idle');
+        setSyncNotice(null);
         return;
       }
 
-      setStatus('error');
-      setError(result.error);
-      return;
-    }
-
-    if (result.data) {
-      const recovered = applyPendingWorkoutSetWrites(result.data, userId);
-      cacheActiveWorkout(userId, recovered);
-      setSession(recovered);
-      setStatus('active');
-      const pending = getWorkoutSyncState(userId).pendingCount;
-      setSyncNotice(
-        pending > 0
-          ? `${pending} completed ${pending === 1 ? 'set is' : 'sets are'} waiting to sync.`
-          : null,
-      );
-      return;
-    }
-
-    if (getWorkoutSyncState(userId).pendingCount === 0) {
-      clearCachedActiveWorkout(userId);
-      setSession(null);
-      setStatus('idle');
-      setSyncNotice(null);
-      return;
-    }
-
-    const cached = readCachedActiveWorkout(userId);
-    if (cached) {
-      setSession(applyPendingWorkoutSetWrites(cached, userId));
-      setStatus('active');
-      setSyncNotice('Saved sets are still waiting to sync before this workout can be closed.');
-    } else {
-      setSession(null);
-      setStatus('idle');
-    }
-  }, [userId]);
+      const cached = readCachedActiveWorkout(userId);
+      if (cached) {
+        setSession(applyPendingWorkoutSetWrites(cached, userId));
+        setStatus('active');
+        setSyncNotice(
+          'Saved sets are still waiting to sync before this workout can be closed.',
+        );
+      } else {
+        setSession(null);
+        setStatus('idle');
+      }
+    },
+    [userId],
+  );
 
   const syncPendingSets = useCallback(async () => {
     if (!userId) return { ok: true as const, synced: 0 };
@@ -130,7 +147,9 @@ export function useActiveWorkout(userId: string | undefined) {
 
     if (!result.ok) {
       if (result.error !== 'You are offline.') {
-        setSyncNotice(`BioTrack will keep retrying your saved sets. ${result.error}`);
+        setSyncNotice(
+          `BioTrack will keep retrying your saved sets. ${result.error}`,
+        );
       }
       return result;
     }
@@ -227,7 +246,10 @@ export function useActiveWorkout(userId: string | undefined) {
   const saveSet = useCallback(
     async (setId: string, input: WorkoutSetInput) => {
       if (!userId || !session) {
-        const result = { ok: false as const, error: 'No active workout was found.' };
+        const result = {
+          ok: false as const,
+          error: 'No active workout was found.',
+        };
         setError(result.error);
         return result;
       }
@@ -310,7 +332,11 @@ export function useActiveWorkout(userId: string | undefined) {
       setAddingSetExerciseId(sessionExerciseId);
       setError(null);
       try {
-        const result = await addWorkoutSet(sessionExerciseId, setNumber, weightUnit);
+        const result = await addWorkoutSet(
+          sessionExerciseId,
+          setNumber,
+          weightUnit,
+        );
         if (!result.ok) {
           setError(result.error);
           return result;
@@ -326,7 +352,8 @@ export function useActiveWorkout(userId: string | undefined) {
 
   const saveDetails = useCallback(
     async (input: WorkoutSessionDetailsInput) => {
-      if (!session) return { ok: false as const, error: 'No active workout was found.' };
+      if (!session)
+        return { ok: false as const, error: 'No active workout was found.' };
       if (!navigator.onLine) {
         const result = { ok: false as const, error: OFFLINE_ACTION_ERROR };
         setError(result.error);
@@ -376,9 +403,14 @@ export function useActiveWorkout(userId: string | undefined) {
   );
 
   const finish = useCallback(async () => {
-    if (!session) return { ok: false as const, error: 'No active workout was found.' };
+    if (!session)
+      return { ok: false as const, error: 'No active workout was found.' };
     if (!navigator.onLine) {
-      const result = { ok: false as const, error: 'Reconnect before finishing so every saved set reaches your history.' };
+      const result = {
+        ok: false as const,
+        error:
+          'Reconnect before finishing so every saved set reaches your history.',
+      };
       setError(result.error);
       return result;
     }
@@ -390,7 +422,9 @@ export function useActiveWorkout(userId: string | undefined) {
         error: `BioTrack is still syncing ${pending} saved ${pending === 1 ? 'set' : 'sets'}. Retry sync before finishing.`,
       };
       setError(result.error);
-      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      requestAnimationFrame(() =>
+        window.scrollTo({ top: 0, behavior: 'smooth' }),
+      );
       return result;
     }
 
@@ -432,16 +466,23 @@ export function useActiveWorkout(userId: string | undefined) {
   }, [reload, session, userId]);
 
   const cancel = useCallback(async () => {
-    if (!session) return { ok: false as const, error: 'No active workout was found.' };
+    if (!session)
+      return { ok: false as const, error: 'No active workout was found.' };
     if (!navigator.onLine) {
-      const result = { ok: false as const, error: 'Reconnect before cancelling this workout.' };
+      const result = {
+        ok: false as const,
+        error: 'Reconnect before cancelling this workout.',
+      };
       setError(result.error);
       return result;
     }
 
     const pending = userId ? getWorkoutSyncState(userId).pendingCount : 0;
     if (pending > 0) {
-      const result = { ok: false as const, error: 'Sync or finish saving the pending sets before cancelling.' };
+      const result = {
+        ok: false as const,
+        error: 'Sync or finish saving the pending sets before cancelling.',
+      };
       setError(result.error);
       return result;
     }
@@ -463,7 +504,10 @@ export function useActiveWorkout(userId: string | undefined) {
   }, [reload, session, userId]);
 
   const refresh = useCallback(() => reload(false), [reload]);
-  const retryPendingSets = useCallback(() => syncPendingSets(), [syncPendingSets]);
+  const retryPendingSets = useCallback(
+    () => syncPendingSets(),
+    [syncPendingSets],
+  );
 
   return {
     status,

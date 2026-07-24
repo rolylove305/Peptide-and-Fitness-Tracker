@@ -58,7 +58,11 @@
 .saved-routines {
   border: 1px solid var(--border);
   border-radius: 1.35rem;
-  background: linear-gradient(145deg, rgba(16, 34, 55, 0.96), rgba(8, 21, 36, 0.95));
+  background: linear-gradient(
+    145deg,
+    rgba(16, 34, 55, 0.96),
+    rgba(8, 21, 36, 0.95)
+  );
   box-shadow: var(--shadow);
 }
 

@@ -9,7 +9,11 @@
 .progression-filter-empty {
   border: 1px solid var(--border);
   border-radius: 1.25rem;
-  background: linear-gradient(145deg, rgba(20, 42, 66, 0.94), rgba(10, 24, 40, 0.92));
+  background: linear-gradient(
+    145deg,
+    rgba(20, 42, 66, 0.94),
+    rgba(10, 24, 40, 0.92)
+  );
   box-shadow: var(--shadow);
 }
 
@@ -123,7 +127,11 @@
   padding: 1.1rem;
   border: 1px solid var(--border);
   border-radius: 1.2rem;
-  background: linear-gradient(145deg, rgba(17, 37, 59, 0.96), rgba(9, 22, 37, 0.95));
+  background: linear-gradient(
+    145deg,
+    rgba(17, 37, 59, 0.96),
+    rgba(9, 22, 37, 0.95)
+  );
   box-shadow: 0 16px 42px rgba(0, 0, 0, 0.18);
 }
 

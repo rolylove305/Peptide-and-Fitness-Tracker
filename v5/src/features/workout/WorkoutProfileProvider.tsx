@@ -24,7 +24,9 @@ type WorkoutProfileContextValue = {
   clearError: () => void;
 };
 
-const WorkoutProfileContext = createContext<WorkoutProfileContextValue | undefined>(undefined);
+const WorkoutProfileContext = createContext<
+  WorkoutProfileContextValue | undefined
+>(undefined);
 
 function messageFrom(error: unknown): string {
   if (error instanceof Error && error.message) return error.message;
@@ -44,7 +46,9 @@ export function WorkoutProfileProvider({ children }: PropsWithChildren) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setProfile(parseWorkoutProfile(user?.user_metadata?.[workoutProfileMetadataKey]));
+    setProfile(
+      parseWorkoutProfile(user?.user_metadata?.[workoutProfileMetadataKey]),
+    );
   }, [user]);
 
   const value = useMemo<WorkoutProfileContextValue>(
@@ -55,7 +59,9 @@ export function WorkoutProfileProvider({ children }: PropsWithChildren) {
       clearError: () => setError(null),
       saveProfile: async (draft) => {
         if (!supabase || !user) {
-          setError('A signed-in BioTrack account is required to save this profile.');
+          setError(
+            'A signed-in BioTrack account is required to save this profile.',
+          );
           return false;
         }
 
@@ -82,7 +88,8 @@ export function WorkoutProfileProvider({ children }: PropsWithChildren) {
           const savedProfile = parseWorkoutProfile(
             data.user.user_metadata?.[workoutProfileMetadataKey],
           );
-          if (!savedProfile) throw new Error('The saved profile could not be verified.');
+          if (!savedProfile)
+            throw new Error('The saved profile could not be verified.');
           setProfile(savedProfile);
           if (isFirstProfile) emitWorkoutProfileCompleted(savedProfile);
           return true;
@@ -107,7 +114,9 @@ export function WorkoutProfileProvider({ children }: PropsWithChildren) {
 export function useWorkoutProfile(): WorkoutProfileContextValue {
   const context = useContext(WorkoutProfileContext);
   if (!context) {
-    throw new Error('useWorkoutProfile must be used inside WorkoutProfileProvider.');
+    throw new Error(
+      'useWorkoutProfile must be used inside WorkoutProfileProvider.',
+    );
   }
   return context;
 }

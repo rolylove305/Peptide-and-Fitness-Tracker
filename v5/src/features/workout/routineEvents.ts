@@ -20,7 +20,12 @@ export function subscribeWorkoutRoutineSaved(
 
   const handler = (event: Event) => {
     const detail = (event as CustomEvent<WorkoutRoutineSavedDetail>).detail;
-    if (!detail || typeof detail.routineId !== 'string' || detail.routineId.length === 0) return;
+    if (
+      !detail ||
+      typeof detail.routineId !== 'string' ||
+      detail.routineId.length === 0
+    )
+      return;
     listener(detail);
   };
 

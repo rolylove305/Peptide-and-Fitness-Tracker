@@ -64,7 +64,8 @@ export function useRoutines(userId: string | undefined) {
 
   const remove = useCallback(
     async (routineId: string) => {
-      if (!userId) return { ok: false as const, error: 'No signed-in user was found.' };
+      if (!userId)
+        return { ok: false as const, error: 'No signed-in user was found.' };
       setDeletingId(routineId);
       setError(null);
       try {

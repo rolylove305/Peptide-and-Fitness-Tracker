@@ -75,7 +75,9 @@ export function AuthScreen() {
 
       const result = await signUp(name, email, password);
       if (result === 'confirmation-required') {
-        setNotice('Account created. Check your email to confirm it, then return here to sign in.');
+        setNotice(
+          'Account created. Check your email to confirm it, then return here to sign in.',
+        );
         setMode('login');
         setPassword('');
       }
@@ -103,19 +105,22 @@ export function AuthScreen() {
   if (status === 'misconfigured' || !supabaseConfiguration.isConfigured) {
     return (
       <main className="auth-shell">
-        <section className="auth-card auth-card--setup" aria-labelledby="setup-heading">
+        <section
+          className="auth-card auth-card--setup"
+          aria-labelledby="setup-heading"
+        >
           <p className="eyebrow">BioTrack AI V5</p>
           <h1 id="setup-heading">Connect the secure environment</h1>
           <p>
-            V5 is ready for authentication, but the local build needs the Supabase project URL and
-            publishable key.
+            V5 is ready for authentication, but the local build needs the
+            Supabase project URL and publishable key.
           </p>
           <div className="setup-steps">
             <code>cp .env.example .env.local</code>
             <p>
               Then fill in <strong>VITE_SUPABASE_URL</strong> and{' '}
-              <strong>VITE_SUPABASE_PUBLISHABLE_KEY</strong>. Never use a service-role or secret key
-              in this browser app.
+              <strong>VITE_SUPABASE_PUBLISHABLE_KEY</strong>. Never use a
+              service-role or secret key in this browser app.
             </p>
           </div>
         </section>
@@ -155,9 +160,15 @@ export function AuthScreen() {
         <p className="auth-intro">{intro}</p>
 
         {!isPasswordRecovery && mode !== 'reset-request' ? (
-          <div className="auth-tabs" role="tablist" aria-label="Authentication mode">
+          <div
+            className="auth-tabs"
+            role="tablist"
+            aria-label="Authentication mode"
+          >
             <button
-              className={mode === 'login' ? 'auth-tab auth-tab--active' : 'auth-tab'}
+              className={
+                mode === 'login' ? 'auth-tab auth-tab--active' : 'auth-tab'
+              }
               type="button"
               role="tab"
               aria-selected={mode === 'login'}
@@ -166,7 +177,9 @@ export function AuthScreen() {
               Sign in
             </button>
             <button
-              className={mode === 'signup' ? 'auth-tab auth-tab--active' : 'auth-tab'}
+              className={
+                mode === 'signup' ? 'auth-tab auth-tab--active' : 'auth-tab'
+              }
               type="button"
               role="tab"
               aria-selected={mode === 'signup'}
@@ -213,7 +226,9 @@ export function AuthScreen() {
               {isPasswordRecovery ? 'New password' : 'Password'}
               <input
                 autoComplete={
-                  isPasswordRecovery || mode === 'signup' ? 'new-password' : 'current-password'
+                  isPasswordRecovery || mode === 'signup'
+                    ? 'new-password'
+                    : 'current-password'
                 }
                 minLength={6}
                 required
@@ -275,7 +290,11 @@ export function AuthScreen() {
           </button>
 
           {!isPasswordRecovery && mode === 'reset-request' ? (
-            <button className="auth-link-button auth-link-button--center" type="button" onClick={() => changeMode('login')}>
+            <button
+              className="auth-link-button auth-link-button--center"
+              type="button"
+              onClick={() => changeMode('login')}
+            >
               Back to sign in
             </button>
           ) : null}
@@ -293,8 +312,8 @@ export function AuthScreen() {
         </form>
 
         <p className="auth-footnote">
-          BioTrack AI is an organization and fitness-tracking tool. It does not provide medical
-          diagnosis or prescriptions.
+          BioTrack AI is an organization and fitness-tracking tool. It does not
+          provide medical diagnosis or prescriptions.
         </p>
       </section>
     </main>

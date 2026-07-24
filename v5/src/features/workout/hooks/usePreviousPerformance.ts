@@ -8,11 +8,16 @@ export type PreviousPerformanceStatus = 'idle' | 'loading' | 'ready' | 'error';
 
 export function usePreviousPerformance(exerciseIds: string[]) {
   const key = useMemo(
-    () => Array.from(new Set(exerciseIds)).sort((a, b) => a.localeCompare(b)).join(','),
+    () =>
+      Array.from(new Set(exerciseIds))
+        .sort((a, b) => a.localeCompare(b))
+        .join(','),
     [exerciseIds],
   );
   const [status, setStatus] = useState<PreviousPerformanceStatus>('idle');
-  const [byExerciseId, setByExerciseId] = useState<Record<string, PreviousExercisePerformance>>({});
+  const [byExerciseId, setByExerciseId] = useState<
+    Record<string, PreviousExercisePerformance>
+  >({});
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,7 +45,12 @@ export function usePreviousPerformance(exerciseIds: string[]) {
       }
 
       setByExerciseId(
-        Object.fromEntries(result.data.map((performance) => [performance.exercise_id, performance])),
+        Object.fromEntries(
+          result.data.map((performance) => [
+            performance.exercise_id,
+            performance,
+          ]),
+        ),
       );
       setStatus('ready');
     }

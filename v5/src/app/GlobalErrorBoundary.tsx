@@ -30,7 +30,11 @@ export class GlobalErrorBoundary extends Component<
       error,
       componentStack: info.componentStack ?? null,
     });
-    console.error('BioTrack AI recovered from an unexpected render error.', error, info);
+    console.error(
+      'BioTrack AI recovered from an unexpected render error.',
+      error,
+      info,
+    );
   }
 
   private reload = (): void => {
@@ -52,17 +56,28 @@ export class GlobalErrorBoundary extends Component<
     if (!this.state.failed) return this.props.children;
 
     return (
-      <main className="global-error-shell" role="alert" aria-labelledby="global-error-heading">
+      <main
+        className="global-error-shell"
+        role="alert"
+        aria-labelledby="global-error-heading"
+      >
         <section className="global-error-card">
-          <div className="global-error-mark" aria-hidden="true">B</div>
+          <div className="global-error-mark" aria-hidden="true">
+            B
+          </div>
           <p className="eyebrow">Safe recovery</p>
           <h1 id="global-error-heading">BioTrack hit an unexpected problem</h1>
           <p>
-            Your account, active workout copy and pending offline sets remain stored separately from
-            the app files. Reload BioTrack first. Use repair only if the same screen returns.
+            Your account, active workout copy and pending offline sets remain
+            stored separately from the app files. Reload BioTrack first. Use
+            repair only if the same screen returns.
           </p>
           <div className="global-error-actions">
-            <button className="primary-button" type="button" onClick={this.reload}>
+            <button
+              className="primary-button"
+              type="button"
+              onClick={this.reload}
+            >
               Reload BioTrack
             </button>
             <button
@@ -71,12 +86,14 @@ export class GlobalErrorBoundary extends Component<
               disabled={this.state.repairing}
               onClick={() => void this.repairAndReload()}
             >
-              {this.state.repairing ? 'Repairing app files…' : 'Repair app files'}
+              {this.state.repairing
+                ? 'Repairing app files…'
+                : 'Repair app files'}
             </button>
           </div>
           <small>
-            Repair removes only BioTrack caches and the current service worker. It does not erase
-            local workout recovery data.
+            Repair removes only BioTrack caches and the current service worker.
+            It does not erase local workout recovery data.
           </small>
         </section>
       </main>

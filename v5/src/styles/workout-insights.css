@@ -51,7 +51,11 @@
 }
 
 .insights-segment--active {
-  background: linear-gradient(135deg, rgba(69, 200, 255, 0.22), rgba(72, 214, 165, 0.16));
+  background: linear-gradient(
+    135deg,
+    rgba(69, 200, 255, 0.22),
+    rgba(72, 214, 165, 0.16)
+  );
   color: #e0f7ff;
   box-shadow: inset 0 0 0 1px rgba(69, 200, 255, 0.22);
 }
@@ -68,7 +72,11 @@
   border: 1px solid rgba(147, 197, 253, 0.13);
   border-radius: 1.05rem;
   background:
-    radial-gradient(circle at 92% 10%, rgba(69, 200, 255, 0.08), transparent 8rem),
+    radial-gradient(
+      circle at 92% 10%,
+      rgba(69, 200, 255, 0.08),
+      transparent 8rem
+    ),
     linear-gradient(145deg, rgba(15, 34, 55, 0.94), rgba(7, 20, 34, 0.95));
 }
 
@@ -115,7 +123,11 @@
   overflow: hidden;
   padding-bottom: 0.8rem;
   background:
-    radial-gradient(circle at 88% 4%, rgba(72, 214, 165, 0.1), transparent 16rem),
+    radial-gradient(
+      circle at 88% 4%,
+      rgba(72, 214, 165, 0.1),
+      transparent 16rem
+    ),
     linear-gradient(145deg, rgba(13, 34, 53, 0.95), rgba(6, 19, 33, 0.96));
 }
 
@@ -272,7 +284,11 @@
 
 .insights-heatmap-day--3 {
   border-color: rgba(69, 200, 255, 0.5);
-  background: linear-gradient(135deg, rgba(72, 214, 165, 0.72), rgba(69, 200, 255, 0.58));
+  background: linear-gradient(
+    135deg,
+    rgba(72, 214, 165, 0.72),
+    rgba(69, 200, 255, 0.58)
+  );
 }
 
 .insights-heatmap-day--future {
@@ -432,7 +448,11 @@
   border: 1px solid rgba(72, 214, 165, 0.2);
   border-radius: 1.2rem;
   background:
-    radial-gradient(circle at 95% 5%, rgba(72, 214, 165, 0.1), transparent 12rem),
+    radial-gradient(
+      circle at 95% 5%,
+      rgba(72, 214, 165, 0.1),
+      transparent 12rem
+    ),
     linear-gradient(145deg, rgba(12, 42, 47, 0.82), rgba(6, 20, 33, 0.94));
 }
 
@@ -510,7 +530,12 @@
 .insights-skeleton {
   overflow: hidden;
   border-radius: 1.1rem;
-  background: linear-gradient(90deg, rgba(147, 197, 253, 0.05), rgba(147, 197, 253, 0.12), rgba(147, 197, 253, 0.05));
+  background: linear-gradient(
+    90deg,
+    rgba(147, 197, 253, 0.05),
+    rgba(147, 197, 253, 0.12),
+    rgba(147, 197, 253, 0.05)
+  );
   background-size: 220% 100%;
   animation: insights-skeleton-pulse 1.3s linear infinite;
 }
@@ -528,8 +553,12 @@
 }
 
 @keyframes insights-skeleton-pulse {
-  from { background-position: 100% 0; }
-  to { background-position: -120% 0; }
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
 }
 
 @media (min-width: 760px) {
