@@ -22,6 +22,7 @@ import {
   loadWorkoutHistory,
 } from '../repositories/workoutHistoryRepository';
 import { emitWorkoutCompleted } from '../workoutCompletionEvent';
+import { getWorkoutClosureBlocker } from '../workoutClosureGuards';
 import {
   applyPendingWorkoutSetWrites,
   cacheActiveWorkout,
@@ -405,26 +406,20 @@ export function useActiveWorkout(userId: string | undefined) {
   const finish = useCallback(async () => {
     if (!session)
       return { ok: false as const, error: 'No active workout was found.' };
-    if (!navigator.onLine) {
-      const result = {
-        ok: false as const,
-        error:
-          'Reconnect before finishing so every saved set reaches your history.',
-      };
-      setError(result.error);
-      return result;
-    }
-
     const pending = userId ? getWorkoutSyncState(userId).pendingCount : 0;
-    if (pending > 0) {
-      const result = {
-        ok: false as const,
-        error: `BioTrack is still syncing ${pending} saved ${pending === 1 ? 'set' : 'sets'}. Retry sync before finishing.`,
-      };
+    const blocker = getWorkoutClosureBlocker(
+      'finish',
+      navigator.onLine,
+      pending,
+    );
+    if (blocker) {
+      const result = { ok: false as const, error: blocker };
       setError(result.error);
-      requestAnimationFrame(() =>
-        window.scrollTo({ top: 0, behavior: 'smooth' }),
-      );
+      if (navigator.onLine) {
+        requestAnimationFrame(() =>
+          window.scrollTo({ top: 0, behavior: 'smooth' }),
+        );
+      }
       return result;
     }
 
@@ -468,21 +463,14 @@ export function useActiveWorkout(userId: string | undefined) {
   const cancel = useCallback(async () => {
     if (!session)
       return { ok: false as const, error: 'No active workout was found.' };
-    if (!navigator.onLine) {
-      const result = {
-        ok: false as const,
-        error: 'Reconnect before cancelling this workout.',
-      };
-      setError(result.error);
-      return result;
-    }
-
     const pending = userId ? getWorkoutSyncState(userId).pendingCount : 0;
-    if (pending > 0) {
-      const result = {
-        ok: false as const,
-        error: 'Sync or finish saving the pending sets before cancelling.',
-      };
+    const blocker = getWorkoutClosureBlocker(
+      'cancel',
+      navigator.onLine,
+      pending,
+    );
+    if (blocker) {
+      const result = { ok: false as const, error: blocker };
       setError(result.error);
       return result;
     }
