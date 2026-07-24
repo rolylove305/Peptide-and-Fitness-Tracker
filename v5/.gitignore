@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.production
+*.local
+tsconfig.tsbuildinfo
+public/exercise-media/generated/
