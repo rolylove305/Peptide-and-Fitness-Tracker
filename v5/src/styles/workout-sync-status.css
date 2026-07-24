@@ -1,0 +1,132 @@
+.workout-sync-status {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  margin: 0.8rem auto 0;
+  width: min(calc(100% - 2rem), 76rem);
+  padding: 0.8rem 0.9rem;
+  border: 1px solid rgba(72, 214, 165, 0.24);
+  border-radius: 1rem;
+  background: linear-gradient(
+    145deg,
+    rgba(10, 48, 43, 0.94),
+    rgba(5, 24, 34, 0.96)
+  );
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.2);
+  color: #dffcf1;
+}
+
+.workout-sync-status--offline {
+  border-color: rgba(255, 194, 92, 0.32);
+  background: linear-gradient(
+    145deg,
+    rgba(62, 42, 15, 0.96),
+    rgba(24, 25, 27, 0.98)
+  );
+  color: #fff0ca;
+}
+
+.workout-sync-status--error {
+  border-color: rgba(255, 126, 126, 0.34);
+  background: linear-gradient(
+    145deg,
+    rgba(67, 27, 31, 0.96),
+    rgba(27, 20, 27, 0.98)
+  );
+}
+
+.workout-sync-status-mark {
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  place-items: center;
+  border-radius: 0.78rem;
+  background: rgba(72, 214, 165, 0.13);
+  color: #a9efd3;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.workout-sync-status--offline .workout-sync-status-mark {
+  background: rgba(255, 194, 92, 0.13);
+  color: #ffd98c;
+}
+
+.workout-sync-status--error .workout-sync-status-mark {
+  background: rgba(255, 126, 126, 0.13);
+  color: #ffc0c0;
+}
+
+.workout-sync-status--syncing .workout-sync-status-mark {
+  animation: workout-sync-spin 1.1s linear infinite;
+}
+
+.workout-sync-status-copy {
+  min-width: 0;
+}
+
+.workout-sync-status-copy span,
+.workout-sync-status-copy strong {
+  display: block;
+}
+
+.workout-sync-status-copy span {
+  margin-bottom: 0.16rem;
+  color: #89cbb2;
+  font-size: 0.64rem;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.workout-sync-status--offline .workout-sync-status-copy span {
+  color: #d8b66e;
+}
+
+.workout-sync-status-copy strong {
+  font-size: 0.82rem;
+}
+
+.workout-sync-status-copy p {
+  margin: 0.2rem 0 0;
+  color: #91aa9f;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.workout-sync-status--offline .workout-sync-status-copy p,
+.workout-sync-status--error .workout-sync-status-copy p {
+  color: #c5b99e;
+}
+
+.workout-sync-status > button {
+  min-height: 2.4rem;
+  white-space: nowrap;
+}
+
+@keyframes workout-sync-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .workout-sync-status {
+    grid-template-columns: auto minmax(0, 1fr);
+    width: calc(100% - 1rem);
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .workout-sync-status > button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workout-sync-status--syncing .workout-sync-status-mark {
+    animation: none;
+  }
+}

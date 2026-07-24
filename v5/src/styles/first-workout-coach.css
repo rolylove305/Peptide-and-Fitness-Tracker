@@ -1,0 +1,292 @@
+.first-workout-coach {
+  position: sticky;
+  top: max(0.7rem, env(safe-area-inset-top));
+  z-index: 42;
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(72, 214, 165, 0.34);
+  border-radius: 1.2rem;
+  background:
+    radial-gradient(
+      circle at 8% 10%,
+      rgba(69, 200, 255, 0.14),
+      transparent 18rem
+    ),
+    radial-gradient(
+      circle at 92% 5%,
+      rgba(72, 214, 165, 0.12),
+      transparent 16rem
+    ),
+    linear-gradient(145deg, rgba(10, 31, 48, 0.985), rgba(4, 16, 29, 0.985));
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.34),
+    inset 0 0 0 1px rgba(72, 214, 165, 0.05);
+  backdrop-filter: blur(18px);
+}
+
+.first-workout-coach--collapsed {
+  gap: 0.5rem;
+  padding: 0.72rem 0.8rem;
+}
+
+.first-workout-coach-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.first-workout-coach-mark {
+  display: grid;
+  width: 2.6rem;
+  height: 2.6rem;
+  place-items: center;
+  border: 1px solid rgba(69, 200, 255, 0.24);
+  border-radius: 0.82rem;
+  background: linear-gradient(
+    145deg,
+    rgba(69, 200, 255, 0.16),
+    rgba(72, 214, 165, 0.13)
+  );
+  color: #c7f5ff;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+}
+
+.first-workout-coach-header > div:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  gap: 0.16rem;
+}
+
+.first-workout-coach-header span {
+  color: #8fc5b2;
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.first-workout-coach-header strong {
+  overflow: hidden;
+  color: #e7fff6;
+  font-size: 0.94rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.first-workout-coach-header-actions {
+  display: flex;
+  gap: 0.42rem;
+}
+
+.first-workout-coach-header-actions button {
+  min-height: 2.2rem;
+  padding: 0.42rem 0.62rem;
+  border: 1px solid rgba(147, 197, 253, 0.14);
+  border-radius: 0.68rem;
+  background: rgba(7, 21, 35, 0.74);
+  color: #b9cedb;
+  font-size: 0.65rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.first-workout-coach-header-actions button:last-child {
+  color: #91aa9f;
+}
+
+.first-workout-coach-progress {
+  height: 0.3rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(147, 197, 253, 0.1);
+}
+
+.first-workout-coach-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #45c8ff, #48d6a5);
+  transition: width 220ms ease;
+}
+
+.first-workout-coach-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(15rem, 0.75fr);
+  gap: 0.85rem;
+}
+
+.first-workout-coach-current,
+.first-workout-coach-checklist {
+  border: 1px solid rgba(147, 197, 253, 0.1);
+  border-radius: 0.95rem;
+  background: rgba(3, 14, 25, 0.56);
+}
+
+.first-workout-coach-current {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  padding: 0.82rem;
+}
+
+.first-workout-coach-current p {
+  margin: 0;
+  color: #a9bfcc;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.first-workout-coach-current .primary-button {
+  width: fit-content;
+  min-height: 2.65rem;
+  padding-inline: 0.9rem;
+}
+
+.first-workout-coach-session-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+}
+
+.first-workout-coach-session-status span {
+  padding: 0.32rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(69, 200, 255, 0.09);
+  color: #bde9f8;
+  font-size: 0.64rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.first-workout-coach-checklist {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.55rem;
+  list-style: none;
+}
+
+.first-workout-coach-checklist li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: center;
+  min-height: 2.35rem;
+  padding: 0.42rem 0.48rem;
+  border-radius: 0.7rem;
+  color: #8197a5;
+}
+
+.first-workout-coach-checklist li > span {
+  display: grid;
+  width: 1.55rem;
+  height: 1.55rem;
+  place-items: center;
+  border: 1px solid rgba(147, 197, 253, 0.14);
+  border-radius: 50%;
+  background: rgba(7, 20, 33, 0.72);
+  color: #8097a7;
+  font-size: 0.62rem;
+  letter-spacing: 0;
+}
+
+.first-workout-coach-checklist li strong {
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.first-workout-coach-checklist .first-workout-coach-step--active {
+  background: rgba(69, 200, 255, 0.09);
+  color: #d3f3ff;
+}
+
+.first-workout-coach-checklist .first-workout-coach-step--active > span {
+  border-color: rgba(69, 200, 255, 0.42);
+  color: #c5efff;
+}
+
+.first-workout-coach-checklist .first-workout-coach-step--done {
+  color: #a8e6ce;
+}
+
+.first-workout-coach-checklist .first-workout-coach-step--done > span {
+  border-color: rgba(72, 214, 165, 0.36);
+  background: rgba(72, 214, 165, 0.12);
+  color: #baf4dd;
+}
+
+.first-workout-coach-note {
+  grid-column: 1 / -1;
+  margin: -0.2rem 0 0;
+  color: #718999;
+  font-size: 0.65rem;
+  text-align: right;
+}
+
+@media (max-width: 760px) {
+  .first-workout-coach {
+    position: relative;
+    top: auto;
+  }
+
+  .first-workout-coach-header {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .first-workout-coach-header-actions {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .first-workout-coach-header-actions button {
+    width: 100%;
+  }
+
+  .first-workout-coach-body {
+    grid-template-columns: 1fr;
+  }
+
+  .first-workout-coach-current .primary-button {
+    width: 100%;
+  }
+
+  .first-workout-coach-note {
+    text-align: left;
+  }
+}
+
+@media (max-width: 380px) {
+  .first-workout-coach {
+    padding: 0.75rem;
+  }
+
+  .first-workout-coach-header strong {
+    font-size: 0.84rem;
+  }
+
+  .first-workout-coach-session-status {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .first-workout-coach-session-status span {
+    padding-inline: 0.25rem;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .first-workout-coach {
+    backdrop-filter: none;
+  }
+
+  .first-workout-coach-progress span {
+    transition: none;
+  }
+}
