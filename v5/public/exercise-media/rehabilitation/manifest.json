@@ -1,0 +1,63 @@
+{
+  "asset_pack": "rehabilitation-2026-10",
+  "rights_status": "generated",
+  "generator": "imagegen",
+  "width": 800,
+  "height": 450,
+  "exercises": [
+    {
+      "slug": "shoulder-pendulum",
+      "title": "Shoulder Pendulum",
+      "path": "shoulder-pendulum/hero.jpg",
+      "prompt": "person leaning forward, left hand on stable table, right arm hanging straight down completely relaxed. Two views show slight forward and backward movement of hanging arm driven by gentle body sway, small arc."
+    },
+    {
+      "slug": "cross-body-shoulder-stretch",
+      "title": "Cross-Body Shoulder Stretch",
+      "path": "cross-body-shoulder-stretch/hero.jpg",
+      "prompt": "standing man brings right arm horizontally across chest, left hand supports right upper arm above elbow, gently holding stretch, shoulders down."
+    },
+    {
+      "slug": "scapular-setting",
+      "title": "Scapular Setting",
+      "path": "scapular-setting/hero.jpg",
+      "prompt": "back view of standing man with arms relaxed by sides; left panel relaxed shoulder blades, right panel gently draws shoulder blades slightly down and back, no exaggerated squeeze, no shrug. Subtle arrows indicate down and inward."
+    },
+    {
+      "slug": "wall-slide",
+      "title": "Wall Slide",
+      "path": "wall-slide/hero.jpg",
+      "prompt": "side three-quarter view man facing a wall, both forearms supported on wall. Left at lower comfortable height, right forearms slid upward to just below overhead, ribs neutral, shoulders relaxed."
+    },
+    {
+      "slug": "band-external-rotation",
+      "title": "Band External Rotation",
+      "path": "band-external-rotation/hero.jpg",
+      "prompt": "front view man with RIGHT elbow bent 90 degrees and pinned to right ribs using small towel. Elastic band anchored at waist height to LEFT of man across his body. Left panel right forearm points forward toward camera, right panel right forearm rotated outward toward man's right, elbow stays at ribs. Band visibly stretches from left anchor to right hand. Upper arm never lifts."
+    },
+    {
+      "slug": "band-internal-rotation",
+      "title": "Band Internal Rotation",
+      "path": "band-internal-rotation/hero.jpg",
+      "prompt": "front view man with RIGHT elbow bent 90 degrees and pinned to right ribs using small towel. Elastic band anchored at waist height to RIGHT of man outside his right side. Left panel right forearm rotated outward toward anchor, right panel right forearm rotated inward across abdomen toward midline, elbow stays pinned, band visibly stretched from right anchor to hand. Upper arm never lifts."
+    },
+    {
+      "slug": "band-standing-row",
+      "title": "Band Standing Row",
+      "path": "band-standing-row/hero.jpg",
+      "prompt": "side view man standing facing band anchor at chest height. Left panel arms extended forward holding two ends, right panel elbows drawn backward alongside torso and hands near lower ribs. Band taut both views, torso stays upright, no shrug."
+    },
+    {
+      "slug": "side-lying-external-rotation",
+      "title": "Side-Lying External Rotation",
+      "path": "side-lying-external-rotation/hero.jpg",
+      "prompt": "man lying on LEFT side on padded bench, RIGHT upper arm resting against right ribs, RIGHT elbow bent 90 degrees with small towel underneath. Left panel right forearm resting across abdomen, right panel right forearm rotates upward with hand toward ceiling and elbow fixed to ribs. No dumbbell, body stays on left side."
+    },
+    {
+      "slug": "prone-horizontal-abduction",
+      "title": "Prone Horizontal Abduction",
+      "path": "prone-horizontal-abduction/hero.jpg",
+      "prompt": "man lying face down on elevated flat padded bench, chest supported. LEFT panel right arm hanging down vertically beside bench; RIGHT panel right straight arm raised outward to side only up to torso level in T position, thumb pointing upward. Camera elevated three-quarter angle makes outward arm clearly visible. No weight. Shoulder kept down."
+    }
+  ]
+}
