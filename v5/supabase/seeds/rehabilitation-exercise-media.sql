@@ -1,11 +1,11 @@
--- Apply after the rehabilitation JPEGs are available in the production deployment.
+-- Images are pinned to the asset commit so they are available independently of frontend deployments.
 -- Add media only to exercises that do not already have an active image.
 insert into public.exercise_media_assets (
   exercise_id, media_kind, media_role, url, alt_text,
   width, height, is_primary, rights_status, metadata
 )
 select e.id, 'image', 'hero',
-  'https://app.biotrackai.online/exercise-media/rehabilitation/' || e.slug || '/hero.jpg',
+  'https://raw.githubusercontent.com/rolylove305/Peptide-and-Fitness-Tracker/12c8da5e394753df62383c97ca8b59ad2d32eb44/v5/public/exercise-media/rehabilitation/' || e.slug || '/hero.jpg',
   e.name || ' demonstration: starting position and controlled movement',
   800, 450, true, 'generated',
   jsonb_build_object('asset_pack', 'rehabilitation-2026-10', 'generator', 'imagegen')
@@ -25,4 +25,3 @@ where e.is_active and not exists (
   select 1 from public.exercise_media_assets existing
   where existing.exercise_id = e.id and existing.is_active
 );
-
