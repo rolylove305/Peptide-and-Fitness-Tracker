@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "GitHub.copilot",
+    "Supabase.vscode-supabase-extension",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "usernamehw.errorlens",
+    "eamodio.gitlens"
+  ]
+}

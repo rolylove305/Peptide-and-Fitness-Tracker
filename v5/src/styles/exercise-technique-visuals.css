@@ -1,0 +1,538 @@
+.exercise-library-visual-stack,
+.live-training-stack {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.visual-demo-gallery {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 4vw, 1.4rem);
+  border: 1px solid rgba(69, 200, 255, 0.2);
+  border-radius: 1.35rem;
+  background:
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(72, 214, 165, 0.12),
+      transparent 18rem
+    ),
+    linear-gradient(145deg, rgba(15, 38, 59, 0.96), rgba(6, 20, 34, 0.97));
+  box-shadow: var(--shadow);
+}
+
+.visual-demo-gallery-heading {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.visual-demo-gallery-heading h2 {
+  margin: 0.16rem 0 0.32rem;
+}
+
+.visual-demo-gallery-heading p:last-child {
+  max-width: 46rem;
+  margin: 0;
+}
+
+.visual-demo-gallery-heading > span {
+  flex: 0 0 auto;
+  padding: 0.48rem 0.7rem;
+  border: 1px solid rgba(72, 214, 165, 0.2);
+  border-radius: 999px;
+  background: rgba(72, 214, 165, 0.08);
+  color: #aeeed7;
+  font-size: 0.68rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.visual-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.visual-demo-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(147, 197, 253, 0.13);
+  border-radius: 1rem;
+  background: rgba(4, 16, 29, 0.72);
+}
+
+.visual-demo-card > button:first-child {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.visual-demo-card > div:last-child {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.8rem;
+}
+
+.visual-demo-card > div:last-child > span {
+  color: #70d9ff;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.visual-demo-card h3 {
+  margin: 0;
+  overflow: hidden;
+  color: #edf9ff;
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.visual-demo-card p {
+  display: -webkit-box;
+  min-height: 2.35rem;
+  margin: 0;
+  overflow: hidden;
+  color: #91aabc;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.visual-demo-card .exercise-guide-button {
+  margin-top: 0.2rem;
+}
+
+.visual-demo-toggle {
+  justify-self: center;
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid rgba(69, 200, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(69, 200, 255, 0.08);
+  color: #ccefff;
+  font-size: 0.75rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.visual-demo-skeleton-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.visual-demo-skeleton-row span {
+  min-height: 13rem;
+  border-radius: 1rem;
+  background: linear-gradient(
+    100deg,
+    rgba(147, 197, 253, 0.06),
+    rgba(147, 197, 253, 0.13),
+    rgba(147, 197, 253, 0.06)
+  );
+  background-size: 200% 100%;
+  animation: technique-skeleton-pulse 1.25s linear infinite;
+}
+
+.built-in-technique {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  background: linear-gradient(
+    145deg,
+    rgba(11, 31, 49, 0.98),
+    rgba(4, 16, 29, 0.98)
+  );
+  color: #dff7ff;
+}
+
+.built-in-technique svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 640 / 290;
+}
+
+.built-in-technique--expanded {
+  border: 1px solid rgba(69, 200, 255, 0.16);
+  border-radius: 1.15rem;
+}
+
+.technique-frame {
+  stroke: rgba(147, 197, 253, 0.15);
+  stroke-width: 2;
+}
+
+.technique-panel {
+  fill: rgba(2, 12, 22, 0.48);
+  stroke: rgba(147, 197, 253, 0.1);
+  stroke-width: 2;
+}
+
+.technique-phase-label {
+  fill: #91dfff;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.technique-skeleton {
+  color: #e5f8ff;
+  filter: drop-shadow(0 5px 12px rgba(0, 0, 0, 0.24));
+}
+
+.technique-equipment {
+  fill: #48d6a5;
+  stroke: #b6f5df;
+  stroke-width: 2;
+}
+
+.technique-equipment-line,
+.technique-cable,
+.technique-machine,
+.technique-floor {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.technique-equipment-line,
+.technique-machine {
+  stroke: #54728a;
+  stroke-width: 7;
+}
+
+.technique-cable {
+  stroke: #69d3ff;
+  stroke-width: 3;
+  stroke-dasharray: 7 6;
+}
+
+.technique-floor {
+  stroke: rgba(147, 197, 253, 0.2);
+  stroke-width: 4;
+}
+
+.technique-motion-arrow {
+  fill: none;
+  stroke: #48d6a5;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 6 7;
+}
+
+.technique-arrow-head {
+  fill: #48d6a5;
+}
+
+.technique-cue-grid {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  border-top: 1px solid rgba(147, 197, 253, 0.11);
+}
+
+.technique-cue-grid article {
+  padding: 0.72rem;
+  border: 1px solid rgba(69, 200, 255, 0.12);
+  border-radius: 0.8rem;
+  background: rgba(69, 200, 255, 0.05);
+}
+
+.technique-cue-grid span {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: #79d9ff;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.technique-cue-grid p {
+  margin: 0;
+  color: #c4d9e6;
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.technique-cue-grid .technique-cue--avoid {
+  border-color: rgba(255, 186, 152, 0.14);
+  background: rgba(255, 138, 89, 0.05);
+}
+
+.technique-cue--avoid span {
+  color: #ffc2a6;
+}
+
+.active-technique-dock {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid rgba(72, 214, 165, 0.2);
+  border-radius: 1.2rem;
+  background:
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(72, 214, 165, 0.12),
+      transparent 16rem
+    ),
+    linear-gradient(145deg, rgba(13, 39, 51, 0.96), rgba(5, 20, 31, 0.98));
+  box-shadow: var(--shadow);
+}
+
+.active-technique-dock-copy h3 {
+  margin: 0.18rem 0 0.32rem;
+}
+
+.active-technique-dock-copy p {
+  margin: 0;
+  color: #a8c0cf;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.active-technique-dock-preview {
+  overflow: hidden;
+  border: 1px solid rgba(147, 197, 253, 0.12);
+  border-radius: 1rem;
+}
+
+.active-technique-dock-actions {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.active-technique-dock-actions label {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.active-technique-dock-actions label > span {
+  color: #8da8ba;
+  font-size: 0.65rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.active-technique-dock-actions select {
+  width: 100%;
+  min-height: 2.8rem;
+  padding: 0.65rem 0.72rem;
+  border: 1px solid rgba(147, 197, 253, 0.17);
+  border-radius: 0.8rem;
+  background: rgba(3, 15, 26, 0.86);
+  color: #e4f6ff;
+}
+
+.active-technique-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 96;
+  display: grid;
+  align-items: end;
+  background: rgba(0, 7, 13, 0.82);
+  backdrop-filter: blur(12px);
+}
+
+.active-technique-sheet {
+  width: min(100%, 52rem);
+  max-height: 94dvh;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(69, 200, 255, 0.2);
+  border-bottom: 0;
+  border-radius: 1.45rem 1.45rem 0 0;
+  background: linear-gradient(
+    160deg,
+    rgba(14, 36, 55, 0.995),
+    rgba(4, 15, 27, 0.998)
+  );
+  box-shadow: 0 -28px 80px rgba(0, 0, 0, 0.45);
+}
+
+.active-technique-sheet > header {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1rem max(1rem, env(safe-area-inset-right)) 0.85rem
+    max(1rem, env(safe-area-inset-left));
+  border-bottom: 1px solid rgba(147, 197, 253, 0.11);
+}
+
+.active-technique-sheet > header p {
+  margin: 0 0 0.18rem;
+  color: #69d3ff;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.active-technique-sheet > header h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 6vw, 1.85rem);
+}
+
+.active-technique-sheet > header button {
+  display: grid;
+  width: 2.6rem;
+  height: 2.6rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(147, 197, 253, 0.16);
+  border-radius: 50%;
+  background: rgba(3, 15, 26, 0.78);
+  color: #e5f7ff;
+  font-size: 1.45rem;
+  cursor: pointer;
+}
+
+.active-technique-scroll {
+  display: grid;
+  gap: 1rem;
+  max-height: calc(94dvh - 5rem);
+  overflow-y: auto;
+  padding: 1rem max(1rem, env(safe-area-inset-right))
+    max(1.25rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+  overscroll-behavior: contain;
+}
+
+.active-technique-scroll > section,
+.active-technique-scroll > aside {
+  padding: 0.9rem;
+  border: 1px solid rgba(147, 197, 253, 0.12);
+  border-radius: 1rem;
+  background: rgba(5, 19, 32, 0.7);
+}
+
+.active-technique-scroll ol {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.active-technique-scroll li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+}
+
+.active-technique-scroll li > span {
+  display: grid;
+  width: 1.85rem;
+  height: 1.85rem;
+  place-items: center;
+  border-radius: 0.58rem;
+  background: rgba(69, 200, 255, 0.11);
+  color: #a9e8ff;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.active-technique-scroll li p,
+.active-technique-scroll aside p {
+  margin: 0;
+  color: #b7cddb;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.active-technique-scroll aside {
+  border-color: rgba(72, 214, 165, 0.16);
+  background: rgba(72, 214, 165, 0.06);
+}
+
+.active-technique-scroll aside strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: #b8f2dc;
+}
+
+@keyframes technique-skeleton-pulse {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (min-width: 720px) {
+  .visual-demo-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .technique-cue-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .active-technique-dock {
+    grid-template-columns: minmax(0, 0.85fr) minmax(18rem, 1.15fr);
+    align-items: center;
+  }
+
+  .active-technique-dock-actions {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .active-technique-backdrop {
+    align-items: center;
+    padding: 1.5rem;
+  }
+
+  .active-technique-sheet {
+    border-bottom: 1px solid rgba(69, 200, 255, 0.2);
+    border-radius: 1.45rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .visual-demo-gallery-heading {
+    display: grid;
+  }
+
+  .visual-demo-gallery-heading > span {
+    justify-self: start;
+  }
+
+  .visual-demo-card p {
+    display: none;
+  }
+
+  .visual-demo-card > div:last-child {
+    padding: 0.68rem;
+  }
+
+  .visual-demo-card .exercise-guide-button {
+    min-height: 2.45rem;
+    font-size: 0.68rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .visual-demo-skeleton-row span {
+    animation: none;
+  }
+
+  .active-technique-backdrop {
+    backdrop-filter: none;
+  }
+}

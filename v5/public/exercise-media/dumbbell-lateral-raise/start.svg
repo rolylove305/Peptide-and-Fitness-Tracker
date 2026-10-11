@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-hidden="true">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#0d1c2f"/><stop offset="1" stop-color="#050c16"/>
+</linearGradient>
+<linearGradient id="body" gradientUnits="userSpaceOnUse" x1="0" y1="60" x2="0" y2="410">
+<stop offset="0" stop-color="#ecf6fd"/><stop offset="1" stop-color="#8cadc6"/>
+</linearGradient>
+<linearGradient id="steel" gradientUnits="userSpaceOnUse" x1="0" y1="60" x2="0" y2="400">
+<stop offset="0" stop-color="#42597b"/><stop offset="1" stop-color="#24364e"/>
+</linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#3ccfff" stop-opacity="0.14"/><stop offset="1" stop-color="#3ccfff" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="glowGreen" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#35d9a4" stop-opacity="0.1"/><stop offset="1" stop-color="#35d9a4" stop-opacity="0"/>
+</radialGradient>
+</defs>
+<rect width="800" height="450" fill="url(#bg)"/>
+<ellipse cx="660" cy="60" rx="260" ry="150" fill="url(#glowGreen)"/>
+<ellipse cx="400" cy="230" rx="360" ry="245" fill="url(#glow)"/>
+<line x1="56" y1="402" x2="744" y2="402" stroke="#1b2e46" stroke-width="3" stroke-linecap="round"/>
+<ellipse cx="400" cy="406" rx="130" ry="12" fill="#01060d" opacity="0.6"/>
+<path d="M386 258 L380 322" fill="none" stroke="url(#body)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/><path d="M380 322 L376 388" fill="none" stroke="url(#body)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M376 388 L360 394" fill="none" stroke="url(#body)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M414 258 L420 322" fill="none" stroke="url(#body)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/><path d="M420 322 L424 388" fill="none" stroke="url(#body)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M424 388 L440 394" fill="none" stroke="url(#body)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M400 172 L400 256" fill="none" stroke="url(#body)" stroke-width="64" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M400 172 L400 118" fill="none" stroke="url(#body)" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="400" cy="118" r="21" fill="url(#body)"/>
+<path d="M376 176 L360 228" fill="none" stroke="url(#body)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/><path d="M360 228 L350 276" fill="none" stroke="url(#body)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="350" cy="276" r="9" fill="url(#body)"/>
+<path d="M424 176 L440 228" fill="none" stroke="url(#body)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/><path d="M440 228 L450 276" fill="none" stroke="url(#body)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="450" cy="276" r="9" fill="url(#body)"/><circle cx="346" cy="292" r="13" fill="url(#steel)"/>
+<circle cx="346" cy="292" r="5" fill="#1d2f44"/>
+<path d="M337.55 284.85 A11.049999999999999 11.049999999999999 0 0 1 354.45 284.85" fill="none" stroke="#3ccfff" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+<circle cx="454" cy="292" r="13" fill="url(#steel)"/>
+<circle cx="454" cy="292" r="5" fill="#1d2f44"/>
+<path d="M445.55 284.85 A11.049999999999999 11.049999999999999 0 0 1 462.45 284.85" fill="none" stroke="#3ccfff" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+</svg>
