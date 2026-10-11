@@ -1,0 +1,320 @@
+.progression-coach {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 3vw, 1.4rem);
+  border: 1px solid rgba(69, 200, 255, 0.2);
+  border-radius: 1.35rem;
+  background:
+    radial-gradient(
+      circle at 88% 5%,
+      rgba(72, 214, 165, 0.13),
+      transparent 26%
+    ),
+    radial-gradient(circle at 8% 4%, rgba(69, 200, 255, 0.14), transparent 30%),
+    linear-gradient(145deg, rgba(14, 34, 55, 0.98), rgba(6, 19, 33, 0.96));
+  box-shadow: var(--shadow);
+}
+
+.progression-coach--state,
+.progression-coach--empty {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.progression-coach--state strong,
+.progression-coach--state span {
+  display: block;
+}
+
+.progression-coach--state span {
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.progression-coach--empty h2 {
+  margin: 0.15rem 0 0.35rem;
+}
+
+.progression-coach--empty p:last-child {
+  margin: 0;
+}
+
+.progression-coach-header,
+.progression-coach-title,
+.progression-priority-heading,
+.progression-priority-badges,
+.progression-coach-footer {
+  display: flex;
+  gap: 0.85rem;
+}
+
+.progression-coach-header {
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.progression-coach-title {
+  align-items: flex-start;
+}
+
+.progression-coach-title h2 {
+  margin: 0.12rem 0 0.35rem;
+}
+
+.progression-coach-title p:last-child {
+  max-width: 48rem;
+  margin: 0;
+}
+
+.progression-coach-mark {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(69, 200, 255, 0.25);
+  border-radius: 0.9rem;
+  background: linear-gradient(
+    145deg,
+    rgba(69, 200, 255, 0.16),
+    rgba(72, 214, 165, 0.1)
+  );
+  color: #c8f3ff;
+  font-size: 0.76rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.progression-coach-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.progression-coach-metrics article {
+  padding: 0.8rem;
+  border: 1px solid rgba(147, 197, 253, 0.12);
+  border-radius: 0.95rem;
+  background: rgba(3, 13, 24, 0.58);
+}
+
+.progression-coach-metrics span,
+.progression-coach-metrics strong {
+  display: block;
+}
+
+.progression-coach-metrics span {
+  color: #88a2b5;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.progression-coach-metrics strong {
+  margin-top: 0.28rem;
+  color: #ecf9ff;
+  font-size: 1.4rem;
+}
+
+.progression-priority-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.progression-priority-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.85rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(147, 197, 253, 0.13);
+  border-radius: 1rem;
+  background: rgba(4, 15, 27, 0.72);
+}
+
+.progression-priority-card--ready {
+  border-color: rgba(72, 214, 165, 0.28);
+  background: linear-gradient(
+    135deg,
+    rgba(72, 214, 165, 0.09),
+    rgba(4, 15, 27, 0.78)
+  );
+}
+
+.progression-priority-card--recover {
+  border-color: rgba(255, 180, 122, 0.26);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 180, 122, 0.08),
+    rgba(4, 15, 27, 0.78)
+  );
+}
+
+.progression-priority-card--learn {
+  border-color: rgba(147, 197, 253, 0.18);
+}
+
+.progression-readiness-score {
+  display: grid;
+  width: 3.8rem;
+  height: 3.8rem;
+  place-items: center;
+  align-content: center;
+  border: 1px solid rgba(147, 197, 253, 0.17);
+  border-radius: 1rem;
+  background: rgba(5, 18, 31, 0.88);
+}
+
+.progression-readiness-score strong,
+.progression-readiness-score span {
+  line-height: 1;
+}
+
+.progression-readiness-score strong {
+  color: #e9f8ff;
+  font-size: 1.12rem;
+}
+
+.progression-readiness-score span {
+  margin-top: 0.12rem;
+  color: #7f9aae;
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+.progression-priority-content {
+  min-width: 0;
+}
+
+.progression-priority-heading {
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.progression-priority-heading > div:first-child > span {
+  color: #75a6bc;
+  font-size: 0.7rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.progression-priority-heading h3 {
+  margin: 0.16rem 0 0;
+  font-size: 1rem;
+}
+
+.progression-priority-badges {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.progression-priority-badges span {
+  padding: 0.3rem 0.48rem;
+  border-radius: 999px;
+  background: rgba(69, 200, 255, 0.09);
+  color: #b8e9fb;
+  font-size: 0.62rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.progression-next-target {
+  display: grid;
+  gap: 0.18rem;
+  margin-top: 0.7rem;
+  padding: 0.7rem;
+  border-radius: 0.8rem;
+  background: rgba(69, 200, 255, 0.07);
+}
+
+.progression-next-target span {
+  color: #7f9eb0;
+  font-size: 0.64rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.progression-next-target strong {
+  color: #d8f5ff;
+  font-size: 0.82rem;
+}
+
+.progression-priority-content ul {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.7rem 0 0;
+  padding-left: 1rem;
+  color: #9fb5c5;
+  font-size: 0.73rem;
+}
+
+.progression-coach-footer {
+  align-items: flex-start;
+  padding-top: 0.25rem;
+  color: #8fa8b9;
+  font-size: 0.72rem;
+}
+
+.progression-coach-footer strong {
+  color: #c8e8f5;
+  white-space: nowrap;
+}
+
+@media (min-width: 700px) {
+  .progression-coach-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .progression-priority-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .progression-priority-card {
+    grid-template-columns: 1fr;
+  }
+
+  .progression-readiness-score {
+    width: 100%;
+    height: auto;
+    min-height: 3.5rem;
+    grid-auto-flow: column;
+    justify-content: start;
+    gap: 0.2rem;
+    padding: 0.7rem;
+  }
+
+  .progression-priority-heading {
+    display: grid;
+  }
+
+  .progression-priority-badges {
+    justify-content: flex-start;
+    margin-top: 0.45rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .progression-coach-header {
+    flex-direction: column;
+  }
+
+  .progression-coach-header .secondary-button {
+    width: 100%;
+  }
+
+  .progression-priority-heading {
+    display: grid;
+  }
+
+  .progression-priority-badges {
+    justify-content: flex-start;
+    margin-top: 0.4rem;
+  }
+
+  .progression-coach-footer {
+    display: grid;
+  }
+}

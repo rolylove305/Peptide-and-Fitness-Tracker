@@ -1,0 +1,6 @@
+dist
+node_modules
+public/sw.js
+public/exercise-media
+src/features/workout/*.b64
+src/features/workout/*Manifest.json

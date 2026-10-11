@@ -1,0 +1,98 @@
+[
+  {
+    "slug": "barbell-back-squat",
+    "alts": {
+      "hero": "Athlete silhouette performing a controlled barbell back squat inside a rack",
+      "start": "Barbell back squat start position: standing tall with the bar secured across the upper back",
+      "finish": "Barbell back squat finish position: hips lowered with knees tracking over the feet"
+    }
+  },
+  {
+    "slug": "conventional-deadlift",
+    "alts": {
+      "hero": "Athlete silhouette lifting a loaded barbell from the floor in a conventional deadlift",
+      "start": "Conventional deadlift start position: hips hinged with the bar over the middle of the feet",
+      "finish": "Conventional deadlift finish position: standing tall with the bar held close to the thighs"
+    }
+  },
+  {
+    "slug": "barbell-bench-press",
+    "alts": {
+      "hero": "Athlete silhouette pressing a barbell upward while lying securely on a flat bench",
+      "start": "Barbell bench press start position: bar lowered under control toward the middle of the chest",
+      "finish": "Barbell bench press finish position: arms extended with the bar stacked above the shoulders"
+    }
+  },
+  {
+    "slug": "overhead-press",
+    "alts": {
+      "hero": "Athlete silhouette pressing a barbell overhead while maintaining a braced upright torso",
+      "start": "Overhead press start position: bar held near shoulder height with the torso braced",
+      "finish": "Overhead press finish position: arms extended overhead with the bar balanced above the body"
+    }
+  },
+  {
+    "slug": "rear-delt-fly",
+    "alts": {
+      "hero": "Athlete silhouette opening dumbbells outward in a supported rear delt fly",
+      "start": "Rear delt fly start position: torso hinged with dumbbells hanging below the shoulders",
+      "finish": "Rear delt fly finish position: arms opened to the sides with a soft elbow bend"
+    }
+  },
+  {
+    "slug": "pull-up",
+    "alts": {
+      "hero": "Athlete silhouette pulling the chest upward toward a horizontal pull-up bar",
+      "start": "Pull-up start position: controlled full hang with arms extended and shoulders engaged",
+      "finish": "Pull-up finish position: elbows driven down with the chin above the bar"
+    }
+  },
+  {
+    "slug": "barbell-bent-over-row",
+    "alts": {
+      "hero": "Athlete silhouette rowing a barbell toward the lower ribs from a stable hip hinge",
+      "start": "Barbell bent-over row start position: torso hinged with arms extended and bar below the shoulders",
+      "finish": "Barbell bent-over row finish position: bar pulled toward the lower ribs without changing torso angle"
+    }
+  },
+  {
+    "slug": "back-extension",
+    "alts": {
+      "hero": "Athlete silhouette hinging at the hips on a back extension bench",
+      "start": "Back extension start position: torso lowered from the hips while the legs remain supported",
+      "finish": "Back extension finish position: body returned to a straight line without overextending the spine"
+    }
+  },
+  {
+    "slug": "forearm-plank",
+    "alts": {
+      "hero": "Athlete silhouette holding a straight-body forearm plank with elbows beneath the shoulders",
+      "start": "Forearm plank setup position: knees supported while the elbows are placed under the shoulders",
+      "finish": "Forearm plank working position: legs extended with shoulders hips and heels in one line"
+    }
+  },
+  {
+    "slug": "hanging-knee-raise",
+    "alts": {
+      "hero": "Athlete silhouette raising the knees toward the torso while hanging from a pull-up bar",
+      "start": "Hanging knee raise start position: secure controlled hang with legs extended below the body",
+      "finish": "Hanging knee raise finish position: knees lifted toward the torso without swinging"
+    }
+  },
+  {
+    "slug": "incline-treadmill-walk",
+    "alts": {
+      "hero": "Athlete silhouette walking upright on an inclined treadmill with a relaxed arm swing",
+      "start": "Incline treadmill walk first stride: one foot forward with the torso upright on the rising belt",
+      "finish": "Incline treadmill walk next stride: opposite foot forward while maintaining steady posture"
+    }
+  },
+  {
+    "slug": "stationary-bike",
+    "alts": {
+      "hero": "Athlete silhouette pedaling smoothly on a stationary exercise bike",
+      "start": "Stationary bike first pedal position: one knee flexed with the opposite leg pressing downward",
+      "finish": "Stationary bike opposite pedal position: legs exchanged while the torso remains controlled"
+    }
+  }
+]

@@ -1,0 +1,122 @@
+[
+  {
+    "slug": "walking-lunge",
+    "alts": {
+      "hero": "Athlete silhouette stepping through a walking lunge while holding dumbbells",
+      "start": "Walking lunge start position: standing tall with dumbbells held beside the body",
+      "finish": "Walking lunge finish position: both knees bent with the front heel planted"
+    }
+  },
+  {
+    "slug": "glute-bridge",
+    "alts": {
+      "hero": "Athlete silhouette lifting the hips into a controlled glute bridge",
+      "start": "Glute bridge start position: lying on the back with knees bent and hips near the floor",
+      "finish": "Glute bridge finish position: hips raised until the trunk and thighs form a straight line"
+    }
+  },
+  {
+    "slug": "barbell-hip-thrust",
+    "alts": {
+      "hero": "Athlete silhouette driving a barbell upward in a hip thrust against a bench",
+      "start": "Barbell hip thrust start position: upper back on the bench with hips lowered",
+      "finish": "Barbell hip thrust finish position: hips fully raised with the barbell over the pelvis"
+    }
+  },
+  {
+    "slug": "dead-bug",
+    "alts": {
+      "hero": "Athlete silhouette performing a dead bug with opposite arm and leg extending",
+      "start": "Dead bug start position: lying on the back with arms raised and hips and knees bent",
+      "finish": "Dead bug finish position: one arm and the opposite leg extended while the back stays supported"
+    }
+  },
+  {
+    "slug": "seated-leg-curl",
+    "alts": {
+      "hero": "Athlete silhouette curling the lower legs downward on a seated leg curl machine",
+      "start": "Seated leg curl start position: seated with the legs extended against the machine pad",
+      "finish": "Seated leg curl finish position: heels drawn down and back with knees flexed"
+    }
+  },
+  {
+    "slug": "leg-extension",
+    "alts": {
+      "hero": "Athlete silhouette extending the knees on a leg extension machine",
+      "start": "Leg extension start position: seated with knees bent and shins behind the machine pad",
+      "finish": "Leg extension finish position: legs extended forward with the quadriceps contracted"
+    }
+  },
+  {
+    "slug": "standing-calf-raise",
+    "alts": {
+      "hero": "Athlete silhouette rising onto the toes during a standing calf raise",
+      "start": "Standing calf raise start position: heels lowered with the balls of the feet supported",
+      "finish": "Standing calf raise finish position: heels raised as high as control allows"
+    }
+  },
+  {
+    "slug": "cable-chest-fly",
+    "alts": {
+      "hero": "Athlete silhouette bringing cable handles together in a chest fly",
+      "start": "Cable chest fly start position: standing between the towers with the arms open",
+      "finish": "Cable chest fly finish position: hands brought together in front of the chest"
+    }
+  },
+  {
+    "slug": "face-pull",
+    "alts": {
+      "hero": "Athlete silhouette pulling a rope attachment toward the face",
+      "start": "Face pull start position: arms extended toward a cable set near face height",
+      "finish": "Face pull finish position: rope pulled toward the face with the hands separated"
+    }
+  },
+  {
+    "slug": "triceps-pushdown",
+    "alts": {
+      "hero": "Athlete silhouette pressing a cable rope downward with the elbows held close",
+      "start": "Triceps pushdown start position: elbows bent with the rope near the upper abdomen",
+      "finish": "Triceps pushdown finish position: elbows extended with the rope pressed toward the thighs"
+    }
+  },
+  {
+    "slug": "overhead-triceps-extension",
+    "alts": {
+      "hero": "Athlete silhouette controlling a dumbbell through an overhead triceps extension",
+      "start": "Overhead triceps extension start position: arms extended with the dumbbell above the head",
+      "finish": "Overhead triceps extension finish position: elbows bent with the dumbbell lowered behind the head"
+    }
+  },
+  {
+    "slug": "hammer-curl",
+    "alts": {
+      "hero": "Athlete silhouette curling dumbbells with a neutral hammer grip",
+      "start": "Hammer curl start position: standing with the dumbbells beside the thighs and palms facing inward",
+      "finish": "Hammer curl finish position: dumbbells curled upward while the elbows remain close to the torso"
+    }
+  },
+  {
+    "slug": "barbell-curl",
+    "alts": {
+      "hero": "Athlete silhouette curling a barbell upward without swinging the torso",
+      "start": "Barbell curl start position: standing with the bar held near the thighs and arms extended",
+      "finish": "Barbell curl finish position: bar raised toward the chest with elbows kept near the sides"
+    }
+  },
+  {
+    "slug": "cable-crunch",
+    "alts": {
+      "hero": "Athlete silhouette curling the trunk downward during a kneeling cable crunch",
+      "start": "Cable crunch start position: kneeling upright with the rope held beside the head",
+      "finish": "Cable crunch finish position: ribcage curled toward the pelvis while the hips stay controlled"
+    }
+  },
+  {
+    "slug": "single-arm-dumbbell-row",
+    "alts": {
+      "hero": "Athlete silhouette rowing a dumbbell toward the hip while supported on a bench",
+      "start": "Single-arm dumbbell row start position: supported on a bench with the working arm extended",
+      "finish": "Single-arm dumbbell row finish position: dumbbell pulled toward the hip without rotating the torso"
+    }
+  }
+]

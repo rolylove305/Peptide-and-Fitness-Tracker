@@ -1,0 +1,311 @@
+.live-workout-header {
+  position: relative;
+  overflow: hidden;
+}
+
+.live-workout-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.live-workout-metrics > div {
+  min-width: 0;
+}
+
+.live-workout-progress {
+  grid-column: 1 / -1;
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(147, 197, 253, 0.1);
+}
+
+.live-workout-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #45c8ff, #48d6a5);
+  transition: width 220ms ease;
+}
+
+.next-set-cue {
+  grid-column: 1 / -1;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid rgba(69, 200, 255, 0.2);
+  border-radius: 0.9rem;
+  background: rgba(69, 200, 255, 0.07);
+  color: #e6f7ff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.next-set-cue span {
+  color: #91bed2;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.next-set-cue strong {
+  color: #dff6ff;
+  font-size: 0.86rem;
+  text-align: right;
+}
+
+.next-set-cue--complete {
+  border-color: rgba(72, 214, 165, 0.26);
+  background: rgba(72, 214, 165, 0.08);
+  cursor: default;
+}
+
+.live-set {
+  display: block;
+  padding: 0.9rem;
+  scroll-margin-block: 8rem;
+}
+
+.live-set-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.live-set-number {
+  display: flex;
+  width: auto;
+  height: auto;
+  min-width: 4.1rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.48rem 0.65rem;
+  border-radius: 0.75rem;
+}
+
+.live-set-number span,
+.live-set-number strong {
+  line-height: 1;
+}
+
+.live-set-status {
+  display: grid;
+  min-width: 0;
+  justify-items: end;
+  gap: 0.18rem;
+  text-align: right;
+}
+
+.live-set-status small {
+  overflow: hidden;
+  max-width: 15rem;
+  color: #a7bfd2;
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.set-prefill-source,
+.set-ready-label {
+  color: #9fdfff;
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.live-set .set-complete-mark {
+  grid-column: auto;
+  color: #88e8c6;
+}
+
+.live-set-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.live-set-field--rpe {
+  grid-column: 1 / -1;
+}
+
+.live-number-control {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  border-radius: 0.75rem;
+  background: rgba(4, 15, 27, 0.84);
+}
+
+.live-number-control:focus-within {
+  border-color: rgba(69, 200, 255, 0.68);
+  box-shadow: 0 0 0 0.18rem rgba(69, 200, 255, 0.08);
+}
+
+.live-number-control button {
+  min-width: 2.65rem;
+  border: 0;
+  background: rgba(69, 200, 255, 0.1);
+  color: #c8efff;
+  font-size: 0.78rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.live-number-control button:active {
+  background: rgba(69, 200, 255, 0.2);
+}
+
+.live-number-control input,
+.live-set-field--rpe input {
+  min-height: 3rem;
+}
+
+.live-number-control input {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-align: center;
+}
+
+.live-number-control input:focus {
+  border: 0;
+  box-shadow: none;
+}
+
+.live-set .complete-set-button {
+  width: 100%;
+  min-height: 3rem;
+  margin-top: 0.75rem;
+  border-color: rgba(72, 214, 165, 0.4);
+  background: linear-gradient(
+    135deg,
+    rgba(72, 214, 165, 0.2),
+    rgba(69, 200, 255, 0.14)
+  );
+  color: #b7f8e1;
+}
+
+.live-set--complete .complete-set-button {
+  border-color: rgba(147, 197, 253, 0.2);
+  background: rgba(147, 197, 253, 0.07);
+  color: #c6d9e8;
+}
+
+.live-set .live-set-error {
+  margin-top: 0.65rem;
+}
+
+.rest-timer-copy {
+  min-width: 8rem;
+  flex: 1;
+}
+
+.rest-timer-progress {
+  width: 100%;
+  height: 0.3rem;
+  margin-top: 0.45rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(147, 197, 253, 0.12);
+}
+
+.rest-timer-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #45c8ff, #48d6a5);
+  transition: width 250ms linear;
+}
+
+.rest-timer--done {
+  animation: rest-ready-pulse 1.1s ease-in-out 2;
+}
+
+@keyframes rest-ready-pulse {
+  0%,
+  100% {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 0 0.25rem rgba(72, 214, 165, 0.13),
+      0 20px 60px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@media (min-width: 700px) {
+  .live-workout-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .live-set-fields {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .live-set-field--rpe {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .live-workout-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .live-workout-metrics > div {
+    padding: 0.65rem 0.45rem;
+    text-align: center;
+  }
+
+  .live-workout-metrics strong {
+    font-size: 1.02rem;
+  }
+
+  .next-set-cue {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .next-set-cue strong {
+    text-align: left;
+  }
+
+  .live-set-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .live-set-field--rpe {
+    grid-column: auto;
+  }
+
+  .live-set-status small {
+    max-width: 10rem;
+  }
+
+  .live-number-control button {
+    min-width: 3rem;
+    min-height: 3.2rem;
+  }
+
+  .rest-timer {
+    gap: 0.75rem;
+  }
+
+  .rest-timer-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .rest-timer-actions button {
+    min-width: 0;
+    padding-inline: 0.45rem;
+  }
+}
